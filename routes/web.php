@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\HomeController;
 
+Route::get('test', function () {
+    return view('welcome'); 
+});
+
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
