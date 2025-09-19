@@ -47,4 +47,21 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function recommendations()
+    {
+        return $this->belongsToMany(Recommendation::class, 'user_recommendations', 'user_id', 'recommendation_id')
+                    ->withTimestamps();
+    }
+
+    public function news()
+    {
+        return $this->belongsToMany(News::class, 'user_news', 'user_id', 'new_id')
+                    ->withTimestamps();
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(Log::class);
+    }
 }
