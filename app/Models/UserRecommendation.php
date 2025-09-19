@@ -2,27 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class UserRecommendation extends Model
 {
-    //use HasFactory;
+    use HasFactory;
 
     protected $table = 'user_recommendations';
 
     protected $fillable = [
         'user_id',
-        'recommendation_id',
+        'recommendation_type_id',
     ];
 
-    // 🔗 Relaciones
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function recommendation()
+    public function recommendationType()
     {
-        return $this->belongsTo(Recommendation::class);
+        return $this->belongsTo(RecommendationType::class, 'recommendation_type_id');
     }
 }

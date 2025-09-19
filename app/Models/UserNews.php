@@ -7,22 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserNews extends Model
 {
-    use HasFactory;
-
     protected $table = 'user_news';
 
     protected $fillable = [
         'user_id',
-        'new_id',
+        'news_type_id',
     ];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function news()
+    public function newsType()
     {
-        return $this->belongsTo(News::class, 'new_id');
+        return $this->belongsTo(NewsType::class, 'news_type_id');
     }
 }

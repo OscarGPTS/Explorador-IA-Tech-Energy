@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('news_type', function (Blueprint $table) {
+        Schema::create('news_type', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
             $table->string('description', 255)->nullable();
@@ -24,20 +24,20 @@ return new class extends Migration
             $table->string('description', 255)->nullable();
             $table->longText('content')->nullable();
             $table->string('image', 255)->nullable();
-            $table->unsignedBigInteger('new_type_id');
+            $table->unsignedBigInteger('news_type_id'); // renombrado para consistencia
             $table->timestamps();
 
-            $table->foreign('new_type_id')->references('id')->on('news_type')->onDelete('cascade');
+            $table->foreign('news_type_id')->references('id')->on('news_type')->onDelete('cascade');
         });
-        
+
         Schema::create('user_news', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('new_id');
+            $table->unsignedBigInteger('news_type_id'); // se vincula al tipo de noticia
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('new_id')->references('id')->on('news')->onDelete('cascade');
+            $table->foreign('news_type_id')->references('id')->on('news_type')->onDelete('cascade');
         });
 
     }

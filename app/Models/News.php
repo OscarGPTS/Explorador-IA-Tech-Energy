@@ -7,25 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class News extends Model
 {
-     use HasFactory;
+   use HasFactory;
+
+    protected $table = 'news';
 
     protected $fillable = [
         'title',
         'description',
         'content',
         'image',
-        'new_type_id',
+        'news_type_id',
     ];
-
 
     public function type()
     {
-        return $this->belongsTo(NewsType::class, 'new_type_id');
+        return $this->belongsTo(NewsType::class, 'news_type_id');
     }
 
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'user_news', 'new_id', 'user_id')
-                    ->withTimestamps();
-    }
 }

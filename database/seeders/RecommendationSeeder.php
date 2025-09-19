@@ -11,7 +11,7 @@ class RecommendationSeeder extends Seeder
 {
     public function run()
     {
-        $now = Carbon::now();
+        $now = \Carbon\Carbon::now();
 
         $gruposRoles = [
             'Administración y Finanzas' => ['Recursos Humanos', 'Finanzas', 'Compras', 'Administración'],
@@ -25,7 +25,6 @@ class RecommendationSeeder extends Seeder
 
         foreach ($gruposRoles as $area => $subAreas) {
 
-            // Crear tipo de recomendación por área
             $typeId = DB::table('recommendations_type')->insertGetId([
                 'name' => $area,
                 'description' => "Recomendaciones para el área de $area",
@@ -34,27 +33,24 @@ class RecommendationSeeder extends Seeder
             ]);
 
             foreach ($subAreas as $subArea) {
-                // Crear recomendación por subárea
-                $recommendationId = DB::table('recommendations')->insertGetId([
+                DB::table('recommendations')->insert([
                     'title' => "Recomendación para $subArea",
                     'description' => "Consejo útil y guía para el área de $subArea",
                     'content' => "Contenido detallado de la recomendación para $subArea...",
-                    'image' => null, // puedes colocar una URL si quieres
+                    'image' => null, 
                     'recommendation_type_id' => $typeId,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ]);
-
-                // Asignar la recomendación al usuario con id = 2
-                DB::table('user_recommendations')->insert([
-                    'user_id' => 2,
-                    'recommendation_id' => $recommendationId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
             }
-        }
 
-        $this->command->info('Seeder de recomendaciones completado');
+            // Asignar el tipo de recomendación al usuario con id = 2
+            DB::table('user_recommendations')->insert([
+                'user_id' => 2,
+                'recommendation_type_id' => $typeId,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
     }
 }

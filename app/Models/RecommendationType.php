@@ -16,9 +16,14 @@ class RecommendationType extends Model
         'description',
     ];
 
-    // 🔗 Relaciones
     public function recommendations()
     {
         return $this->hasMany(Recommendation::class, 'recommendation_type_id');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_recommendations', 'recommendation_type_id', 'user_id')
+                    ->withTimestamps();
     }
 }

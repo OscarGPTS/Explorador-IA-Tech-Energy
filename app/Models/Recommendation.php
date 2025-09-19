@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Recommendation extends Model
 {
-     use HasFactory;
+    use HasFactory;
+
+    protected $table = 'recommendations';
 
     protected $fillable = [
         'title',
@@ -17,15 +19,8 @@ class Recommendation extends Model
         'recommendation_type_id',
     ];
 
-    // 🔗 Relaciones
     public function type()
     {
         return $this->belongsTo(RecommendationType::class, 'recommendation_type_id');
-    }
-
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'user_recommendations', 'recommendation_id', 'user_id')
-                    ->withTimestamps();
     }
 }

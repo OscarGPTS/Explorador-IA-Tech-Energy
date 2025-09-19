@@ -48,20 +48,21 @@ class User extends Authenticatable
         ];
     }
 
-    public function recommendations()
+
+    public function newsTypes()
     {
-        return $this->belongsToMany(Recommendation::class, 'user_recommendations', 'user_id', 'recommendation_id')
+        return $this->belongsToMany(NewsType::class, 'user_news', 'user_id', 'news_type_id')
                     ->withTimestamps();
     }
-
-    public function news()
-    {
-        return $this->belongsToMany(News::class, 'user_news', 'user_id', 'new_id')
-                    ->withTimestamps();
-    }
-
+    
     public function logs()
     {
         return $this->hasMany(Log::class);
+    }
+
+    public function recommendationTypes()
+    {
+        return $this->belongsToMany(RecommendationType::class, 'user_recommendations', 'user_id', 'recommendation_type_id')
+                    ->withTimestamps();
     }
 }
