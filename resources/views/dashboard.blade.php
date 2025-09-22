@@ -18,10 +18,12 @@
             <p class="text-white font-semibold mt-4">Buscador Inteligente</p>
           </div>
 
-          <div class="bg-[#2F5249] rounded-lg flex flex-col items-center justify-center p-6" style="min-height: 200px">
-            <img src="{{  asset('storage/img/recomendaciones.png') }}" alt="buscador" style="max-width: 50%; max-height: 200px; object-fit:contain;" class="p-4">
-            <p class="text-white font-semibold mt-4">Recomendaciones</p>
-          </div>
+          <a href="{{ route('recommendations.index') }}">
+            <div class="bg-[#2F5249] rounded-lg flex flex-col items-center justify-center p-6" style="min-height: 200px">
+              <img src="{{  asset('storage/img/recomendaciones.png') }}" alt="buscador" style="max-width: 50%; max-height: 200px; object-fit:contain;" class="p-4">
+              <p class="text-white font-semibold mt-4">Recomendaciones</p>
+            </div>
+          </a> 
 
           <div class="bg-[#2F5249] rounded-lg flex flex-col items-center justify-center p-6" style="min-height: 200px">
             <img src="{{  asset('storage/img/noticias.png') }}" alt="buscador" style="max-width: 50%; max-height: 200px; object-fit:contain;" class="p-4">

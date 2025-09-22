@@ -21,7 +21,7 @@
             </div>
                
             <section class="main">
-                <div class="card p-4 bg-white rounded shadow">
+                <div class="card p-4 bg-white rounded">
                     @yield('content')
                 </div>
             </section>
