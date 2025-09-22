@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\RecommendationsController;
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -20,6 +21,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/recommendations', [RecommendationsController::class, 'index'])->name('recommendations.index');
     Route::post('/recommendations', [RecommendationsController::class, 'updatePreferences'])->name('recommendations.updatePreferences');
+
+    Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+    Route::post('/news', [NewsController::class, 'updatePreferences'])->name('news.updatePreferences');
+
 });
 
 require __DIR__.'/auth.php';
