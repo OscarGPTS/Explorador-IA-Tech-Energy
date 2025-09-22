@@ -19,7 +19,7 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('/recommendations', [RecommendationsController::class, 'index'])->name('recommendations.index');
-
+    Route::post('/recommendations', [RecommendationsController::class, 'updatePreferences'])->name('recommendations.updatePreferences');
 });
 
 require __DIR__.'/auth.php';
