@@ -19,7 +19,7 @@ class NewsType extends Model
     // 🔗 Relaciones
     public function news()
     {
-        return $this->hasMany(News::class, 'new_type_id');
+        return $this->hasMany(News::class, 'news_type_id');
     }
 
 }

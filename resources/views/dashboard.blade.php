@@ -25,10 +25,13 @@
             </div>
           </a> 
 
-          <div class="bg-[#2F5249] rounded-lg flex flex-col items-center justify-center p-6" style="min-height: 200px">
-            <img src="{{  asset('storage/img/noticias.png') }}" alt="buscador" style="max-width: 50%; max-height: 200px; object-fit:contain;" class="p-4">
-            <p class="text-white font-semibold mt-4">Noticias</p>
-          </div>
+          <a href="{{ route('news.index') }}">
+            <div class="bg-[#2F5249] rounded-lg flex flex-col items-center justify-center p-6" style="min-height: 200px">
+              <img src="{{  asset('storage/img/noticias.png') }}" alt="buscador" style="max-width: 50%; max-height: 200px; object-fit:contain;" class="p-4">
+              <p class="text-white font-semibold mt-4">Noticias</p>
+            </div>
+          </a>
+          
 
           <div class="bg-[#2F5249] rounded-lg flex flex-col items-center justify-center p-6" style="min-height: 200px">
             <p class="text-white font-semibold mt-4">Proximamente</p>
