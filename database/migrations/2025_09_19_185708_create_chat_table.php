@@ -14,8 +14,11 @@ return new class extends Migration
 
         Schema::create('chatgroup', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
             $table->string('name', 255);
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
 
         Schema::create('chats', function (Blueprint $table) {
@@ -30,7 +33,6 @@ return new class extends Migration
             $table->foreign('chatgroup_id')->references('id')->on('chatgroup')->onDelete('cascade');
         });
 
-
         Schema::create('file', function (Blueprint $table) {
             $table->id();
             $table->string('type', 40);
@@ -40,7 +42,6 @@ return new class extends Migration
 
             $table->foreign('chat_id')->references('id')->on('chats')->onDelete('cascade');
         });
-
 
         Schema::create('user_chat', function (Blueprint $table) {
             $table->id();
@@ -53,10 +54,9 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('chat_id')->references('id')->on('chats')->onDelete('cascade');
             $table->foreign('chatgroup_id')->references('id')->on('chatgroup')->onDelete('cascade');
-            
+
         });
 
-      
     }
 
     /**
