@@ -26,7 +26,7 @@ class AiService
         ])->toArray();
 
         $payload = [
-            'model' => 'gpt-5',
+            'model' => 'gpt-5-mini',
             'messages' => $chatMessages,
             'max_tokens' => 500,
         ];

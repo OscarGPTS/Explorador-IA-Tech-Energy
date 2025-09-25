@@ -23,8 +23,8 @@ return new class extends Migration
 
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
-            $table->string('message', 255)->nullable();
-            $table->unsignedBigInteger('emisor_id');
+            $table->text('message')->nullable(); // Cambiado de string(255) a text para soportar respuestas largas de IA
+            $table->unsignedBigInteger('emisor_id')->nullable(); // Permitir null para mensajes de IA
             $table->unsignedBigInteger('receiver');
             $table->unsignedBigInteger('chatgroup_id')->nullable();
             $table->timestamps();

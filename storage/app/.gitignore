@@ -1,3 +1,4 @@
-
+/storage/app/public/chat-documents/
+/storage/app/public/chat-images/
 !private/
 !.gitignore

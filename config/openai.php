@@ -47,5 +47,4 @@ return [
 
     'request_timeout' => env('OPENAI_REQUEST_TIMEOUT', 30),
     'connect_timeout' => 30,
-    'verify_ssl' => false, 
 ];
