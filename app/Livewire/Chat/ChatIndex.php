@@ -378,6 +378,7 @@ class ChatIndex extends Component
 
     public function sendMessage()
     {
+
         Log::info('Método sendMessage llamado', [
             'message' => $this->message,
             'images_count' => count($this->images ?? []),
@@ -417,7 +418,7 @@ class ChatIndex extends Component
         ]);
         
         if (empty($trimmedMessage) && empty($this->images) && empty($this->documents)) {
-            $this->errorMessage = 'Por favor, escribe un mensaje, selecciona una imagen o adjunta un documento antes de enviar.';
+           // $this->errorMessage = 'Por favor, escribe un mensaje, selecciona una imagen o adjunta un documento antes de enviar.';
             return;
         }
 
@@ -554,13 +555,27 @@ class ChatIndex extends Component
             $this->reset(['message', 'images', 'previewImages', 'documents', 'previewDocuments']);
             $this->loadMessages();
 
-            // Preparar mensajes para OpenAI
+            // Preparar mensajes para OpenAI con contexto personalizado
+            $userName = Auth::user()->name;
             $messages = [
                 [
                     'role' => 'system',
                     'content' => $hasImages 
-                        ? 'Eres un asistente de IA útil y amigable. Puedes analizar imágenes y responder preguntas sobre ellas. Responde de manera clara y concisa en español.'
-                        : 'Eres un asistente de IA útil y amigable. Responde de manera clara y concisa en español.'
+                        ? "Hola, soy tu asistente de inteligencia artificial especializado de la empresa y estoy aquí para ayudarte, {$userName}. 
+
+Puedo analizar imágenes, documentos y responder cualquier consulta que tengas de manera profesional y cordial. Mi objetivo es brindarte el mejor soporte posible para que puedas realizar tu trabajo de manera eficiente.
+
+Siempre me dirigiré a ti por tu nombre cuando sea apropiado, mantendré un tono profesional pero cercano, y me aseguraré de que te sientas cómodo/a consultando conmigo cualquier duda. 
+
+¿En qué puedo ayudarte hoy, {$userName}?"
+
+                        : "Hola, soy tu asistente de inteligencia artificial de la empresa y estoy aquí para apoyarte, {$userName}.
+
+Puedo ayudarte con consultas, análisis de documentos, resolver dudas técnicas, y cualquier otra tarea que necesites para tu trabajo. Mi enfoque es siempre profesional, eficiente y orientado a resultados.
+
+Me gusta mantener una conversación natural y cercana, pero siempre dentro del marco corporativo apropiado. No dudes en consultarme cualquier cosa que necesites.
+
+¿Cómo puedo asistirte el día de hoy, {$userName}?"
                 ]
             ];
 
@@ -699,8 +714,9 @@ class ChatIndex extends Component
                 'chatgroup_id' => $this->chatgroup_id,
             ]);
         }
-
+        $this->message = '';
         $this->isLoading = false;
+
         $this->loadMessages();
     }
 
@@ -709,8 +725,16 @@ class ChatIndex extends Component
         try {
             Log::info('Testeando conexión OpenAI con HTTP Client');
             
+            $userName = Auth::user()->name;
             $messages = [
-                ['role' => 'user', 'content' => 'Responde solo: "Test exitoso"']
+                [
+                    'role' => 'system', 
+                    'content' => "Soy tu asistente de IA corporativo. Respondo de manera profesional y cercana, dirigiéndome al usuario por su nombre cuando sea apropiado."
+                ],
+                [
+                    'role' => 'user', 
+                    'content' => 'Haz una prueba de conexión rápida'
+                ]
             ];
 
             // Probar con HTTP Client primero
@@ -724,7 +748,7 @@ class ChatIndex extends Component
                 
                 // Fallback con OpenAI package
                 $response = OpenAI::chat()->create([
-                    'model' => 'gpt-5-mini',
+                    'model' => 'gpt-3.5-turbo',
                     'messages' => $messages,
                     'max_tokens' => 10
                 ]);

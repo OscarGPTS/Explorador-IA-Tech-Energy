@@ -2,34 +2,38 @@
 <div>
     <div class="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Header -->
-    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+    <div class="fixed top-16 z-10 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Chat con IA</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Conversa con OpenAI GPT-3.5</p>
+                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Agente GPT Services</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Conversa con nuestro agente de IA</p>
             </div>
             <button 
                 wire:click="clearChat" 
-                class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
                 onclick="return confirm('¿Estás seguro de que quieres limpiar el chat?')"
             >
-                Limpiar Chat
+                <div class="flex">
+                   <svg fill="#FFFFFF"  width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/></svg>
+                   <p class="text-white ml-2">Limpiar Chat </p> 
+                </div>
+               
             </button>
         </div>
     </div>
 
     <!-- Messages Container -->
-    <div class="flex-1 overflow-y-auto p-6 space-y-4" id="messages-container">
+    <div class="flex-1 overflow-y-auto p-6 space-y-4 mt-20" id="messages-container">
         @forelse($messages as $msg)
             <div class="flex {{ $msg['emisor_id'] == auth()->id() ? 'justify-end' : 'justify-start' }}">
                 <div class="max-w-xs lg:max-w-md">
                     <!-- Nombre del emisor -->
                     <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 {{ $msg['emisor_id'] == auth()->id() ? 'text-right' : 'text-left' }}">
-                        {{ $msg['emisor_id'] == auth()->id() ? 'Tú' : 'IA Assistant' }}
+                        {{ $msg['emisor_id'] == auth()->id() ? 'Tú' : 'Agente GPT' }}
                     </div>
                     
                     <!-- Mensaje -->
-                    <div class="px-4 py-3 rounded-lg {{ $msg['emisor_id'] == auth()->id() ? 'bg-blue-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700' }}">
+                    <div class="px-4 py-3 rounded-lg {{ $msg['emisor_id'] == auth()->id() ? 'bg-[#FFECB0] text-black' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700' }}">
                         <!-- Imágenes del mensaje -->
                         @if(!empty($msg['files']) && count($msg['files']) > 0)
                             <div class="mb-3">
@@ -55,7 +59,7 @@
                                             </div>
                                         @else
                                             <!-- Documentos no-imagen -->
-                                            <div class="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                            <div class="flex items-center p-3 bg-[#F9BE00] text-black rounded-lg">
                                                 <!-- Icono según extensión del archivo -->
                                                 <div class="flex-shrink-0 mr-3">
                                                     @php
@@ -132,7 +136,7 @@
             <div class="flex justify-start">
                 <div class="max-w-xs lg:max-w-md">
                     <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        IA Assistant
+                        Agente GPT
                     </div>
                     <div class="px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                         <div class="flex items-center space-x-2">
@@ -301,6 +305,7 @@
             <div class="flex space-x-4">
                 <div class="flex-1">
                     <input 
+                        id="messageInput"
                         type="text" 
                         wire:model="message"
                         placeholder="Escribe tu mensaje o selecciona imágenes/documentos..."
@@ -316,15 +321,16 @@
                 </div>
                 <button 
                     type="submit" 
-                    class="px-6 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center min-w-[100px]"
+                    id="sumbitInputBtn"
+                    class="px-6 py-2 bg-[#FFDE72] hover:bg-[#FFD03A] disabled:bg-stone-200 rounded-full disabled:cursor-not-allowed text-black font-medium transition-colors flex items-center justify-center min-w-[120px]"
                     wire:loading.attr="disabled"
                     wire:target="sendMessage,images"
                 >
                     <div wire:loading.remove wire:target="sendMessage,images" class="flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                        </svg>
                         Enviar
+                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="ml-2">
+                            <path d="M11.5003 12H5.41872M5.24634 12.7972L4.24158 15.7986C3.69128 17.4424 3.41613 18.2643 3.61359 18.7704C3.78506 19.21 4.15335 19.5432 4.6078 19.6701C5.13111 19.8161 5.92151 19.4604 7.50231 18.7491L17.6367 14.1886C19.1797 13.4942 19.9512 13.1471 20.1896 12.6648C20.3968 12.2458 20.3968 11.7541 20.1896 11.3351C19.9512 10.8529 19.1797 10.5057 17.6367 9.81135L7.48483 5.24303C5.90879 4.53382 5.12078 4.17921 4.59799 4.32468C4.14397 4.45101 3.77572 4.78336 3.60365 5.22209C3.40551 5.72728 3.67772 6.54741 4.22215 8.18767L5.24829 11.2793C5.34179 11.561 5.38855 11.7019 5.407 11.8459C5.42338 11.9738 5.42321 12.1032 5.40651 12.231C5.38768 12.375 5.34057 12.5157 5.24634 12.7972Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </div>
                     <div wire:loading wire:target="sendMessage" class="flex items-center">
                         <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -430,6 +436,31 @@
             closeImageModal();
         }
     });
+
+    // Limpiar y enfocar input después de enviar mensaje
+    Livewire.on('messageSent', () => {
+    const input = document.getElementById('messageInput');
+    if (input) {
+        input.value = '';  
+        input.focus();    
+    }
+    });
+
+    const input = document.getElementById('messageInput');
+
+    const form = input.closest('form');
+    form.addEventListener('submit', () => {
+        setTimeout(() => {
+            input.value = ''; 
+            input.focus();   
+        }, 50); 
+    });
+
+    Livewire.hook('message.sent', () => {
+        input.value = '';
+        input.focus();
+    });
+
 </script>
 @endscript
 </div>
