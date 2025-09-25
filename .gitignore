@@ -19,5 +19,9 @@
 /storage/pail
 /vendor
 Homestead.json
+/storage/app/public/chat-images/
+/storage/app/public/chat-documents/
+/public/storage/chat-images/
+/public/storage/chat-documents/
 Homestead.yaml
 Thumbs.db

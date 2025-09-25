@@ -5,13 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ChatGroup extends Model
+class Chatgroup extends Model
 {
     use HasFactory;
 
     protected $table = 'chatgroup';
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'user_id',
+        'name'
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function chats()
     {
@@ -21,7 +29,6 @@ class ChatGroup extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_chat', 'chatgroup_id', 'user_id')
-                    ->withPivot('chat_id')
                     ->withTimestamps();
     }
 }

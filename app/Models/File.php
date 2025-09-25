@@ -9,26 +9,56 @@ class File extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_chat';
+    protected $table = 'file';
 
     protected $fillable = [
-        'user_id',
-        'chat_id',
-        'chatgroup_id',
+        'type',
+        'name',
+        'path',
+        'mime_type',
+        'size',
+        'chat_id'
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
+    protected $casts = [
+        'size' => 'integer',
+    ];
 
     public function chat()
     {
         return $this->belongsTo(Chat::class, 'chat_id');
     }
 
-    public function chatGroup()
+    public function getUrlAttribute()
     {
-        return $this->belongsTo(ChatGroup::class, 'chatgroup_id');
+        if ($this->path) {
+            return asset('storage/' . $this->path);
+        }
+        return null;
+    }
+
+    public function isImage()
+    {
+        return in_array($this->mime_type, [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'image/svg+xml'
+        ]);
+    }
+
+    public function getFormattedSizeAttribute()
+    {
+        if (!$this->size) return '0 B';
+        
+        $bytes = $this->size;
+        $units = ['B', 'KB', 'MB', 'GB'];
+        
+        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+        
+        return round($bytes, 2) . ' ' . $units[$i];
     }
 }

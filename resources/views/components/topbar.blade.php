@@ -11,7 +11,48 @@
       </div>
       <div class="flex items-center">
         
-          <!-- Apps -->
+        
+
+          <!-- Perfil -->
+          <div class="flex items-center ml-3">
+            <div class="flex items-center space-x-3">
+              <p class="text-sm font-semibold"> {{ auth()->user()->name }}</p>
+
+              <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button-2" aria-expanded="false" data-dropdown-toggle="dropdown-2">
+                <span class="sr-only">Open user menu</span>
+                <img class="w-8 h-8 rounded-full" src="{{ isset(auth()->user()->google_image)?auth()->user()->google_image: ""  }}" alt="user photo">
+              </button>
+            </div>
+            <!-- Dropdown menu -->
+            <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-2">
+              <div class="px-4 py-3" role="none">
+                <p class="text-sm text-gray-900 dark:text-white" role="none">
+                  {{ auth()->user()->name }}
+                </p>
+                <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
+                  {{ auth()->user()->email }}
+                </p>
+              </div>
+              <ul class="py-1" role="none">
+                <li>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Mi cuenta</a>
+                </li>
+                <li>
+                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Configuración</a>
+                </li>
+
+                <li>
+                  <button data-modal-target="logout-modal" data-modal-toggle="logout-modal" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 
+                                dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" type="button">
+                    Cerrar sesión
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+
+            <!-- Apps -->
           <button type="button" data-dropdown-toggle="apps-dropdown" class="hidden p-2 text-gray-500 rounded-lg sm:flex hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700">
             <span class="sr-only">View notifications</span>
             <!-- Icon -->
@@ -24,7 +65,7 @@
             </div>
             <div class="grid grid-cols-3 gap-4 p-4">
 
-              <a href="{{ route('dashboard') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+              <a href="{{ route('chat.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
                 
                 <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M14.9536 14.9458L21 21M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -101,43 +142,6 @@
               </a>
             </div>
           </div>
-
-          <!-- Perfil -->
-          <div class="flex items-center ml-3">
-            <div>
-              <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button-2" aria-expanded="false" data-dropdown-toggle="dropdown-2">
-                <span class="sr-only">Open user menu</span>
-                <img class="w-8 h-8 rounded-full" src="{{ isset(auth()->user()->google_image)?auth()->user()->google_image: ""  }}" alt="user photo">
-              </button>
-            </div>
-            <!-- Dropdown menu -->
-            <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-2">
-              <div class="px-4 py-3" role="none">
-                <p class="text-sm text-gray-900 dark:text-white" role="none">
-                  {{ auth()->user()->name }}
-                </p>
-                <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                  {{ auth()->user()->email }}
-                </p>
-              </div>
-              <ul class="py-1" role="none">
-                <li>
-                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Mi cuenta</a>
-                </li>
-                <li>
-                  <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Configuración</a>
-                </li>
-
-                <li>
-                  <button data-modal-target="logout-modal" data-modal-toggle="logout-modal" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 
-                                dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" type="button">
-                    Cerrar sesión
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-
 
           <div id="logout-modal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
             <div class="relative p-4 w-full max-w-md max-h-full">

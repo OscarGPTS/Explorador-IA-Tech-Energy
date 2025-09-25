@@ -11,6 +11,8 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
+
 
     </head>
     <body class="font-sans antialiased">
@@ -29,6 +31,7 @@
         </div> 
         
         <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+        @livewireScripts
 
     </body>
 </html>

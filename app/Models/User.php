@@ -66,4 +66,26 @@ class User extends Authenticatable
         return $this->belongsToMany(RecommendationType::class, 'user_recommendations', 'user_id', 'recommendation_type_id')
                     ->withTimestamps();
     }
+
+    public function chatgroups()
+    {
+        return $this->hasMany(Chatgroup::class);
+    }
+
+    public function sentChats()
+    {
+        return $this->hasMany(Chat::class, 'emisor_id');
+    }
+
+    public function receivedChats()
+    {
+        return $this->hasMany(Chat::class, 'receiver');
+    }
+
+    public function chats()
+    {
+        return $this->belongsToMany(Chat::class, 'user_chat', 'user_id', 'chat_id')
+                    ->withPivot('chatgroup_id')
+                    ->withTimestamps();
+    }
 }

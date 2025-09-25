@@ -23,9 +23,14 @@ class Chat extends Model
         return $this->belongsTo(User::class, 'emisor_id');
     }
 
-    public function chatGroup()
+    public function receiverUser()
     {
-        return $this->belongsTo(ChatGroup::class, 'chatgroup_id');
+        return $this->belongsTo(User::class, 'receiver');
+    }
+
+    public function chatgroup()
+    {
+        return $this->belongsTo(Chatgroup::class, 'chatgroup_id');
     }
 
     public function files()
