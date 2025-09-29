@@ -63,6 +63,7 @@
                                     @if(in_array($id, $userNewsIds)) checked @endif>
                                 <label for="checkbox-{{ $id }}" 
                                        class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{ $name }}</label>
+
                             </div>
                         @endforeach
 
@@ -98,6 +99,7 @@
                         data-tabs-target="#content-{{ $category->id }}" 
                         type="button" role="tab" aria-controls="content-{{ $category->id }}" aria-selected="false">
                         {{ $category->category }}
+                        {{ count($category->news) > 0 ? ' (' . count($category->news) . ')' : '' }}
                     </button>
                 </li>
             @endforeach
@@ -110,6 +112,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     @foreach ($category->news as $item)
                         <div class="flex flex-col h-full p-4 border rounded-lg bg-white">
+                            <img class="w-full object-cover rounded-md" src="{{ $item->image_url != null ? $item->image_url : '' }}" alt="" style="height: 180px;">
                             <h4 class="font-semibold text-gray-800 dark:text-gray-100">{{ $item->title }}</h4>
                             <p class="text-sm text-gray-500 dark:text-gray-300 line-clamp-3 overflow-hidden" style="height: 80px;">
                                 {{ $item->description }}
@@ -144,6 +147,10 @@
                                         </div>
                                         <div class="p-4 md:p-5 space-y-4">
                                             <p class="text-gray-700">{{ $item->description }}</p>
+                                            @if ($item->image_url != null)
+                                                <img class="w-full h-100 object-cover rounded-md" src="{{$item->image_url}}" alt="">
+                                            @endif
+                                                <p>Referencia: <a class="text-blue-600 hover:underline capitalize " href="{{ $item->external_link }}" target="_blank">{{ $item->source }}</a></p>
                                             <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400">{{ $item->content }}</p>
                                         </div>
                                     </div>

@@ -17,9 +17,24 @@ class News extends Model
         'content',
         'image',
         'news_type_id',
+        'external_link',
+        'image_url',
+        'source',
+        'is_scraped',
+        'scraped_at',
+    ];
+
+    protected $casts = [
+        'is_scraped' => 'boolean',
+        'scraped_at' => 'datetime',
     ];
 
     public function type()
+    {
+        return $this->belongsTo(NewsType::class, 'news_type_id');
+    }
+
+    public function newsType()
     {
         return $this->belongsTo(NewsType::class, 'news_type_id');
     }

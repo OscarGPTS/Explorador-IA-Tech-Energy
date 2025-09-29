@@ -106,6 +106,8 @@
                         aria-controls="content-{{ $recommendation->id }}" 
                         aria-selected="false">
                         {{ $recommendation->category }}
+
+                        ( {{ count($recommendation->recommendations) }} )
                     </button>
                 </li>
             @endforeach
@@ -124,7 +126,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     @foreach ($recommendation->recommendations as $rec)
                         <div class="flex flex-col h-full p-4 border rounded-lg bg-white">
-
+                            @if ($rec->image_url)
+                                <img class="w-full object-cover rounded-md" src="{{ $rec->image_url }}" alt="" style="height: 180px;">
+                            @endif
                             <h4 class="font-semibold text-gray-800 dark:text-gray-100">{{ $rec->title }}</h4>
                             <p class="text-sm text-gray-500 dark:text-gray-300 line-clamp-3 overflow-hidden" style="height: 80px;">
                                 {{ $rec->description }}
@@ -161,11 +165,23 @@
                                             </button>
                                         </div>
                                         <div class="p-4 md:p-5 space-y-4">
+
+                                            @if ($rec->image_url)
+                                                <img class="w-full object-cover rounded-md" src="{{ $rec->image_url }}" alt="" style="max-height: 300px;">
+                                                
+                                            @endif
                                             <p class="text-gray-700"> {{ $rec->description }} </p>
+                                            <p class="w-full ">  Fuente: <a class="text-blue-500 hover:underline" href="{{ $rec->external_link }}" target="_blank">{{ $rec->external_link !=null? $rec->external_link : ''   }}</a>   </p> 
+
+
 
                                             <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400">
                                                 {{ $rec->content }}
+
+                                                <br>
                                             </p>
+
+                                            
                                         </div>
                                     </div>
                                 </div>

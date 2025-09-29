@@ -1,0 +1,833 @@
+{
+    "working": [
+        {
+            "department": "QHSE",
+            "category": "Quality & Safety",
+            "url": "https:\/\/www.safetyandhealthmagazine.com\/",
+            "status": 200,
+            "size": 102174,
+            "priority": 200
+        },
+        {
+            "department": "QHSE",
+            "category": "Quality & Safety",
+            "url": "https:\/\/www.qualitymag.com\/",
+            "status": 200,
+            "size": 130491,
+            "priority": 200
+        },
+        {
+            "department": "QHSE",
+            "category": "Quality & Safety",
+            "url": "https:\/\/www.qualitydigest.com\/",
+            "status": 200,
+            "size": 50868,
+            "priority": 102
+        },
+        {
+            "department": "QHSE",
+            "category": "Quality & Safety",
+            "url": "https:\/\/ehstoday.com\/",
+            "status": 200,
+            "size": 301520,
+            "priority": 200
+        },
+        {
+            "department": "QHSE",
+            "category": "Quality & Safety",
+            "url": "https:\/\/www.environews.tv\/",
+            "status": 200,
+            "size": 390832,
+            "priority": 200
+        },
+        {
+            "department": "QHSE",
+            "category": "Quality & Safety",
+            "url": "https:\/\/www.bsigroup.com\/en-GB\/about-bsi\/media-centre\/",
+            "status": 200,
+            "size": 242883,
+            "priority": 200
+        },
+        {
+            "department": "QHSE",
+            "category": "Quality & Safety",
+            "url": "https:\/\/www.dnv.com\/news\/index.html",
+            "status": 200,
+            "size": 166640,
+            "priority": 200
+        },
+        {
+            "department": "QHSE",
+            "category": "Environmental",
+            "url": "https:\/\/www.greenbiz.com\/",
+            "status": 200,
+            "size": 121736,
+            "priority": 200
+        },
+        {
+            "department": "QHSE",
+            "category": "Environmental",
+            "url": "https:\/\/www.sustainability-times.com\/",
+            "status": 200,
+            "size": 589012,
+            "priority": 200
+        },
+        {
+            "department": "QHSE",
+            "category": "Environmental",
+            "url": "https:\/\/www.epa.gov\/newsroom",
+            "status": 200,
+            "size": 63924,
+            "priority": 128
+        },
+        {
+            "department": "Operaciones",
+            "category": "Maintenance & Operations",
+            "url": "https:\/\/www.maintenancetechnology.com\/",
+            "status": 200,
+            "size": 171648,
+            "priority": 180
+        },
+        {
+            "department": "Operaciones",
+            "category": "Maintenance & Operations",
+            "url": "https:\/\/www.reliableplant.com\/",
+            "status": 200,
+            "size": 49289,
+            "priority": 89
+        },
+        {
+            "department": "Operaciones",
+            "category": "Maintenance & Operations",
+            "url": "https:\/\/www.plantservices.com\/",
+            "status": 200,
+            "size": 345150,
+            "priority": 180
+        },
+        {
+            "department": "Operaciones",
+            "category": "Maintenance & Operations",
+            "url": "https:\/\/www.maintenanceworld.com\/",
+            "status": 200,
+            "size": 277487,
+            "priority": 180
+        },
+        {
+            "department": "Operaciones",
+            "category": "Maintenance & Operations",
+            "url": "https:\/\/www.machinerylubricationindia.com\/",
+            "status": 200,
+            "size": 15841,
+            "priority": 29
+        },
+        {
+            "department": "Operaciones",
+            "category": "Maintenance & Operations",
+            "url": "https:\/\/www.facilitiesnet.com\/",
+            "status": 200,
+            "size": 149395,
+            "priority": 180
+        },
+        {
+            "department": "Operaciones",
+            "category": "Maintenance & Operations",
+            "url": "https:\/\/www.foodengineeringmag.com\/",
+            "status": 200,
+            "size": 114621,
+            "priority": 180
+        },
+        {
+            "department": "Operaciones",
+            "category": "Industrial Automation",
+            "url": "https:\/\/www.automationworld.com\/",
+            "status": 200,
+            "size": 516340,
+            "priority": 180
+        },
+        {
+            "department": "Operaciones",
+            "category": "Industrial Automation",
+            "url": "https:\/\/www.controlglobal.com\/",
+            "status": 200,
+            "size": 578454,
+            "priority": 180
+        },
+        {
+            "department": "Operaciones",
+            "category": "Industrial Automation",
+            "url": "https:\/\/www.manufacturing.net\/",
+            "status": 200,
+            "size": 207864,
+            "priority": 180
+        },
+        {
+            "department": "Operaciones",
+            "category": "Industrial Automation",
+            "url": "https:\/\/www.assemblymag.com\/",
+            "status": 200,
+            "size": 114379,
+            "priority": 180
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Engineering",
+            "url": "https:\/\/www.machinedesign.com\/",
+            "status": 200,
+            "size": 381779,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Engineering",
+            "url": "https:\/\/www.asme.org\/topics-resources\/society-news",
+            "status": 200,
+            "size": 145585,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Engineering",
+            "url": "https:\/\/www.engineeringforchange.org\/",
+            "status": 200,
+            "size": 175876,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Engineering",
+            "url": "https:\/\/www.newequipment.com\/",
+            "status": 200,
+            "size": 330946,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Engineering",
+            "url": "https:\/\/www.thomasnet.com\/insights\/",
+            "status": 200,
+            "size": 564637,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Manufacturing",
+            "url": "https:\/\/www.manufacturingtomorrow.com\/",
+            "status": 200,
+            "size": 99121,
+            "priority": 159
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Manufacturing",
+            "url": "https:\/\/www.mmh.com\/",
+            "status": 200,
+            "size": 112516,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Manufacturing",
+            "url": "https:\/\/www.assemblymag.com\/",
+            "status": 200,
+            "size": 114379,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Manufacturing",
+            "url": "https:\/\/www.metalworkingworldmagazine.com\/",
+            "status": 200,
+            "size": 127147,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Manufacturing",
+            "url": "https:\/\/www.productionmachining.com\/",
+            "status": 200,
+            "size": 380835,
+            "priority": 160
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "category": "Manufacturing",
+            "url": "https:\/\/www.moldmakingtechnology.com\/",
+            "status": 200,
+            "size": 310945,
+            "priority": 160
+        },
+        {
+            "department": "Contratos",
+            "category": "Legal & Compliance",
+            "url": "https:\/\/www.jdsupra.com\/",
+            "status": 200,
+            "size": 220876,
+            "priority": 140
+        },
+        {
+            "department": "Contratos",
+            "category": "Legal & Compliance",
+            "url": "https:\/\/www.lexology.com\/",
+            "status": 200,
+            "size": 160714,
+            "priority": 140
+        },
+        {
+            "department": "Contratos",
+            "category": "Legal & Compliance",
+            "url": "https:\/\/www.law.com\/",
+            "status": 200,
+            "size": 361382,
+            "priority": 140
+        },
+        {
+            "department": "Contratos",
+            "category": "Legal & Compliance",
+            "url": "https:\/\/abovethelaw.com\/",
+            "status": 200,
+            "size": 147513,
+            "priority": 140
+        },
+        {
+            "department": "Contratos",
+            "category": "Legal & Compliance",
+            "url": "https:\/\/www.legaltech.news\/",
+            "status": 200,
+            "size": 207212,
+            "priority": 140
+        },
+        {
+            "department": "Contratos",
+            "category": "Legal & Compliance",
+            "url": "https:\/\/www.complinet.com\/global\/",
+            "status": 200,
+            "size": 238576,
+            "priority": 140
+        },
+        {
+            "department": "Contratos",
+            "category": "Business Law",
+            "url": "https:\/\/www.businesslawtoday.org\/",
+            "status": 200,
+            "size": 190140,
+            "priority": 140
+        },
+        {
+            "department": "Contratos",
+            "category": "Business Law",
+            "url": "https:\/\/www.acc.com\/news",
+            "status": 200,
+            "size": 66227,
+            "priority": 93
+        },
+        {
+            "department": "Contratos",
+            "category": "Business Law",
+            "url": "https:\/\/www.law360.com\/corporate",
+            "status": 200,
+            "size": 155596,
+            "priority": 140
+        },
+        {
+            "department": "Administración y Finanzas",
+            "category": "Finance & Economics",
+            "url": "https:\/\/www.investopedia.com\/news\/",
+            "status": 200,
+            "size": 459740,
+            "priority": 100
+        },
+        {
+            "department": "Administración y Finanzas",
+            "category": "Finance & Economics",
+            "url": "https:\/\/www.bloomberg.com\/news\/",
+            "status": 200,
+            "size": 4302179,
+            "priority": 100
+        },
+        {
+            "department": "Administración y Finanzas",
+            "category": "Finance & Economics",
+            "url": "https:\/\/www.ft.com\/",
+            "status": 200,
+            "size": 3101,
+            "priority": 3
+        },
+        {
+            "department": "Administración y Finanzas",
+            "category": "Finance & Economics",
+            "url": "https:\/\/finance.yahoo.com\/news\/",
+            "status": 200,
+            "size": 1881250,
+            "priority": 100
+        },
+        {
+            "department": "Administración y Finanzas",
+            "category": "Finance & Economics",
+            "url": "https:\/\/www.cnbc.com\/finance\/",
+            "status": 200,
+            "size": 1644517,
+            "priority": 100
+        },
+        {
+            "department": "Administración y Finanzas",
+            "category": "HR & Management",
+            "url": "https:\/\/www.workforce.com\/",
+            "status": 200,
+            "size": 271202,
+            "priority": 100
+        },
+        {
+            "department": "Administración y Finanzas",
+            "category": "HR & Management",
+            "url": "https:\/\/www.peoplemanagement.co.uk\/",
+            "status": 200,
+            "size": 148545,
+            "priority": 100
+        }
+    ],
+    "failed": [
+        {
+            "department": "QHSE",
+            "url": "https:\/\/www.occupationalhealthandsafety.com\/",
+            "reason": "Status: 200, Size: 114",
+            "type": "weak_response"
+        },
+        {
+            "department": "QHSE",
+            "url": "https:\/\/www.isobudgets.com\/iso-news\/",
+            "reason": "404 Not Found",
+            "type": "request_error"
+        },
+        {
+            "department": "QHSE",
+            "url": "https:\/\/www.tuv.com\/world\/en\/news.html",
+            "reason": "404 Not Found",
+            "type": "request_error"
+        },
+        {
+            "department": "QHSE",
+            "url": "https:\/\/www.environmentalleader.com\/",
+            "reason": "cURL error 35: OpenSSL\/3.0.11: error:0A000458:SSL routines::tlsv1 unrecognized name (see https:\/\/curl.haxx.se\/libcurl\/c\/libcurl-errors.html) for https:\/\/www.environmentalleader.com\/",
+            "type": "general_error"
+        },
+        {
+            "department": "Operaciones",
+            "url": "https:\/\/www.uptime.org\/",
+            "reason": "Status: 200, Size: 15",
+            "type": "weak_response"
+        },
+        {
+            "department": "Operaciones",
+            "url": "https:\/\/www.pdma.org\/news\/",
+            "reason": "403 Forbidden",
+            "type": "request_error"
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "url": "https:\/\/www.engineering.com\/",
+            "reason": "403 Forbidden",
+            "type": "request_error"
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "url": "https:\/\/www.designnews.com\/",
+            "reason": "403 Forbidden",
+            "type": "request_error"
+        },
+        {
+            "department": "Ingeniería y Manufactura",
+            "url": "https:\/\/www.engineersjournal.ie\/",
+            "reason": "cURL error 28: Connection timed out after 10015 milliseconds (see https:\/\/curl.haxx.se\/libcurl\/c\/libcurl-errors.html) for https:\/\/www.engineersjournal.ie\/",
+            "type": "general_error"
+        },
+        {
+            "department": "Contratos",
+            "url": "https:\/\/www.americanbar.org\/news\/",
+            "reason": "403 Forbidden",
+            "type": "request_error"
+        },
+        {
+            "department": "Contratos",
+            "url": "https:\/\/www.insidecounsel.com\/",
+            "reason": "cURL error 28: Resolving timed out after 10016 milliseconds (see https:\/\/curl.haxx.se\/libcurl\/c\/libcurl-errors.html) for https:\/\/www.insidecounsel.com\/",
+            "type": "general_error"
+        },
+        {
+            "department": "Contratos",
+            "url": "https:\/\/www.corporatecounsel.com\/",
+            "reason": "403 Forbidden",
+            "type": "request_error"
+        },
+        {
+            "department": "Administración y Finanzas",
+            "url": "https:\/\/www.wsj.com\/",
+            "reason": "Network Error",
+            "type": "request_error"
+        },
+        {
+            "department": "Administración y Finanzas",
+            "url": "https:\/\/www.marketwatch.com\/",
+            "reason": "Network Error",
+            "type": "request_error"
+        },
+        {
+            "department": "Administración y Finanzas",
+            "url": "https:\/\/www.reuters.com\/business\/finance\/",
+            "reason": "Network Error",
+            "type": "request_error"
+        },
+        {
+            "department": "Administración y Finanzas",
+            "url": "https:\/\/www.shrm.org\/ResourcesAndTools\/hr-topics\/",
+            "reason": "404 Not Found",
+            "type": "request_error"
+        },
+        {
+            "department": "Administración y Finanzas",
+            "url": "https:\/\/www.hrbartender.com\/",
+            "reason": "403 Forbidden",
+            "type": "request_error"
+        },
+        {
+            "department": "Administración y Finanzas",
+            "url": "https:\/\/www.humanresourcestoday.com\/",
+            "reason": "Status: 200, Size: 813",
+            "type": "weak_response"
+        },
+        {
+            "department": "Administración y Finanzas",
+            "url": "https:\/\/www.hrexecutive.com\/",
+            "reason": "403 Forbidden",
+            "type": "request_error"
+        }
+    ],
+    "recommendations": {
+        "QHSE": {
+            "top_sources": [
+                {
+                    "department": "QHSE",
+                    "category": "Quality & Safety",
+                    "url": "https:\/\/www.safetyandhealthmagazine.com\/",
+                    "status": 200,
+                    "size": 102174,
+                    "priority": 200
+                },
+                {
+                    "department": "QHSE",
+                    "category": "Quality & Safety",
+                    "url": "https:\/\/www.qualitymag.com\/",
+                    "status": 200,
+                    "size": 130491,
+                    "priority": 200
+                },
+                {
+                    "department": "QHSE",
+                    "category": "Quality & Safety",
+                    "url": "https:\/\/ehstoday.com\/",
+                    "status": 200,
+                    "size": 301520,
+                    "priority": 200
+                },
+                {
+                    "department": "QHSE",
+                    "category": "Quality & Safety",
+                    "url": "https:\/\/www.environews.tv\/",
+                    "status": 200,
+                    "size": 390832,
+                    "priority": 200
+                },
+                {
+                    "department": "QHSE",
+                    "category": "Quality & Safety",
+                    "url": "https:\/\/www.bsigroup.com\/en-GB\/about-bsi\/media-centre\/",
+                    "status": 200,
+                    "size": 242883,
+                    "priority": 200
+                }
+            ],
+            "selectors": [
+                "\/\/h2",
+                "\/\/h3",
+                "\/\/h1[contains(@class,\"title\")]",
+                "\/\/article\/\/h2"
+            ],
+            "implementation": {
+                "priority": 100,
+                "frequency": "daily",
+                "max_articles_per_source": 3,
+                "content_filters": {
+                    "min_length": 30,
+                    "max_length": 200,
+                    "exclude_words": [
+                        "advertisement",
+                        "sponsored",
+                        "ad:",
+                        "promo"
+                    ]
+                }
+            }
+        },
+        "Operaciones": {
+            "top_sources": [
+                {
+                    "department": "Operaciones",
+                    "category": "Maintenance & Operations",
+                    "url": "https:\/\/www.maintenancetechnology.com\/",
+                    "status": 200,
+                    "size": 171648,
+                    "priority": 180
+                },
+                {
+                    "department": "Operaciones",
+                    "category": "Maintenance & Operations",
+                    "url": "https:\/\/www.plantservices.com\/",
+                    "status": 200,
+                    "size": 345150,
+                    "priority": 180
+                },
+                {
+                    "department": "Operaciones",
+                    "category": "Maintenance & Operations",
+                    "url": "https:\/\/www.maintenanceworld.com\/",
+                    "status": 200,
+                    "size": 277487,
+                    "priority": 180
+                },
+                {
+                    "department": "Operaciones",
+                    "category": "Maintenance & Operations",
+                    "url": "https:\/\/www.facilitiesnet.com\/",
+                    "status": 200,
+                    "size": 149395,
+                    "priority": 180
+                },
+                {
+                    "department": "Operaciones",
+                    "category": "Maintenance & Operations",
+                    "url": "https:\/\/www.foodengineeringmag.com\/",
+                    "status": 200,
+                    "size": 114621,
+                    "priority": 180
+                }
+            ],
+            "selectors": [
+                "\/\/h2",
+                "\/\/h3",
+                "\/\/h1",
+                "\/\/article\/\/h2",
+                "\/\/div[contains(@class,\"title\")]\/\/h2"
+            ],
+            "implementation": {
+                "priority": 90,
+                "frequency": "daily",
+                "max_articles_per_source": 3,
+                "content_filters": {
+                    "min_length": 30,
+                    "max_length": 200,
+                    "exclude_words": [
+                        "advertisement",
+                        "sponsored",
+                        "ad:",
+                        "promo"
+                    ]
+                }
+            }
+        },
+        "Ingeniería y Manufactura": {
+            "top_sources": [
+                {
+                    "department": "Ingeniería y Manufactura",
+                    "category": "Engineering",
+                    "url": "https:\/\/www.machinedesign.com\/",
+                    "status": 200,
+                    "size": 381779,
+                    "priority": 160
+                },
+                {
+                    "department": "Ingeniería y Manufactura",
+                    "category": "Engineering",
+                    "url": "https:\/\/www.asme.org\/topics-resources\/society-news",
+                    "status": 200,
+                    "size": 145585,
+                    "priority": 160
+                },
+                {
+                    "department": "Ingeniería y Manufactura",
+                    "category": "Engineering",
+                    "url": "https:\/\/www.engineeringforchange.org\/",
+                    "status": 200,
+                    "size": 175876,
+                    "priority": 160
+                },
+                {
+                    "department": "Ingeniería y Manufactura",
+                    "category": "Engineering",
+                    "url": "https:\/\/www.newequipment.com\/",
+                    "status": 200,
+                    "size": 330946,
+                    "priority": 160
+                },
+                {
+                    "department": "Ingeniería y Manufactura",
+                    "category": "Engineering",
+                    "url": "https:\/\/www.thomasnet.com\/insights\/",
+                    "status": 200,
+                    "size": 564637,
+                    "priority": 160
+                }
+            ],
+            "selectors": [
+                "\/\/h2",
+                "\/\/h3",
+                "\/\/h1",
+                "\/\/article\/\/h2"
+            ],
+            "implementation": {
+                "priority": 80,
+                "frequency": "daily",
+                "max_articles_per_source": 3,
+                "content_filters": {
+                    "min_length": 30,
+                    "max_length": 200,
+                    "exclude_words": [
+                        "advertisement",
+                        "sponsored",
+                        "ad:",
+                        "promo"
+                    ]
+                }
+            }
+        },
+        "Contratos": {
+            "top_sources": [
+                {
+                    "department": "Contratos",
+                    "category": "Legal & Compliance",
+                    "url": "https:\/\/www.jdsupra.com\/",
+                    "status": 200,
+                    "size": 220876,
+                    "priority": 140
+                },
+                {
+                    "department": "Contratos",
+                    "category": "Legal & Compliance",
+                    "url": "https:\/\/www.lexology.com\/",
+                    "status": 200,
+                    "size": 160714,
+                    "priority": 140
+                },
+                {
+                    "department": "Contratos",
+                    "category": "Legal & Compliance",
+                    "url": "https:\/\/www.law.com\/",
+                    "status": 200,
+                    "size": 361382,
+                    "priority": 140
+                },
+                {
+                    "department": "Contratos",
+                    "category": "Legal & Compliance",
+                    "url": "https:\/\/abovethelaw.com\/",
+                    "status": 200,
+                    "size": 147513,
+                    "priority": 140
+                },
+                {
+                    "department": "Contratos",
+                    "category": "Legal & Compliance",
+                    "url": "https:\/\/www.legaltech.news\/",
+                    "status": 200,
+                    "size": 207212,
+                    "priority": 140
+                }
+            ],
+            "selectors": [
+                "\/\/h2",
+                "\/\/h3",
+                "\/\/h1",
+                "\/\/article\/\/h2",
+                "\/\/div[contains(@class,\"headline\")]"
+            ],
+            "implementation": {
+                "priority": 70,
+                "frequency": "daily",
+                "max_articles_per_source": 3,
+                "content_filters": {
+                    "min_length": 30,
+                    "max_length": 200,
+                    "exclude_words": [
+                        "advertisement",
+                        "sponsored",
+                        "ad:",
+                        "promo"
+                    ]
+                }
+            }
+        },
+        "Administración y Finanzas": {
+            "top_sources": [
+                {
+                    "department": "Administración y Finanzas",
+                    "category": "Finance & Economics",
+                    "url": "https:\/\/www.investopedia.com\/news\/",
+                    "status": 200,
+                    "size": 459740,
+                    "priority": 100
+                },
+                {
+                    "department": "Administración y Finanzas",
+                    "category": "Finance & Economics",
+                    "url": "https:\/\/www.bloomberg.com\/news\/",
+                    "status": 200,
+                    "size": 4302179,
+                    "priority": 100
+                },
+                {
+                    "department": "Administración y Finanzas",
+                    "category": "Finance & Economics",
+                    "url": "https:\/\/finance.yahoo.com\/news\/",
+                    "status": 200,
+                    "size": 1881250,
+                    "priority": 100
+                },
+                {
+                    "department": "Administración y Finanzas",
+                    "category": "Finance & Economics",
+                    "url": "https:\/\/www.cnbc.com\/finance\/",
+                    "status": 200,
+                    "size": 1644517,
+                    "priority": 100
+                },
+                {
+                    "department": "Administración y Finanzas",
+                    "category": "HR & Management",
+                    "url": "https:\/\/www.workforce.com\/",
+                    "status": 200,
+                    "size": 271202,
+                    "priority": 100
+                }
+            ],
+            "selectors": [
+                "\/\/h2",
+                "\/\/h3",
+                "\/\/h1",
+                "\/\/article\/\/h2"
+            ],
+            "implementation": {
+                "priority": 50,
+                "frequency": "daily",
+                "max_articles_per_source": 3,
+                "content_filters": {
+                    "min_length": 30,
+                    "max_length": 200,
+                    "exclude_words": [
+                        "advertisement",
+                        "sponsored",
+                        "ad:",
+                        "promo"
+                    ]
+                }
+            }
+        }
+    }
+}

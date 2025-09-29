@@ -27,7 +27,7 @@ class NewsController extends Controller
             ];
         }
 
-        $news = NewsType::all()->pluck('name', 'id');
+        $news = NewsType::orderBy('created_at', 'desc')->pluck('name', 'id');
 
         $userNewsIds = $categories->pluck('id')->toArray();
 
