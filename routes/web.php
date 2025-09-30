@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\RecommendationsController;
 use App\Http\Controllers\AgentConfigurationController;
+use App\Http\Controllers\CorporateInfoController;
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -45,6 +46,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/default', [AgentConfigurationController::class, 'getDefaultConfiguration'])->name('default');
         Route::get('/chat/{chatGroupId}', [AgentConfigurationController::class, 'getChatConfiguration'])->name('chat.config');
         Route::post('/chat/{chatGroupId}', [AgentConfigurationController::class, 'applyChatConfiguration'])->name('chat.apply');
+    });
+
+    // Rutas para chatbot corporativo flotante
+    Route::prefix('corporate-chat')->name('corporate.')->group(function () {
+        Route::post('/message', [CorporateInfoController::class, 'chatBot'])->name('chat');
+        Route::get('/employees/search', [CorporateInfoController::class, 'searchEmployees'])->name('employees.search');
+        Route::get('/locations/search', [CorporateInfoController::class, 'searchLocations'])->name('locations.search');
+        Route::get('/documents/search', [CorporateInfoController::class, 'searchDocuments'])->name('documents.search');
     });
 });
 

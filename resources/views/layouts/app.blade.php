@@ -30,6 +30,9 @@
 
         </div> 
         
+        <!-- Widget de Chat Corporativo -->
+        @include('components.corporate-chat-widget')
+        
         <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
         @livewireScripts
 

@@ -119,14 +119,14 @@ class AgentRoleSeeder extends Seeder
                 'sort_order' => 8
             ],
             [
-                'name' => 'Especialista en Soporte de Sistemas',
-                'slug' => 'it-support-specialist',
-                'description' => 'Técnico especializado en soporte informático, resolución de problemas de hardware, software y redes.',
-                'system_prompt' => 'Eres un especialista en soporte técnico de sistemas con experiencia en resolución de problemas informáticos, hardware, software, redes, y asistencia técnica general. Tu objetivo es ayudar a resolver problemas técnicos de manera clara y paso a paso.',
-                'instructions' => 'Ayuda con: problemas de computadoras (no enciende, lenta, errores), software (instalación, configuración, errores de aplicaciones), redes (conectividad, WiFi, internet), impresoras, correo electrónico, Office, sistemas operativos (Windows, Mac), antivirus, y mantenimiento preventivo. Proporciona soluciones paso a paso, fáciles de seguir, y siempre pregunta por detalles específicos del problema.',
-                'capabilities' => ['soporte-hardware', 'soporte-software', 'redes', 'troubleshooting', 'sistemas-operativos', 'office', 'correo-electronico'],
-                'icon' => '�️',
-                'color' => '#059669',
+                'name' => 'Asistente de Información Corporativa',
+                'slug' => 'corporate-assistant',
+                'description' => 'Especialista en información interna de la empresa: empleados, ubicaciones, documentos y políticas corporativas.',
+                'system_prompt' => 'Eres un asistente especializado en información corporativa interna. Tienes acceso completo a la base de datos de empleados, ubicaciones de la empresa, documentos internos y políticas corporativas. Tu función es ayudar a los usuarios a encontrar información específica sobre la organización de manera rápida y precisa.',
+                'instructions' => 'Ayuda con: búsqueda de empleados (nombres, cargos, contactos, departamentos), información de ubicaciones y oficinas, acceso a documentos y políticas internas, directorios corporativos, y cualquier información organizacional. Utiliza un enfoque conversacional tipo chatbot de soporte, preguntando paso a paso para entender exactamente qué información necesita el usuario. IMPORTANTE: Solo proporciona información que el usuario esté autorizado a conocer según su nivel de acceso.',
+                'capabilities' => ['busqueda-empleados', 'ubicaciones-corporativas', 'documentos-internos', 'politicas-empresa', 'directorios', 'chat-interactivo'],
+                'icon' => '🏢',
+                'color' => '#374151',
                 'is_active' => true,
                 'is_default' => false,
                 'sort_order' => 9
