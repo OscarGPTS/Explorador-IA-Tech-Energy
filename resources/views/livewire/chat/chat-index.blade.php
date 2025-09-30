@@ -4,10 +4,52 @@
     <!-- Header -->
     <div class="fixed top-16 z-10 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Agente GPT Services</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Conversa con nuestro agente de IA</p>
+            <div class="flex-1">
+                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Chat con IA</h1>
+                
+                <!-- Indicador de agente actual -->
+                @if($currentAgentConfig)
+                <div class="flex items-center mt-2 space-x-3">
+                    <div class="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full">
+                        <span class="text-2xl">{{ $currentAgentConfig['agent_role']['icon'] ?? '🤖' }}</span>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                {{ $currentAgentConfig['name'] }}
+                            </span>
+                            @if($currentAgentConfig['is_user_setting'] && $currentAgentConfig['custom_prompt'])
+                            <span class="text-xs text-blue-600 dark:text-blue-300">Personalizado</span>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    <!-- Botón para cambiar agente -->
+                    <button 
+                        wire:click="toggleAgentSelector"
+                        class="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        title="Cambiar agente"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        <span>Cambiar</span>
+                    </button>
+                    
+                    <!-- Botón para configurar -->
+                    {{-- <a 
+                        href="{{ route('agent.config.view') }}" 
+                        class="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        title="Configurar agentes"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Configurar</span>
+                    </a> --}}
+                </div>
+                @endif
             </div>
+            
             <button 
                 wire:click="clearChat" 
                 class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
@@ -17,9 +59,63 @@
                    <svg fill="#FFFFFF"  width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/></svg>
                    <p class="text-white ml-2">Limpiar Chat </p> 
                 </div>
-               
             </button>
         </div>
+        
+        <!-- Selector de agente -->
+        @if($showAgentSelector)
+        <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+            <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Seleccionar Agente</h3>
+            
+            <!-- Roles del sistema -->
+            <div class="mb-4">
+                <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Roles Predefinidos</h4>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    @foreach($availableAgentRoles as $role)
+                    <button 
+                        wire:click="changeAgent('role', {{ $role['id'] }})"
+                        class="flex items-center space-x-2 p-2 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors {{ $currentAgentConfig && !$currentAgentConfig['is_user_setting'] && $currentAgentConfig['agent_role']['id'] == $role['id'] ? 'bg-blue-100 dark:bg-blue-900/40 border-blue-300 dark:border-blue-500' : '' }}"
+                    >
+                        <span class="text-lg">{{ $role['icon'] }}</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $role['name'] }}</div>
+                        </div>
+                    </button>
+                    @endforeach
+                </div>
+            </div>
+            
+            <!-- Configuraciones personalizadas del usuario -->
+            @if(count($userAgentSettings) > 0)
+            <div>
+                <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Mis Configuraciones</h4>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                    @foreach($userAgentSettings as $setting)
+                    <button 
+                        wire:click="changeAgent('setting', {{ $setting['id'] }})"
+                        class="flex items-center space-x-2 p-2 text-left hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors {{ $currentAgentConfig && $currentAgentConfig['is_user_setting'] && $currentAgentConfig['id'] == $setting['id'] ? 'bg-green-100 dark:bg-green-900/40 border-green-300 dark:border-green-500' : '' }}"
+                    >
+                        <span class="text-lg">{{ $setting['agent_role']['icon'] }}</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $setting['name'] }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $setting['agent_role']['name'] }}</div>
+                        </div>
+                    </button>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            
+            <div class="mt-3 flex justify-end">
+                <button 
+                    wire:click="toggleAgentSelector"
+                    class="px-3 py-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                >
+                    Cerrar
+                </button>
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Messages Container -->

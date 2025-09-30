@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Chatgroup;
 use App\Models\Chat;
 use App\Models\File;
+use App\Models\AgentRole;
+use App\Models\UserAgentSetting;
+use App\Models\ChatConfiguration;
 use OpenAI\Laravel\Facades\OpenAI;
 use PhpOffice\PhpWord\IOFactory as WordIOFactory;
 use PhpOffice\PhpSpreadsheet\IOFactory as SpreadsheetIOFactory;
@@ -31,6 +34,12 @@ class ChatIndex extends Component
     public $previewImages = [];
     public $documents = [];
     public $previewDocuments = [];
+    
+    // Configuración del agente
+    public $currentAgentConfig = null;
+    public $availableAgentRoles = [];
+    public $userAgentSettings = [];
+    public $showAgentSelector = false;
 
     protected $listeners = ['messageUpdated' => 'loadMessages'];
 
@@ -69,6 +78,8 @@ class ChatIndex extends Component
         
         $this->chatgroup_id = $this->chatgroup->id;
         $this->loadMessages();
+        $this->loadAgentConfiguration();
+        $this->loadAvailableAgents();
     }
 
     public function loadMessages()
@@ -99,6 +110,159 @@ class ChatIndex extends Component
                 ];
             })
             ->toArray();
+    }
+
+    /**
+     * Cargar la configuración del agente actual para este chat
+     */
+    public function loadAgentConfiguration()
+    {
+        // Buscar configuración específica para este chat
+        $chatConfig = ChatConfiguration::with(['userAgentSetting.agentRole'])
+            ->where('chat_group_id', $this->chatgroup_id)
+            ->where('is_active', true)
+            ->first();
+
+        if ($chatConfig && $chatConfig->userAgentSetting) {
+            $this->currentAgentConfig = [
+                'id' => $chatConfig->userAgentSetting->id,
+                'name' => $chatConfig->userAgentSetting->name,
+                'agent_role' => $chatConfig->userAgentSetting->agentRole,
+                'custom_prompt' => $chatConfig->userAgentSetting->custom_prompt,
+                'temperature' => $chatConfig->temperature,
+                'max_tokens' => $chatConfig->max_tokens,
+                'is_user_setting' => true
+            ];
+        } else {
+            // Buscar configuración por defecto del usuario
+            $userDefault = UserAgentSetting::with('agentRole')
+                ->where('user_id', Auth::id())
+                ->where('is_default', true)
+                ->first();
+
+            if ($userDefault) {
+                $this->currentAgentConfig = [
+                    'id' => $userDefault->id,
+                    'name' => $userDefault->name,
+                    'agent_role' => $userDefault->agentRole,
+                    'custom_prompt' => $userDefault->custom_prompt,
+                    'temperature' => 0.7,
+                    'max_tokens' => 2000,
+                    'is_user_setting' => true
+                ];
+            } else {
+                // Usar configuración del sistema por defecto
+                $systemDefault = AgentRole::where('is_default', true)->first();
+                $this->currentAgentConfig = [
+                    'id' => null,
+                    'name' => $systemDefault->name,
+                    'agent_role' => $systemDefault,
+                    'custom_prompt' => null,
+                    'temperature' => 0.7,
+                    'max_tokens' => 2000,
+                    'is_user_setting' => false
+                ];
+            }
+        }
+    }
+
+    /**
+     * Cargar roles de agente disponibles
+     */
+    public function loadAvailableAgents()
+    {
+        // Cargar roles del sistema
+        $this->availableAgentRoles = AgentRole::active()->ordered()->get()->toArray();
+        
+        // Cargar configuraciones del usuario
+        $this->userAgentSettings = UserAgentSetting::with('agentRole')
+            ->where('user_id', Auth::id())
+            ->get()
+            ->toArray();
+    }
+
+    /**
+     * Cambiar el agente para este chat
+     */
+    public function changeAgent($type, $id)
+    {
+        try {
+            if ($type === 'role') {
+                // Aplicar rol del sistema
+                $role = AgentRole::find($id);
+                if (!$role) {
+                    $this->errorMessage = 'Rol de agente no encontrado';
+                    return;
+                }
+
+                // Desactivar configuraciones previas para este chat
+                ChatConfiguration::where('chat_group_id', $this->chatgroup_id)
+                    ->update(['is_active' => false]);
+
+                // No crear ChatConfiguration para roles del sistema, solo actualizar la configuración actual
+                $this->currentAgentConfig = [
+                    'id' => null,
+                    'name' => $role->name,
+                    'agent_role' => $role,
+                    'custom_prompt' => null,
+                    'temperature' => 0.7,
+                    'max_tokens' => 2000,
+                    'is_user_setting' => false
+                ];
+                
+            } else {
+                // Aplicar configuración personalizada del usuario
+                $userSetting = UserAgentSetting::with('agentRole')
+                    ->where('user_id', Auth::id())
+                    ->find($id);
+                    
+                if (!$userSetting) {
+                    $this->errorMessage = 'Configuración de usuario no encontrada';
+                    return;
+                }
+
+                // Desactivar configuraciones previas para este chat
+                ChatConfiguration::where('chat_group_id', $this->chatgroup_id)
+                    ->update(['is_active' => false]);
+
+                // Crear nueva configuración para este chat
+                ChatConfiguration::create([
+                    'chat_group_id' => $this->chatgroup_id,
+                    'user_agent_setting_id' => $userSetting->id,
+                    'temperature' => 0.7,
+                    'max_tokens' => 2000,
+                    'is_active' => true
+                ]);
+
+                $this->currentAgentConfig = [
+                    'id' => $userSetting->id,
+                    'name' => $userSetting->name,
+                    'agent_role' => $userSetting->agentRole,
+                    'custom_prompt' => $userSetting->custom_prompt,
+                    'temperature' => 0.7,
+                    'max_tokens' => 2000,
+                    'is_user_setting' => true
+                ];
+            }
+
+            $this->showAgentSelector = false;
+            $this->dispatch('agentChanged', $this->currentAgentConfig['name']);
+            
+        } catch (\Exception $e) {
+            Log::error('Error al cambiar agente', ['error' => $e->getMessage()]);
+            $this->errorMessage = 'Error al cambiar el agente: ' . $e->getMessage();
+        }
+    }
+
+    /**
+     * Alternar selector de agente
+     */
+    public function toggleAgentSelector()
+    {
+        $this->showAgentSelector = !$this->showAgentSelector;
+        if ($this->showAgentSelector) {
+            $this->loadAvailableAgents();
+        }
     }
 
     public function updatedMessage()
@@ -365,8 +529,8 @@ class ChatIndex extends Component
         ->post('https://api.openai.com/v1/chat/completions', [
             'model' => $model,
             'messages' => $messages,
-            'max_tokens' => $hasImages ? 300 : 500,
-            'temperature' => 0.7,
+            'max_tokens' => $this->currentAgentConfig['max_tokens'] ?? ($hasImages ? 300 : 500),
+            'temperature' => $this->currentAgentConfig['temperature'] ?? 0.7,
         ]);
 
         if ($response->failed()) {
@@ -557,25 +721,19 @@ class ChatIndex extends Component
 
             // Preparar mensajes para OpenAI con contexto personalizado
             $userName = Auth::user()->name;
+            $agentRole = $this->currentAgentConfig['agent_role'];
+            $customPrompt = $this->currentAgentConfig['custom_prompt'];
+            
+            // Construir el prompt del sistema basado en la configuración actual
+            $systemPrompt = $agentRole['system_prompt'];
+            if (!empty($customPrompt)) {
+                $systemPrompt .= "\n\nInstrucciones adicionales personalizadas: " . $customPrompt;
+            }
+            
             $messages = [
                 [
                     'role' => 'system',
-                    'content' => $hasImages 
-                        ? "Hola, soy tu asistente de inteligencia artificial especializado de la empresa y estoy aquí para ayudarte, {$userName}. 
-
-Puedo analizar imágenes, documentos y responder cualquier consulta que tengas de manera profesional y cordial. Mi objetivo es brindarte el mejor soporte posible para que puedas realizar tu trabajo de manera eficiente.
-
-Siempre me dirigiré a ti por tu nombre cuando sea apropiado, mantendré un tono profesional pero cercano, y me aseguraré de que te sientas cómodo/a consultando conmigo cualquier duda. 
-
-¿En qué puedo ayudarte hoy, {$userName}?"
-
-                        : "Hola, soy tu asistente de inteligencia artificial de la empresa y estoy aquí para apoyarte, {$userName}.
-
-Puedo ayudarte con consultas, análisis de documentos, resolver dudas técnicas, y cualquier otra tarea que necesites para tu trabajo. Mi enfoque es siempre profesional, eficiente y orientado a resultados.
-
-Me gusta mantener una conversación natural y cercana, pero siempre dentro del marco corporativo apropiado. No dudes en consultarme cualquier cosa que necesites.
-
-¿Cómo puedo asistirte el día de hoy, {$userName}?"
+                    'content' => $systemPrompt
                 ]
             ];
 
@@ -634,8 +792,8 @@ Me gusta mantener una conversación natural y cercana, pero siempre dentro del m
                 $openaiResponse = OpenAI::chat()->create([
                     'model' => 'gpt-3.5-turbo',
                     'messages' => $messages,
-                    'max_tokens' => 500,
-                    'temperature' => 0.7,
+                    'max_tokens' => $this->currentAgentConfig['max_tokens'] ?? 500,
+                    'temperature' => $this->currentAgentConfig['temperature'] ?? 0.7,
                 ]);
 
                 if (empty($openaiResponse->choices) || !isset($openaiResponse->choices[0]->message->content)) {

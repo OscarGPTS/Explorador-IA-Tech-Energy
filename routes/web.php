@@ -7,6 +7,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\RecommendationsController;
+use App\Http\Controllers\AgentConfigurationController;
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -19,7 +20,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
     Route::get('/recommendations', [RecommendationsController::class, 'index'])->name('recommendations.index');
     Route::post('/recommendations', [RecommendationsController::class, 'updatePreferences'])->name('recommendations.updatePreferences');
 
@@ -30,7 +30,22 @@ Route::middleware('auth')->group(function () {
         return view('chat.index');
     })->name('chat.index');
 
-   
+    // Vista para configuración de agentes IA
+    Route::get('/agent-config', function () {
+        return view('agent-config');
+    })->name('agent.config.view');
+
+    // Rutas para configuración de agentes IA
+    Route::prefix('agent-config')->name('agent.')->group(function () {
+        Route::get('/roles', [AgentConfigurationController::class, 'getAvailableRoles'])->name('roles');
+        Route::get('/settings', [AgentConfigurationController::class, 'getUserSettings'])->name('settings');
+        Route::post('/settings', [AgentConfigurationController::class, 'createUserSetting'])->name('settings.create');
+        Route::put('/settings/{id}', [AgentConfigurationController::class, 'updateUserSetting'])->name('settings.update');
+        Route::delete('/settings/{id}', [AgentConfigurationController::class, 'deleteUserSetting'])->name('settings.delete');
+        Route::get('/default', [AgentConfigurationController::class, 'getDefaultConfiguration'])->name('default');
+        Route::get('/chat/{chatGroupId}', [AgentConfigurationController::class, 'getChatConfiguration'])->name('chat.config');
+        Route::post('/chat/{chatGroupId}', [AgentConfigurationController::class, 'applyChatConfiguration'])->name('chat.apply');
+    });
 });
 
 require __DIR__.'/auth.php';
