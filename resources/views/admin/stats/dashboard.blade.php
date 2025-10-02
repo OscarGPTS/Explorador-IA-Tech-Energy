@@ -30,6 +30,10 @@
                    class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     💬 Chats
                 </a>
+                <a href="{{ route('admin.stats.modules') }}" 
+                   class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    📊 Módulos
+                </a>
             </nav>
         </div>
     </div>
@@ -215,6 +219,42 @@
                     </span>
                 </div>
                 @endforeach
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Estadísticas de Módulos -->
+    @if($moduleUsage->count() > 0)
+    <div class="bg-white rounded-lg shadow mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">📊 Uso de Módulos/Apps</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($moduleUsage->take(6) as $module)
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">{{ ucfirst($module->type) }}</h4>
+                            <p class="text-xs text-gray-500">{{ number_format($module->unique_users) }} usuarios únicos</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-bold text-blue-600">{{ number_format($module->usage_count) }}</span>
+                            <p class="text-xs text-gray-500">usos totales</p>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            <div class="mt-4 text-center">
+                <a href="{{ route('admin.stats.modules') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                    Ver análisis completo de módulos
+                    <svg class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
             </div>
         </div>
     </div>

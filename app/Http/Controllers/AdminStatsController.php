@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Chat;
+use App\Models\Log;
 use App\Models\AgentRole;
 use App\Models\ChatConfiguration;
+use App\Exports\ModuleUsageExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -81,6 +84,34 @@ class AdminStatsController extends Controller
                 ->avg('count')
         ];
 
+        // Estadísticas de uso por módulos/apps
+        $moduleUsage = Log::select('type', DB::raw('COUNT(*) as usage_count'), DB::raw('COUNT(DISTINCT user_id) as unique_users'))
+            ->groupBy('type')
+            ->orderByDesc('usage_count')
+            ->get();
+
+        // Uso de módulos en los últimos 30 días
+        $moduleUsageLast30Days = Log::select('type', DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as count'))
+            ->where('created_at', '>=', now()->subDays(30))
+            ->groupBy('type', 'date')
+            ->orderBy('date')
+            ->get()
+            ->groupBy('type');
+
+        // Módulos más populares por usuarios únicos
+        $topModulesByUsers = Log::select('type', DB::raw('COUNT(DISTINCT user_id) as unique_users'))
+            ->groupBy('type')
+            ->orderByDesc('unique_users')
+            ->limit(5)
+            ->get();
+
+        // Actividad por módulo en las últimas 24 horas
+        $moduleActivityToday = Log::select('type', DB::raw('COUNT(*) as count'))
+            ->where('created_at', '>=', now()->subDay())
+            ->groupBy('type')
+            ->orderByDesc('count')
+            ->get();
+
         return view('admin.stats.dashboard', compact(
             'totalUsers',
             'activeUsersToday', 
@@ -92,7 +123,11 @@ class AdminStatsController extends Controller
             'popularAgentConfigs',
             'messageDistribution',
             'activityByHour',
-            'lastMonthStats'
+            'lastMonthStats',
+            'moduleUsage',
+            'moduleUsageLast30Days',
+            'topModulesByUsers',
+            'moduleActivityToday'
         ));
     }
 
@@ -213,10 +248,102 @@ class AdminStatsController extends Controller
         ));
     }
 
+    public function modules()
+    {
+        // Estadísticas detalladas de módulos
+        $totalLogs = Log::count();
+        $totalModules = Log::distinct('type')->count();
+        $logsToday = Log::whereDate('created_at', today())->count();
+        $uniqueUsersToday = Log::whereDate('created_at', today())->distinct('user_id')->count();
+
+        // Módulos más usados
+        $moduleUsageStats = Log::select(
+                'type',
+                DB::raw('COUNT(*) as total_usage'),
+                DB::raw('COUNT(DISTINCT user_id) as unique_users'),
+                DB::raw('AVG(CASE WHEN status_code = "200" THEN 1 ELSE 0 END) * 100 as success_rate'),
+                DB::raw('MIN(created_at) as first_used'),
+                DB::raw('MAX(created_at) as last_used')
+            )
+            ->groupBy('type')
+            ->orderByDesc('total_usage')
+            ->get();
+
+        // Actividad por módulo en los últimos 7 días
+        $weeklyModuleActivity = Log::select(
+                'type',
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as usage_count')
+            )
+            ->where('created_at', '>=', now()->subWeek())
+            ->groupBy('type', 'date')
+            ->orderBy('date')
+            ->get()
+            ->groupBy('type');
+
+        // Usuarios más activos por módulo
+        $topUsersByModule = Log::select(
+                'type',
+                'user_id',
+                'users.name',
+                'users.email',
+                DB::raw('COUNT(*) as usage_count')
+            )
+            ->join('users', 'logs.user_id', '=', 'users.id')
+            ->groupBy('type', 'user_id', 'users.name', 'users.email')
+            ->orderByDesc('usage_count')
+            ->get()
+            ->groupBy('type');
+
+        // Análisis de errores por módulo
+        $moduleErrors = Log::select(
+                'type',
+                DB::raw('COUNT(*) as total_requests'),
+                DB::raw('SUM(CASE WHEN status_code != "200" THEN 1 ELSE 0 END) as error_count'),
+                DB::raw('(SUM(CASE WHEN status_code != "200" THEN 1 ELSE 0 END) / COUNT(*)) * 100 as error_rate')
+            )
+            ->groupBy('type')
+            ->havingRaw('COUNT(*) > 0')
+            ->orderByDesc('error_rate')
+            ->get();
+
+        // Patrones de uso por hora del día
+        $hourlyUsageByModule = Log::select(
+                'type',
+                DB::raw('HOUR(created_at) as hour'),
+                DB::raw('COUNT(*) as usage_count')
+            )
+            ->groupBy('type', 'hour')
+            ->orderBy('hour')
+            ->get()
+            ->groupBy('type');
+
+        return view('admin.stats.modules', compact(
+            'totalLogs',
+            'totalModules',
+            'logsToday',
+            'uniqueUsersToday',
+            'moduleUsageStats',
+            'weeklyModuleActivity',
+            'topUsersByModule',
+            'moduleErrors',
+            'hourlyUsageByModule'
+        ));
+    }
+
     public function export(Request $request)
     {
         $type = $request->get('type', 'users');
         $format = $request->get('format', 'json');
+        $startDate = $request->get('start_date');
+        $endDate = $request->get('end_date');
+        $moduleType = $request->get('module_type');
+
+        // Exportación específica para módulos en Excel
+        if ($type === 'modules' && in_array($format, ['excel', 'xlsx'])) {
+            $filename = 'modulos_uso_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+            return Excel::download(new ModuleUsageExport($startDate, $endDate, $moduleType), $filename);
+        }
 
         $data = [];
         
@@ -229,6 +356,13 @@ class AdminStatsController extends Controller
                 break;
             case 'chats':
                 $data = Chat::with('user:id,name,email')->get();
+                break;
+            case 'modules':
+                $query = Log::with('user:id,name,email');
+                if ($startDate) $query->where('created_at', '>=', $startDate);
+                if ($endDate) $query->where('created_at', '<=', $endDate);
+                if ($moduleType) $query->where('type', $moduleType);
+                $data = $query->orderBy('created_at', 'desc')->get();
                 break;
         }
 
@@ -245,6 +379,19 @@ class AdminStatsController extends Controller
                             $user->email,
                             $user->created_at->format('Y-m-d H:i:s'),
                             $user->chats->sum('message_count') ?? 0
+                        ]);
+                    }
+                } elseif ($type === 'modules' && $data->count() > 0) {
+                    fputcsv($file, ['ID', 'Módulo', 'Usuario', 'Email', 'Actividad', 'Estado', 'Fecha']);
+                    foreach ($data as $log) {
+                        fputcsv($file, [
+                            $log->id,
+                            ucfirst($log->type),
+                            $log->user ? $log->user->name : 'Usuario eliminado',
+                            $log->user ? $log->user->email : 'N/A',
+                            $log->message,
+                            $log->status_code,
+                            $log->created_at->format('Y-m-d H:i:s')
                         ]);
                     }
                 }
