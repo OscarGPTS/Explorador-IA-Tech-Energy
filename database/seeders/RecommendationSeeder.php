@@ -25,32 +25,13 @@ class RecommendationSeeder extends Seeder
 
         foreach ($gruposRoles as $area => $subAreas) {
 
-            $typeId = DB::table('recommendations_type')->insertGetId([
+            DB::table('recommendations_type')->insertGetId([
                 'name' => $area,
                 'description' => "Recomendaciones para el área de $area",
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);
-
-            foreach ($subAreas as $subArea) {
-                DB::table('recommendations')->insert([
-                    'title' => "Recomendación para $subArea",
-                    'description' => "Consejo útil y guía para el área de $subArea",
-                    'content' => "Contenido detallado de la recomendación para $subArea...",
-                    'image' => null, 
-                    'recommendation_type_id' => $typeId,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]);
-            }
-
-            // Asignar el tipo de recomendación al usuario con id = 2
-            DB::table('user_recommendations')->insert([
-                'user_id' => 2,
-                'recommendation_type_id' => $typeId,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
+           
         }
     }
 }

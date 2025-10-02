@@ -112,6 +112,24 @@
               </a>
 
 
+              <a href="{{ route('admin.stats.dashboard') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V7C21 7.55228 20.5523 8 20 8H4C3.44772 8 3 7.55228 3 7V4Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M3 12C3 11.4477 3.44772 11 4 11H20C20.5523 11 21 11.4477 21 12V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V12Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M7 15L10 18L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Estadísticas</div>
+              </a>
+
+              <a href="{{ route('admin.employees.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Empleados</div>
+              </a>
+
+
 
 
               {{-- <a href="{{ route('agent.config.view') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">

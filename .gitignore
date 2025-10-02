@@ -21,7 +21,9 @@
 Homestead.json
 /storage/app/public/chat-images/
 /storage/app/public/chat-documents/
+/storage/app/public/news-images/
 /public/storage/chat-images/
 /public/storage/chat-documents/
+/public/storage/news-images/
 Homestead.yaml
 Thumbs.db

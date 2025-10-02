@@ -55,6 +55,25 @@ Route::middleware('auth')->group(function () {
         Route::get('/locations/search', [CorporateInfoController::class, 'searchLocations'])->name('locations.search');
         Route::get('/documents/search', [CorporateInfoController::class, 'searchDocuments'])->name('documents.search');
     });
+
+    // Panel de Estadísticas Administrativas
+    Route::prefix('admin/stats')->name('admin.stats.')->middleware(['auth'])->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\AdminStatsController::class, 'dashboard'])->name('dashboard');
+        Route::get('/users', [App\Http\Controllers\AdminStatsController::class, 'users'])->name('users');
+        Route::get('/chats', [App\Http\Controllers\AdminStatsController::class, 'chats'])->name('chats');
+        Route::get('/agents', [App\Http\Controllers\AdminStatsController::class, 'agents'])->name('agents');
+        Route::get('/export', [App\Http\Controllers\AdminStatsController::class, 'export'])->name('export');
+    });
+
+    // Administración de Empleados
+    Route::prefix('admin/employees')->name('admin.employees.')->middleware(['auth'])->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'index'])->name('index');
+        Route::get('/import', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'import'])->name('import');
+        Route::post('/import', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'processImport'])->name('process-import');
+        Route::get('/template', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'downloadTemplate'])->name('template');
+        Route::get('/export', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'export'])->name('export');
+        Route::get('/{employee}', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'show'])->name('show');
+    });
 });
 
 require __DIR__.'/auth.php';

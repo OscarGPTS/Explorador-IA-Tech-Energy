@@ -126,7 +126,7 @@ class ChatIndex extends Component
         if ($chatConfig && $chatConfig->userAgentSetting) {
             $this->currentAgentConfig = [
                 'id' => $chatConfig->userAgentSetting->id,
-                'name' => $chatConfig->userAgentSetting->name,
+                'name' => $chatConfig->userAgentSetting->name != '' ? $chatConfig->userAgentSetting->name : 'Agente IA',
                 'agent_role' => $chatConfig->userAgentSetting->agentRole,
                 'custom_prompt' => $chatConfig->userAgentSetting->custom_prompt,
                 'temperature' => $chatConfig->temperature,
