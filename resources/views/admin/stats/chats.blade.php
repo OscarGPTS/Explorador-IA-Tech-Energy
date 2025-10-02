@@ -36,10 +36,6 @@
                    class="border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600">
                     💬 Chats
                 </a>
-                <a href="{{ route('admin.stats.agents') }}" 
-                   class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    🤖 Agentes IA
-                </a>
             </nav>
         </div>
     </div>
@@ -172,7 +168,7 @@
                             {{ $conversation->user->email ?? '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                            {{ substr($conversation->group_id, 0, 8) }}...
+                            {{ substr($conversation->chatgroup_id, 0, 8) }}...
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">

@@ -61,7 +61,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\AdminStatsController::class, 'dashboard'])->name('dashboard');
         Route::get('/users', [App\Http\Controllers\AdminStatsController::class, 'users'])->name('users');
         Route::get('/chats', [App\Http\Controllers\AdminStatsController::class, 'chats'])->name('chats');
-        Route::get('/agents', [App\Http\Controllers\AdminStatsController::class, 'agents'])->name('agents');
         Route::get('/export', [App\Http\Controllers\AdminStatsController::class, 'export'])->name('export');
     });
 

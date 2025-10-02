@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Chat;
-use App\Models\News;
-use App\Models\Recommendation;
 use App\Models\AgentRole;
-use App\Models\UserAgentSetting;
 use App\Models\ChatConfiguration;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -158,14 +155,14 @@ class AdminStatsController extends Controller
     {
         // Estadísticas de chat
         $totalChats = Chat::count();
-        $totalGroups = Chat::distinct('group_id')->count();
+        $totalGroups = Chat::distinct('chatgroup_id')->count();
         $avgMessagesPerGroup = $totalGroups > 0 ? round($totalChats / $totalGroups, 2) : 0;
 
         // Conversaciones más largas
-        $longestConversations = Chat::select('group_id', 'emisor_id', DB::raw('COUNT(*) as message_count'))
+        $longestConversations = Chat::select('chatgroup_id', 'emisor_id', DB::raw('COUNT(*) as message_count'))
             ->with('user:id,name,email')
             ->whereNotNull('emisor_id')
-            ->groupBy('group_id', 'emisor_id')
+            ->groupBy('chatgroup_id', 'emisor_id')
             ->orderByDesc('message_count')
             ->limit(10)
             ->get();
@@ -216,59 +213,6 @@ class AdminStatsController extends Controller
         ));
     }
 
-    public function agents()
-    {
-        // Estadísticas de configuraciones de agentes
-        $totalAgentRoles = AgentRole::count();
-        $activeAgentRoles = AgentRole::where('is_active', true)->count();
-        $totalUserSettings = UserAgentSetting::count();
-        $activeChatConfigs = ChatConfiguration::where('is_active', true)->count();
-
-        // Agentes más populares
-        $popularAgents = AgentRole::select(
-                'agent_roles.*',
-                DB::raw('COUNT(user_agent_settings.id) as user_settings_count'),
-                DB::raw('COUNT(chat_configurations.id) as chat_configs_count')
-            )
-            ->leftJoin('user_agent_settings', 'agent_roles.id', '=', 'user_agent_settings.agent_role_id')
-            ->leftJoin('chat_configurations', 'agent_roles.id', '=', 'chat_configurations.agent_role_id')
-            ->groupBy('agent_roles.id')
-            ->orderByDesc('user_settings_count')
-            ->get();
-
-        // Configuraciones por usuario
-        $userConfigStats = User::select(
-                'users.name',
-                'users.email',
-                DB::raw('COUNT(user_agent_settings.id) as settings_count'),
-                DB::raw('COUNT(chat_configurations.id) as chat_configs_count')
-            )
-            ->leftJoin('user_agent_settings', 'users.id', '=', 'user_agent_settings.user_id')
-            ->leftJoin('chat_configurations', 'users.id', '=', 'chat_configurations.user_id')
-            ->groupBy('users.id', 'users.name', 'users.email')
-            ->having('settings_count', '>', 0)
-            ->orderByDesc('settings_count')
-            ->limit(15)
-            ->get();
-
-        // Uso de configuraciones en el tiempo
-        $configUsageOverTime = UserAgentSetting::selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->where('created_at', '>=', now()->subDays(30))
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-
-        return view('admin.stats.agents', compact(
-            'totalAgentRoles',
-            'activeAgentRoles',
-            'totalUserSettings',
-            'activeChatConfigs',
-            'popularAgents',
-            'userConfigStats',
-            'configUsageOverTime'
-        ));
-    }
-
     public function export(Request $request)
     {
         $type = $request->get('type', 'users');
@@ -285,9 +229,6 @@ class AdminStatsController extends Controller
                 break;
             case 'chats':
                 $data = Chat::with('user:id,name,email')->get();
-                break;
-            case 'agents':
-                $data = AgentRole::with('userSettings', 'chatConfigurations')->get();
                 break;
         }
 
