@@ -16,6 +16,21 @@ class Log extends Model
         'message',
         'status_code',
         'user_id',
+        'request_data',
+        'response_data',
+        'error_details',
+        'stack_trace',
+        'method',
+        'url',
+        'ip_address',
+        'user_agent',
+        'response_time',
+    ];
+
+    protected $casts = [
+        'request_data' => 'array',
+        'response_data' => 'array',
+        'error_details' => 'array',
     ];
 
     public function user()

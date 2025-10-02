@@ -58,6 +58,13 @@ class ModuleUsageExport implements FromCollection, WithHeadings, WithMapping, Wi
             'Email',
             'Actividad',
             'Código Estado',
+            'Método HTTP',
+            'URL',
+            'IP Address',
+            'Tiempo Respuesta (ms)',
+            'Tipo de Error',
+            'Archivo Error',
+            'Línea Error',
             'Fecha y Hora',
             'Fecha',
             'Hora'
@@ -69,6 +76,11 @@ class ModuleUsageExport implements FromCollection, WithHeadings, WithMapping, Wi
      */
     public function map($row): array
     {
+        $errorDetails = null;
+        if ($row->error_details) {
+            $errorDetails = json_decode($row->error_details, true);
+        }
+        
         return [
             $row->id,
             ucfirst($row->type),
@@ -76,6 +88,13 @@ class ModuleUsageExport implements FromCollection, WithHeadings, WithMapping, Wi
             $row->user ? $row->user->email : 'N/A',
             $row->message,
             $row->status_code,
+            $row->method ?? 'N/A',
+            $row->url ?? 'N/A',
+            $row->ip_address ?? 'N/A',
+            $row->response_time ?? 'N/A',
+            $errorDetails['exception_class'] ?? 'N/A',
+            $errorDetails['file'] ?? 'N/A',
+            $errorDetails['line'] ?? 'N/A',
             $row->created_at->format('Y-m-d H:i:s'),
             $row->created_at->format('Y-m-d'),
             $row->created_at->format('H:i:s')

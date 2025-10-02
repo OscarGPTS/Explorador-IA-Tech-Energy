@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/users', [App\Http\Controllers\AdminStatsController::class, 'users'])->name('users');
         Route::get('/chats', [App\Http\Controllers\AdminStatsController::class, 'chats'])->name('chats');
         Route::get('/modules', [App\Http\Controllers\AdminStatsController::class, 'modules'])->name('modules');
+        Route::get('/errors', [App\Http\Controllers\AdminStatsController::class, 'errors'])->name('errors');
         Route::get('/export', [App\Http\Controllers\AdminStatsController::class, 'export'])->name('export');
     });
 

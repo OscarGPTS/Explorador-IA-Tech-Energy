@@ -331,6 +331,85 @@ class AdminStatsController extends Controller
         ));
     }
 
+    public function errors(Request $request)
+    {
+        // Filtros
+        $startDate = $request->get('start_date', now()->subDays(7)->format('Y-m-d'));
+        $endDate = $request->get('end_date', now()->format('Y-m-d'));
+        $moduleType = $request->get('module_type');
+        $statusCode = $request->get('status_code');
+        
+        // Query base para errores (códigos >= 400 o con error_details)
+        $query = Log::with('user:id,name,email')
+            ->where(function($q) {
+                $q->where('status_code', '>=', 400)
+                  ->orWhereNotNull('error_details');
+            });
+            
+        // Aplicar filtros
+        if ($startDate) {
+            $query->where('created_at', '>=', $startDate . ' 00:00:00');
+        }
+        if ($endDate) {
+            $query->where('created_at', '<=', $endDate . ' 23:59:59');
+        }
+        if ($moduleType) {
+            $query->where('type', $moduleType);
+        }
+        if ($statusCode) {
+            $query->where('status_code', $statusCode);
+        }
+        
+        // Obtener errores paginados
+        $errors = $query->orderBy('created_at', 'desc')->paginate(20);
+        
+        // Estadísticas de errores
+        $errorStats = [
+            'total_errors' => Log::where('status_code', '>=', 400)
+                ->orWhereNotNull('error_details')
+                ->count(),
+            'errors_today' => Log::where('created_at', '>=', today())
+                ->where(function($q) {
+                    $q->where('status_code', '>=', 400)
+                      ->orWhereNotNull('error_details');
+                })
+                ->count(),
+            'most_common_error' => Log::where('status_code', '>=', 400)
+                ->orWhereNotNull('error_details')
+                ->selectRaw('status_code, COUNT(*) as count')
+                ->groupBy('status_code')
+                ->orderByDesc('count')
+                ->first(),
+            'errors_by_module' => Log::where('status_code', '>=', 400)
+                ->orWhereNotNull('error_details')
+                ->selectRaw('type, COUNT(*) as count')
+                ->groupBy('type')
+                ->orderByDesc('count')
+                ->get()
+        ];
+        
+        // Códigos de estado disponibles para filtro
+        $availableStatusCodes = Log::where('status_code', '>=', 400)
+            ->distinct()
+            ->pluck('status_code')
+            ->sort()
+            ->values();
+            
+        // Tipos de módulo disponibles
+        $availableModules = Log::distinct()->pluck('type')->sort()->values();
+        
+        return view('admin.stats.errors', compact(
+            'errors',
+            'errorStats',
+            'availableStatusCodes',
+            'availableModules',
+            'startDate',
+            'endDate',
+            'moduleType',
+            'statusCode'
+        ));
+    }
+
     public function export(Request $request)
     {
         $type = $request->get('type', 'users');
@@ -364,6 +443,17 @@ class AdminStatsController extends Controller
                 if ($moduleType) $query->where('type', $moduleType);
                 $data = $query->orderBy('created_at', 'desc')->get();
                 break;
+            case 'errors':
+                $query = Log::with('user:id,name,email')
+                    ->where(function($q) {
+                        $q->where('status_code', '>=', 400)
+                          ->orWhereNotNull('error_details');
+                    });
+                if ($startDate) $query->where('created_at', '>=', $startDate);
+                if ($endDate) $query->where('created_at', '<=', $endDate);
+                if ($moduleType) $query->where('type', $moduleType);
+                $data = $query->orderBy('created_at', 'desc')->get();
+                break;
         }
 
         if ($format === 'csv') {
@@ -382,8 +472,14 @@ class AdminStatsController extends Controller
                         ]);
                     }
                 } elseif ($type === 'modules' && $data->count() > 0) {
-                    fputcsv($file, ['ID', 'Módulo', 'Usuario', 'Email', 'Actividad', 'Estado', 'Fecha']);
+                    fputcsv($file, ['ID', 'Módulo', 'Usuario', 'Email', 'Actividad', 'Estado', 'Fecha', 'Método', 'URL', 'IP', 'Tiempo Respuesta', 'Error Details']);
                     foreach ($data as $log) {
+                        $errorDetails = '';
+                        if ($log->error_details) {
+                            $errorData = json_decode($log->error_details, true);
+                            $errorDetails = $errorData['exception_class'] ?? 'Error';
+                        }
+                        
                         fputcsv($file, [
                             $log->id,
                             ucfirst($log->type),
@@ -391,7 +487,37 @@ class AdminStatsController extends Controller
                             $log->user ? $log->user->email : 'N/A',
                             $log->message,
                             $log->status_code,
-                            $log->created_at->format('Y-m-d H:i:s')
+                            $log->created_at->format('Y-m-d H:i:s'),
+                            $log->method ?? 'N/A',
+                            $log->url ?? 'N/A',
+                            $log->ip_address ?? 'N/A',
+                            $log->response_time ?? 'N/A',
+                            $errorDetails
+                        ]);
+                    }
+                } elseif ($type === 'errors' && $data->count() > 0) {
+                    fputcsv($file, ['ID', 'Módulo', 'Usuario', 'Email', 'Error', 'Estado', 'Fecha', 'Método', 'URL', 'IP', 'Tiempo Respuesta', 'Exception Class', 'Archivo', 'Línea', 'Request Data', 'Stack Trace']);
+                    foreach ($data as $log) {
+                        $errorData = json_decode($log->error_details, true) ?? [];
+                        $requestData = json_encode($log->request_data) ?? '';
+                        
+                        fputcsv($file, [
+                            $log->id,
+                            ucfirst($log->type),
+                            $log->user ? $log->user->name : 'Usuario eliminado',
+                            $log->user ? $log->user->email : 'N/A',
+                            $log->message,
+                            $log->status_code,
+                            $log->created_at->format('Y-m-d H:i:s'),
+                            $log->method ?? 'N/A',
+                            $log->url ?? 'N/A',
+                            $log->ip_address ?? 'N/A',
+                            $log->response_time ?? 'N/A',
+                            $errorData['exception_class'] ?? 'N/A',
+                            $errorData['file'] ?? 'N/A',
+                            $errorData['line'] ?? 'N/A',
+                            strlen($requestData) > 500 ? substr($requestData, 0, 500) . '...' : $requestData,
+                            strlen($log->stack_trace ?? '') > 1000 ? substr($log->stack_trace, 0, 1000) . '...' : ($log->stack_trace ?? 'N/A')
                         ]);
                     }
                 }
