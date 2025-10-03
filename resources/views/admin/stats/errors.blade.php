@@ -4,8 +4,13 @@
 <div class="px-4 pt-10">
     <div class="sm:flex sm:items-center">
         <div class="sm:flex-auto">
-            
-            <h1 class="text-2xl font-semibold leading-6 text-gray-900">🚨 Monitoreo de Errores</h1>
+            <div class="flex">
+                <a href="/" class="mr-2 flex items-center justify-center">
+                    <?xml version="1.0" encoding="utf-8"?>
+                    <svg width="22px" height="22px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="#000000" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/><path fill="#000000" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/></svg>
+                </a>
+                <h1 class="text-2xl font-semibold leading-6 text-gray-900">🚨 Monitoreo de Errores</h1>
+            </div>
             <p class="mt-2 text-sm text-gray-700">
                 Análisis detallado de errores y fallos del sistema con información completa de request y response.
             </p>

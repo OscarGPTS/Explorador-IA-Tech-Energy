@@ -5,7 +5,7 @@
        
         <a href="{{ "/"  }}" class="flex ml-2 md:mr-24">
           <img src="{{ asset('storage/img/logo.png') }}" class="h-8 mr-3" alt="Logo" />
-          <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap">Explorador IA</span>
+          <span class="hidden sm:inline self-center text-xl font-semibold whitespace-nowrap">Explorador IA</span>
         </a>
 
       </div>
@@ -16,7 +16,7 @@
           <!-- Perfil -->
           <div class="flex items-center ml-3">
             <div class="flex items-center space-x-3">
-              <p class="text-sm font-semibold"> {{ auth()->user()->name }}</p>
+              <p class="hidden sm:block text-sm font-semibold">{{ auth()->user()->name }}</p>
 
               <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button-2" aria-expanded="false" data-dropdown-toggle="dropdown-2">
                 <span class="sr-only">Open user menu</span>
