@@ -33,6 +33,17 @@
               <p class="text-white font-semibold mt-4 text-sm sm:text-base md:text-lg lg:text-xl text-center">Noticias</p>
             </div>
           </a>
+
+          <a href="{{ route('profile.index') }}">
+            <div class="bg-[#2F5249] rounded-lg flex flex-col items-center justify-center p-6" style="min-height: 200px">
+              <div class="w-24 h-24 rounded-full bg-white flex items-center justify-center mb-4">
+                <svg class="w-12 h-12 text-[#2F5249]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              </div>
+              <p class="text-white font-semibold mt-4 text-sm sm:text-base md:text-lg lg:text-xl text-center">Mi Perfil</p>
+            </div>
+          </a>
           
 
           <div class="bg-[#2F5249] rounded-lg flex flex-col items-center justify-center p-6" style="min-height: 200px">
