@@ -9,6 +9,7 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\RecommendationsController;
 use App\Http\Controllers\AgentConfigurationController;
 use App\Http\Controllers\CorporateInfoController;
+use App\Http\Controllers\TechSupportController;
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -55,6 +56,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/employees/search', [CorporateInfoController::class, 'searchEmployees'])->name('employees.search');
         Route::get('/locations/search', [CorporateInfoController::class, 'searchLocations'])->name('locations.search');
         Route::get('/documents/search', [CorporateInfoController::class, 'searchDocuments'])->name('documents.search');
+    });
+
+    // Rutas para módulo de soporte técnico
+    Route::prefix('tech-support')->name('tech-support.')->group(function () {
+        Route::get('/', [TechSupportController::class, 'index'])->name('index');
+        Route::get('/dashboard', [TechSupportController::class, 'dashboard'])->name('dashboard');
+        Route::post('/interact', [TechSupportController::class, 'handleInteraction'])->name('interact');
     });
 
     // Panel de Estadísticas Administrativas

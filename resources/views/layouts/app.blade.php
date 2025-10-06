@@ -9,9 +9,11 @@
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
+        @stack('styles')
 
 
     </head>
@@ -35,6 +37,7 @@
         
         <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
         @livewireScripts
+        @stack('scripts')
 
     </body>
 </html>

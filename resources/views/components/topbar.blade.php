@@ -127,6 +127,17 @@
                 <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Empleados</div>
               </a>
 
+              <a href="{{ route('tech-support.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 8C21 6.34315 19.6569 5 18 5H6C4.34315 5 3 6.34315 3 8V16C3 17.6569 4.34315 19 6 19H18C19.6569 19 21 17.6569 21 16V8Z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M7 10H7.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M11 10H11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M15 10H15.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Soporte Técnico</div>
+              </a>
+
 
 
 
