@@ -166,13 +166,30 @@
         <!-- Tabla de empleados moderna -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                    <i class="fas fa-table text-blue-500 mr-3"></i>
-                    Lista de Empleados 
-                    <span class="ml-2 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
-                        {{ $employees->total() }} resultados
-                    </span>
-                </h3>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center mb-4 sm:mb-0">
+                        <i class="fas fa-table text-blue-500 mr-3"></i>
+                        Lista de Empleados 
+                        <span class="ml-2 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
+                            {{ $employees->total() }} resultados
+                        </span>
+                    </h3>
+                    
+                    <!-- Controles de selección múltiple -->
+                    <div id="bulk-actions" class="hidden flex items-center space-x-3">
+                        <span id="selected-count" class="text-sm text-gray-600 dark:text-gray-400"></span>
+                        <button type="button" 
+                                id="bulk-delete-btn"
+                                class="inline-flex items-center px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors duration-200">
+                            <i class="fas fa-trash mr-2"></i>Eliminar Seleccionados
+                        </button>
+                        <button type="button" 
+                                id="clear-selection-btn"
+                                class="inline-flex items-center px-4 py-2 bg-gray-500 text-white text-sm font-medium rounded-lg hover:bg-gray-600 transition-colors duration-200">
+                            <i class="fas fa-times mr-2"></i>Cancelar
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <div class="p-6">
@@ -181,6 +198,11 @@
                         <table class="w-full">
                             <thead>
                                 <tr class="border-b border-gray-200 dark:border-gray-700">
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-12">
+                                        <input type="checkbox" 
+                                               id="select-all" 
+                                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    </th>
                                     <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">ID</th>
                                     <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Empleado</th>
                                     <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Contacto</th>
@@ -194,6 +216,12 @@
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach($employees as $employee)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                        <td class="py-4 px-4">
+                                            <input type="checkbox" 
+                                                   class="employee-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
+                                                   value="{{ $employee->id }}"
+                                                   data-name="{{ $employee->full_name }}">
+                                        </td>
                                         <td class="py-4 px-4">
                                             <span class="text-sm font-mono text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                                                 {{ $employee->employee_id }}
@@ -287,6 +315,13 @@
                                                    title="Enviar email">
                                                     <i class="fas fa-envelope mr-1"></i>Email
                                                 </a>
+                                                <button type="button"
+                                                        class="delete-employee-btn inline-flex items-center px-3 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors duration-200"
+                                                        title="Eliminar empleado"
+                                                        data-employee-id="{{ $employee->id }}"
+                                                        data-employee-name="{{ $employee->full_name }}">
+                                                    <i class="fas fa-trash mr-1"></i>Eliminar
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -328,4 +363,222 @@
         </div>
     </div>
 </div>
+
+<!-- Modales de confirmación -->
+<!-- Modal de confirmación para eliminación individual -->
+<div id="delete-modal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="delete-modal">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Cerrar modal</span>
+            </button>
+            <div class="p-4 md:p-5 text-center">
+                <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                </svg>
+                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">¿Estás seguro de que quieres eliminar a <span id="delete-employee-name" class="font-semibold"></span>?</h3>
+                <button id="confirm-delete-btn" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2">
+                    Sí, eliminar
+                </button>
+                <button data-modal-hide="delete-modal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminación múltiple -->
+<div id="bulk-delete-modal" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <button type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="bulk-delete-modal">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Cerrar modal</span>
+            </button>
+            <div class="p-4 md:p-5 text-center">
+                <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                </svg>
+                <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">¿Estás seguro de que quieres eliminar <span id="bulk-delete-count" class="font-semibold"></span> empleado(s) seleccionado(s)?</h3>
+                <p class="mb-5 text-sm text-gray-400 dark:text-gray-500">Esta acción no se puede deshacer.</p>
+                <button id="confirm-bulk-delete-btn" type="button" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2">
+                    Sí, eliminar todos
+                </button>
+                <button data-modal-hide="bulk-delete-modal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const employeeCheckboxes = document.querySelectorAll('.employee-checkbox');
+    const bulkActions = document.getElementById('bulk-actions');
+    const selectedCount = document.getElementById('selected-count');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    const clearSelectionBtn = document.getElementById('clear-selection-btn');
+    
+    let currentEmployeeId = null;
+    let selectedEmployees = [];
+
+    // Función para actualizar el estado de selección
+    function updateSelectionState() {
+        const checkedBoxes = document.querySelectorAll('.employee-checkbox:checked');
+        const count = checkedBoxes.length;
+        
+        if (count > 0) {
+            bulkActions.classList.remove('hidden');
+            selectedCount.textContent = `${count} empleado(s) seleccionado(s)`;
+            selectedEmployees = Array.from(checkedBoxes).map(cb => cb.value);
+        } else {
+            bulkActions.classList.add('hidden');
+            selectedEmployees = [];
+        }
+        
+        // Actualizar el estado del checkbox "Seleccionar todo"
+        selectAllCheckbox.indeterminate = count > 0 && count < employeeCheckboxes.length;
+        selectAllCheckbox.checked = count === employeeCheckboxes.length;
+    }
+
+    // Checkbox "Seleccionar todo"
+    selectAllCheckbox.addEventListener('change', function() {
+        const isChecked = this.checked;
+        employeeCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+        updateSelectionState();
+    });
+
+    // Checkboxes individuales
+    employeeCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectionState);
+    });
+
+    // Botón limpiar selección
+    clearSelectionBtn.addEventListener('click', function() {
+        employeeCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        selectAllCheckbox.checked = false;
+        updateSelectionState();
+    });
+
+    // Botones de eliminar individual
+    document.querySelectorAll('.delete-employee-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentEmployeeId = this.dataset.employeeId;
+            const employeeName = this.dataset.employeeName;
+            
+            document.getElementById('delete-employee-name').textContent = employeeName;
+            
+            // Mostrar modal
+            const modal = document.getElementById('delete-modal');
+            modal.classList.remove('hidden');
+        });
+    });
+
+    // Confirmar eliminación individual
+    document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+        if (!currentEmployeeId) return;
+        
+        // Mostrar loading
+        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Eliminando...';
+        this.disabled = true;
+        
+        fetch(`/admin/employees/${currentEmployeeId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mostrar mensaje de éxito y recargar página
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert(data.message || 'Error al eliminar el empleado');
+                this.innerHTML = 'Sí, eliminar';
+                this.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar el empleado');
+            this.innerHTML = 'Sí, eliminar';
+            this.disabled = false;
+        });
+    });
+
+    // Botón de eliminación múltiple
+    bulkDeleteBtn.addEventListener('click', function() {
+        if (selectedEmployees.length === 0) return;
+        
+        document.getElementById('bulk-delete-count').textContent = selectedEmployees.length;
+        
+        // Mostrar modal
+        const modal = document.getElementById('bulk-delete-modal');
+        modal.classList.remove('hidden');
+    });
+
+    // Confirmar eliminación múltiple
+    document.getElementById('confirm-bulk-delete-btn').addEventListener('click', function() {
+        if (selectedEmployees.length === 0) return;
+        
+        // Mostrar loading
+        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Eliminando...';
+        this.disabled = true;
+        
+        fetch('/admin/employees/bulk/delete', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                employee_ids: selectedEmployees
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.reload();
+            } else {
+                alert(data.message || 'Error al eliminar los empleados');
+                this.innerHTML = 'Sí, eliminar todos';
+                this.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar los empleados');
+            this.innerHTML = 'Sí, eliminar todos';
+            this.disabled = false;
+        });
+    });
+
+    // Cerrar modales
+    document.querySelectorAll('[data-modal-hide]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modalId = this.getAttribute('data-modal-hide');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    });
+});
+</script>
 @endsection

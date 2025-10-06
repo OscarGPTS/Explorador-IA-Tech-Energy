@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Employee;
+use App\Models\TempEmployee;
 use App\Models\CompanyLocation;
 use App\Models\CompanyDocument;
 
@@ -19,7 +19,7 @@ class CorporateInfoController extends Controller
         $search = $request->get('search', '');
         $department = $request->get('department', '');
         
-        $query = Employee::active();
+        $query = TempEmployee::active();
         
         if (!empty($search)) {
             $query->search($search);
@@ -30,12 +30,26 @@ class CorporateInfoController extends Controller
         }
         
         $employees = $query->limit(20)->get();
-        
+         
         return response()->json([
-            'employees' => $employees,
+            'employees' => $employees->map(function($emp) {
+                return [
+                    'id' => $emp->id,
+                    'employee_id' => $emp->employee_id,
+                    'full_name' => $emp->full_name,
+                    'email' => $emp->email,
+                    'phone' => $emp->phone,
+                    'extension' => $emp->extension,
+                    'position' => $emp->position,
+                    'department' => $emp->department,
+                    'location' => $emp->location,
+                    'manager_email' => $emp->manager_email,
+                    'has_system_access' => $emp->hasSystemAccess()
+                ];
+            }),
             'count' => $employees->count()
         ]);
-    }
+    } 
 
     public function searchLocations(Request $request)
     {
@@ -90,13 +104,37 @@ class CorporateInfoController extends Controller
 
     public function chatBot(Request $request)
     {
-        $message = $request->get('message', '');
-        $context = $request->get('context', []);
-        
-        // Procesar el mensaje del usuario
-        $response = $this->processUserMessage($message, $context);
-        
-        return response()->json($response);
+        try {
+            $message = $request->get('message', '');
+            $context = $request->get('context', []);
+            
+            // Validar que el mensaje no esté vacío
+            if (empty(trim($message))) {
+                return response()->json([
+                    'message' => '🤔 No recibí ningún mensaje. ¿Podrías escribir algo?',
+                    'context' => ['step' => 'initial'],
+                    'suggestions' => ['Buscar empleado', 'Ver departamentos', 'Ayuda']
+                ]);
+            }
+            
+            // Procesar el mensaje del usuario
+            $response = $this->processUserMessage($message, $context);
+            
+            return response()->json($response);
+        } catch (\Exception $e) {
+            // Log del error para debug
+            \Log::error('Error en chatBot: ' . $e->getMessage(), [
+                'message' => $request->get('message', ''),
+                'context' => $request->get('context', []),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => '😔 Lo siento, hubo un problema técnico. Por favor intenta de nuevo.',
+                'context' => ['step' => 'initial'],
+                'suggestions' => ['Buscar empleado', 'Ver departamentos', 'Menú principal']
+            ]);
+        }
     }
 
     private function processUserMessage($message, $context)
@@ -125,20 +163,22 @@ class CorporateInfoController extends Controller
     private function handleInitialMessage($message)
     {
         // Detectar intención basada en palabras clave
-        if (str_contains($message, 'empleado') || str_contains($message, 'persona') || str_contains($message, 'contacto') || str_contains($message, 'staff')) {
+        if (str_contains($message, 'empleado') || str_contains($message, 'persona') || str_contains($message, 'contacto') || str_contains($message, 'staff') || str_contains($message, 'directorio')) {
             return [
                 'message' => '👤 **Búsqueda de Empleados**
 
 ¿Qué información específica necesitas?
 
 • Buscar por **nombre** (ej: "María González")
-• Buscar por **departamento** (ej: "Tecnología")
-• Buscar por **cargo** (ej: "Gerente")
-• Ver **directorio completo**
+• Buscar por **departamento** (ej: "Tecnología", "Recursos Humanos")
+• Buscar por **cargo/posición** (ej: "Gerente", "Desarrollador", "Analista")
+• Ver **departamentos disponibles**
+• Ver **cargos disponibles**
+• Buscar por **jefe/manager** (ej: "empleados de juan.perez@empresa.com")
 
-Escribe el nombre, departamento o cargo que buscas.',
+Escribe el nombre, departamento, cargo o cualquier término relacionado.',
                 'context' => ['step' => 'employee_search', 'type' => 'employee'],
-                'suggestions' => ['Tecnología', 'Recursos Humanos', 'Finanzas', 'Ver todos']
+                'suggestions' => ['Ver departamentos', 'Ver cargos', 'Tecnología', 'Gerente']
             ];
         }
         
@@ -205,42 +245,162 @@ Políticas, manuales y procedimientos
             return $this->handleInitialMessage('');
         }
         
-        if (str_contains($message, 'ver todos') || str_contains($message, 'todos los departamentos') || str_contains($message, 'departamentos')) {
-            $departments = Employee::getDepartments();
-            $deptList = implode('\n• ', $departments);
-            
-            return [
-                'message' => "📋 **Departamentos Disponibles:**\n\n• " . $deptList . "\n\n¿Sobre cuál departamento quieres información?",
-                'context' => ['step' => 'employee_search', 'type' => 'employee'],
-                'suggestions' => array_slice($departments, 0, 3)
-            ];
+                // Ver departamentos
+        if (str_contains($message, 'ver departamentos') || str_contains($message, 'departamentos') || str_contains($message, 'todos los departamentos')) {
+            try {
+                $departments = TempEmployee::getAllDepartments();
+                
+                if ($departments && $departments->count() > 0) {
+                    $deptArray = $departments->toArray();
+                    $deptList = implode("\n• ", $deptArray);
+                    
+                    return [
+                        'message' => "📋 Departamentos Disponibles:\n\n• " . $deptList . "\n\n¿Sobre cuál departamento quieres información?",
+                        'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                        'suggestions' => array_slice($deptArray, 0, 4)
+                    ];
+                } else {
+                    return [
+                        'message' => "❌ No se encontraron departamentos en el sistema.\n\n¿Quieres hacer otra búsqueda?",
+                        'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                        'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                    ];
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error al obtener departamentos: ' . $e->getMessage());
+                return [
+                    'message' => "❌ Hubo un error al obtener los departamentos. Por favor intenta de nuevo.",
+                    'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                    'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                ];
+            }
         }
         
-        // Buscar empleados
-        $employees = Employee::active()->search($message)->limit(8)->get();
+        // Ver cargos/posiciones
+        if (str_contains($message, 'ver cargos') || str_contains($message, 'cargos') || str_contains($message, 'posiciones') || str_contains($message, 'ver posiciones')) {
+            try {
+                $positions = TempEmployee::getAllPositions();
+                
+                if ($positions && $positions->count() > 0) {
+                    $positionsArray = $positions->take(15)->toArray(); // Mostrar solo los primeros 15
+                    $positionsList = implode("\n• ", $positionsArray);
+                    
+                    return [
+                        'message' => "💼 Cargos/Posiciones Disponibles:\n\n• " . $positionsList . 
+                                   ($positions->count() > 15 ? "\n\n_Mostrando los primeros 15 cargos..._" : "") . 
+                                   "\n\n¿Sobre cuál cargo quieres información?",
+                        'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                        'suggestions' => array_slice($positionsArray, 0, 4)
+                    ];
+                } else {
+                    return [
+                        'message' => "❌ No se encontraron cargos en el sistema.\n\n¿Quieres hacer otra búsqueda?",
+                        'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                        'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                    ];
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error al obtener cargos: ' . $e->getMessage());
+                return [
+                    'message' => "❌ Hubo un error al obtener los cargos. Por favor intenta de nuevo.",
+                    'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                    'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                ];
+            }
+        }
+        
+        // Buscar por manager/jefe
+        if (str_contains($message, 'empleados de ') || str_contains($message, 'equipo de ') || str_contains($message, 'reportan a ')) {
+            // Extraer email del manager
+            preg_match('/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/', $message, $matches);
+            if (isset($matches[0])) {
+                $managerEmail = $matches[0];
+                $employees = TempEmployee::active()->where('manager_email', $managerEmail)->limit(10)->get();
+                
+                if ($employees->count() > 0) {
+                    $response = "👥 **Empleados que reportan a {$managerEmail}:**\n\n";
+                    
+                    foreach ($employees as $emp) {
+                        $response .= "• **{$emp->full_name}** - {$emp->position} ({$emp->department})\n";
+                    }
+                    
+                    $response .= "\n¿Necesitas información detallada de algún empleado específico?";
+                    
+                    return [
+                        'message' => $response,
+                        'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                        'suggestions' => ['Ver detalles', 'Nueva búsqueda', 'Menú principal']
+                    ];
+                } else {
+                    return [
+                        'message' => "❌ No encontré empleados que reporten a **{$managerEmail}**.\n\n¿Quieres hacer otra búsqueda?",
+                        'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                        'suggestions' => ['Ver departamentos', 'Nueva búsqueda', 'Menú principal']
+                    ];
+                }
+            }
+        }
+        
+        // Buscar empleados general
+        $employees = TempEmployee::active()->search($message)->limit(8)->get();
         
         if ($employees->count() > 0) {
             $response = "✅ **Encontré {$employees->count()} empleado(s):**\n\n";
             
+            // Si todos los empleados son del mismo departamento, mostrar estadísticas
+            $departments = $employees->pluck('department')->unique();
+            if ($departments->count() == 1 && $employees->count() >= 3) {
+                $department = $departments->first();
+                $stats = TempEmployee::getDepartmentStats($department);
+                
+                $response .= "📊 **Estadísticas del Departamento de {$department}:**\n";
+                $response .= "• Total empleados: {$stats['total_employees']}\n";
+                $response .= "• Diferentes cargos: {$stats['positions']}\n";
+                $response .= "• Ubicaciones: {$stats['locations']}\n";
+                $response .= "• Con acceso al sistema: {$stats['with_system_access']}\n\n";
+            }
+            
             foreach ($employees as $emp) {
-                $response .= "👤 **{$emp->full_name}**\n";
-                $response .= "   📧 {$emp->email}\n";
-                $response .= "   📞 {$emp->phone}";
-                if ($emp->extension) {
-                    $response .= " ext. {$emp->extension}";
+                $response .= "👤 **{$emp->full_name}**";
+                
+                // Mostrar ID de empleado si existe
+                if ($emp->employee_id) {
+                    $response .= " ({$emp->employee_id})";
                 }
-                $response .= "\n   💼 {$emp->position}\n";
+                
+                $response .= "\n";
+                
+                $response .= "   📧 {$emp->email}\n";
+                
+                if ($emp->phone) {
+                    $response .= "   📞 {$emp->phone}";
+                    if ($emp->extension) {
+                        $response .= " ext. {$emp->extension}";
+                    }
+                    $response .= "\n";
+                }
+                
+                $response .= "   💼 {$emp->position}\n";
                 $response .= "   🏢 {$emp->department}\n";
-                $response .= "   📍 {$emp->location}\n\n";
+                
+                if ($emp->location) {
+                    $response .= "   📍 {$emp->location}\n";
+                }
+                
+                if ($emp->manager_email) {
+                    $response .= "   👥 Reporta a: {$emp->manager_email}\n";
+                }
+                
+                $response .= "\n";
             }
             
             if ($employees->count() >= 8) {
-                $response .= "_Mostrando los primeros 8 resultados. Sé más específico para menos resultados._\n\n";
+                $response .= "Mostrando los primeros 8 resultados. Sé más específico para menos resultados._\n\n";
             }
             
             $response .= "¿Necesitas información de algún empleado específico o quieres hacer otra búsqueda?";
             
-            $suggestions = ['Nueva búsqueda', 'Ver departamentos', 'Menú principal'];
+            $suggestions = ['Nueva búsqueda', 'Ver departamentos', 'Ver cargos', 'Menú principal'];
             
             // Agregar departamentos como sugerencias si hay varios empleados
             if ($employees->count() > 1) {

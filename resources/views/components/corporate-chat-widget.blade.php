@@ -17,7 +17,7 @@
     <!-- Ventana del chat -->
     <div
         id="chat-window"
-        class="hidden absolute bottom-16 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 w-80 h-96 flex flex-col"
+        class="hidden absolute bottom-16 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 w-80 h-[500px] flex flex-col"
     >
         <!-- Header del chat -->
         <div class="bg-blue-600 text-white p-4 rounded-t-lg flex items-center justify-between">

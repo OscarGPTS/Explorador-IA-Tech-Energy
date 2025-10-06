@@ -74,6 +74,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/import', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'processImport'])->name('process-import');
         Route::get('/template', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'downloadTemplate'])->name('template');
         Route::get('/export', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'export'])->name('export');
+        // Rutas específicas ANTES de las rutas con parámetros
+        Route::delete('/bulk/delete', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'bulkDelete'])->name('bulk-delete');
+        // Rutas con parámetros AL FINAL
+        Route::delete('/{employee}', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'destroy'])->name('destroy');
         Route::get('/{employee}', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'show'])->name('show');
     });
 });

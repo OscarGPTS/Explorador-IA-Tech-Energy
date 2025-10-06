@@ -461,4 +461,159 @@ class EmployeeAdminController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    /**
+     * Eliminar un empleado específico
+     */
+    public function destroy(TempEmployee $employee)
+    {
+        try {
+            Log::info("Eliminando empleado: {$employee->id} - {$employee->full_name}");
+            
+            // Verificar si el empleado tiene relaciones que puedan causar problemas
+            $this->checkEmployeeDependencies($employee);
+            
+            // Realizar la eliminación
+            $deleted = $employee->delete();
+            
+            if ($deleted) {
+                Log::info("Empleado eliminado exitosamente: {$employee->id}");
+                return response()->json([
+                    'success' => true,
+                    'message' => "Empleado {$employee->full_name} eliminado exitosamente."
+                ]);
+            } else {
+                Log::warning("La eliminación del empleado {$employee->id} no se completó");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se pudo eliminar el empleado. Inténtalo de nuevo.'
+                ], 500);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error("Error al eliminar empleado {$employee->id}: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
+            
+            // Analizar el tipo de error para dar un mensaje más específico
+            $errorMessage = $this->getErrorMessage($e);
+            
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage
+            ], 500);
+        }
+    }
+
+    /**
+     * Eliminar múltiples empleados seleccionados
+     */
+    public function bulkDelete(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'employee_ids' => 'required|array|min:1',
+                'employee_ids.*' => 'exists:temp_employees,id'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Selección inválida. Por favor selecciona empleados válidos.'
+                ], 400);
+            }
+
+            $employeeIds = $request->employee_ids;
+            $deletedCount = 0;
+            $errors = [];
+
+            Log::info("Iniciando eliminación en lote de empleados: " . json_encode($employeeIds));
+
+            foreach ($employeeIds as $employeeId) {
+                try {
+                    $employee = TempEmployee::find($employeeId);
+                    if ($employee) {
+                        Log::info("Eliminando empleado: {$employee->id} - {$employee->full_name}");
+                        
+                        // Verificar dependencias
+                        $this->checkEmployeeDependencies($employee);
+                        
+                        // Eliminar
+                        $deleted = $employee->delete();
+                        
+                        if ($deleted) {
+                            $deletedCount++;
+                        } else {
+                            $errors[] = "No se pudo eliminar a {$employee->full_name}";
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Error al eliminar empleado {$employeeId}: " . $e->getMessage());
+                    $errorMessage = $this->getErrorMessage($e);
+                    $errors[] = "Error con empleado ID {$employeeId}: {$errorMessage}";
+                }
+            }
+
+            $message = "Se eliminaron {$deletedCount} empleado(s) exitosamente.";
+            if (!empty($errors)) {
+                $message .= " Algunos empleados no pudieron ser eliminados.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'deleted_count' => $deletedCount,
+                'errors' => $errors
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Error en eliminación en lote: " . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar los empleados. Por favor intenta de nuevo.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Verificar dependencias del empleado antes de eliminar
+     */
+    private function checkEmployeeDependencies(TempEmployee $employee)
+    {
+        // Si el empleado está vinculado a un usuario, limpiar la relación primero
+        if ($employee->user_id) {
+            Log::info("Empleado {$employee->id} tiene user_id: {$employee->user_id}. Limpiando relación...");
+            
+            // Opcional: podríamos verificar si el usuario existe y hacer algo específico
+            // Por ahora, simplemente continuamos con la eliminación
+        }
+        
+        // Verificar otras dependencias si es necesario en el futuro
+        // Por ejemplo, si hubiera tablas que referencien temp_employees directamente
+        
+        return true;
+    }
+
+    /**
+     * Obtener mensaje de error apropiado basado en la excepción
+     */
+    private function getErrorMessage(\Exception $e)
+    {
+        $message = $e->getMessage();
+        
+        if (strpos($message, 'foreign key') !== false || strpos($message, 'FOREIGN KEY') !== false) {
+            return 'No se puede eliminar este empleado porque tiene datos relacionados. Elimina primero las referencias asociadas.';
+        }
+        
+        if (strpos($message, 'constraint') !== false) {
+            return 'No se puede eliminar este empleado debido a restricciones de la base de datos.';
+        }
+        
+        if (strpos($message, 'Column not found') !== false) {
+            return 'Error en la estructura de la base de datos. Contacta al administrador del sistema.';
+        }
+        
+        // Error genérico
+        return 'Error al eliminar el empleado. Por favor intenta de nuevo o contacta al administrador.';
+    }
 }

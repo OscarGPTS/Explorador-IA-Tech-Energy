@@ -85,8 +85,24 @@ class TempEmployee extends Model
               ->orWhere('employee_id', 'like', "%{$search}%")
               ->orWhere('email', 'like', "%{$search}%")
               ->orWhere('position', 'like', "%{$search}%")
-              ->orWhere('department', 'like', "%{$search}%");
+              ->orWhere('department', 'like', "%{$search}%")
+              ->orWhere('location', 'like', "%{$search}%");
         });
+    }
+
+    public function scopeByPosition($query, $position)
+    {
+        return $query->where('position', 'like', "%{$position}%");
+    }
+
+    public function scopeByManager($query, $managerEmail)
+    {
+        return $query->where('manager_email', $managerEmail);
+    }
+
+    public function scopeByLocation($query, $location)
+    {
+        return $query->where('location', 'like', "%{$location}%");
     }
 
     public function getFullNameAttribute()
@@ -119,8 +135,11 @@ class TempEmployee extends Model
     public static function getAllDepartments()
     {
         return self::where('is_active', true)
+                   ->whereNotNull('department')
+                   ->where('department', '!=', '')
                    ->distinct()
                    ->pluck('department')
+                   ->filter() // Eliminar valores falsy
                    ->sort()
                    ->values();
     }
@@ -131,8 +150,56 @@ class TempEmployee extends Model
     public static function getAllPositions()
     {
         return self::where('is_active', true)
+                   ->whereNotNull('position')
+                   ->where('position', '!=', '')
                    ->distinct()
                    ->pluck('position')
+                   ->filter() // Eliminar valores falsy
+                   ->sort()
+                   ->values();
+    }
+
+    /**
+     * Obtener todas las ubicaciones únicas
+     */
+    public static function getAllLocations()
+    {
+        return self::where('is_active', true)
+                   ->whereNotNull('location')
+                   ->distinct()
+                   ->pluck('location')
+                   ->sort()
+                   ->values();
+    }
+
+    /**
+     * Obtener estadísticas de un departamento
+     */
+    public static function getDepartmentStats($department)
+    {
+        $employees = self::active()->byDepartment($department)->get();
+        
+        return [
+            'total_employees' => $employees->count(),
+            'positions' => $employees->pluck('position')->unique()->count(),
+            'locations' => $employees->pluck('location')->filter()->unique()->count(),
+            'with_system_access' => $employees->where('user_id', '!=', null)->count(),
+            'managers' => $employees->pluck('manager_email')->filter()->unique()->count(),
+            'avg_tenure_days' => $employees->where('hire_date', '!=', null)->avg(function($emp) {
+                return $emp->hire_date ? now()->diffInDays($emp->hire_date) : 0;
+            })
+        ];
+    }
+
+    /**
+     * Obtener managers únicos
+     */
+    public static function getAllManagers()
+    {
+        return self::active()
+                   ->whereNotNull('manager_email')
+                   ->distinct()
+                   ->pluck('manager_email')
                    ->sort()
                    ->values();
     }

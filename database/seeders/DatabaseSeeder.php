@@ -20,5 +20,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
             'password' => bcrypt('password'), // password
         ]);
+
+        // Llamar al seeder de empleados temporales
+        $this->call([
+            TempEmployeeSeeder::class,
+        ]);
     }
 }
