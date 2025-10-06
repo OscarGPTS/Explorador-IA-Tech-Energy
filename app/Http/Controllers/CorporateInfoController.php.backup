@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Models\TempEmployee;
 use App\Models\CompanyLocation;
 use App\Models\CompanyDocument;
@@ -28,9 +27,9 @@ class CorporateInfoController extends Controller
         
         if (!empty($department)) {
             $query->byDepartment($department);
-       
-        $employees = $query->limit(20)->get();
         }
+        
+        $employees = $query->limit(20)->get();
          
         return response()->json([
             'employees' => $employees->map(function($emp) {
@@ -124,7 +123,7 @@ class CorporateInfoController extends Controller
             return response()->json($response);
         } catch (\Exception $e) {
             // Log del error para debug
-            Log::error('Error en chatBot: ' . $e->getMessage(), [
+            \Log::error('Error en chatBot: ' . $e->getMessage(), [
                 'message' => $request->get('message', ''),
                 'context' => $request->get('context', []),
                 'trace' => $e->getTraceAsString()
@@ -206,15 +205,15 @@ Puedo ayudarte con información sobre:
 
 Categorías disponibles:
 
-• **Contexto de Planificación** - Documentos de planificación estratégica
-• **Procedimientos Normativos** - Normas y políticas corporativas
-• **Procedimientos Operativos** - Procesos y procedimientos operacionales
-• **Mejora Continua** - Documentos de calidad y mejora continua
-• **General** - Documentos generales de la empresa
+• **HR** - Políticas de recursos humanos
+• **IT** - Manuales técnicos y procedimientos
+• **Finanzas** - Políticas financieras
+• **Legal** - Documentos legales
+• **Operaciones** - Procedimientos operativos
 
 ¿Qué tipo de documento necesitas?',
                 'context' => ['step' => 'document_search', 'type' => 'document'],
-                'suggestions' => ['Procedimientos Operativos', 'Mejora Continua', 'Ver todos', 'Ver categorías']
+                'suggestions' => ['Políticas HR', 'Manuales IT', 'Procedimientos', 'Ver categorías']
             ];
         }
         
@@ -246,6 +245,26 @@ Políticas, manuales y procedimientos
             return $this->handleInitialMessage('');
         }
         
+        // Nueva búsqueda
+        if (str_contains($message, 'nueva búsqueda') || str_contains($message, 'buscar otro')) {
+            return [
+                'message' => '👤 **Búsqueda de Empleados**
+
+¿Qué información específica necesitas?
+
+• Buscar por **nombre** (ej: "María González")
+• Buscar por **departamento** (ej: "Tecnología", "Recursos Humanos")
+• Buscar por **cargo/posición** (ej: "Gerente", "Desarrollador", "Analista")
+• Ver **departamentos disponibles**
+• Ver **cargos disponibles**
+• Buscar por **jefe/manager** (ej: "empleados de juan.perez@empresa.com")
+
+Escribe el nombre, departamento, cargo o cualquier término relacionado.',
+                'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                'suggestions' => ['Ver departamentos', 'Ver cargos', 'Tecnología', 'Gerente']
+            ];
+        }
+        
                 // Ver departamentos
         if (str_contains($message, 'ver departamentos') || str_contains($message, 'departamentos') || str_contains($message, 'todos los departamentos')) {
             try {
@@ -268,7 +287,7 @@ Políticas, manuales y procedimientos
                     ];
                 }
             } catch (\Exception $e) {
-                Log::error('Error al obtener departamentos: ' . $e->getMessage());
+                \Log::error('Error al obtener departamentos: ' . $e->getMessage());
                 return [
                     'message' => "❌ Hubo un error al obtener los departamentos. Por favor intenta de nuevo.",
                     'context' => ['step' => 'employee_search', 'type' => 'employee'],
@@ -301,7 +320,7 @@ Políticas, manuales y procedimientos
                     ];
                 }
             } catch (\Exception $e) {
-                Log::error('Error al obtener cargos: ' . $e->getMessage());
+                \Log::error('Error al obtener cargos: ' . $e->getMessage());
                 return [
                     'message' => "❌ Hubo un error al obtener los cargos. Por favor intenta de nuevo.",
                     'context' => ['step' => 'employee_search', 'type' => 'employee'],
@@ -429,6 +448,29 @@ Políticas, manuales y procedimientos
 
     private function handleLocationSearch($message, $context)
     {
+        // Comandos especiales de navegación
+        if (str_contains($message, 'menú') || str_contains($message, 'inicio') || str_contains($message, 'principal')) {
+            return $this->handleInitialMessage('');
+        }
+        
+        // Nueva búsqueda
+        if (str_contains($message, 'nueva búsqueda') || str_contains($message, 'buscar otra')) {
+            return [
+                'message' => '📍 **Ubicaciones de la Empresa**
+
+Puedo ayudarte con información sobre:
+
+• **Oficina Principal** - Sede central
+• **Sucursales** - Oficinas regionales  
+• **Centros de Datos** - Infraestructura IT
+• **Almacenes** - Centros logísticos
+
+¿Qué ubicación específica te interesa o quieres ver todas?',
+                'context' => ['step' => 'location_search', 'type' => 'location'],
+                'suggestions' => ['Oficina Principal', 'Ver todas', 'Por ciudad']
+            ];
+        }
+        
         $locations = CompanyLocation::active()->search($message)->limit(5)->get();
         
         if ($locations->count() > 0) {
@@ -455,259 +497,145 @@ Políticas, manuales y procedimientos
 
     private function handleDocumentSearch($message, $context)
     {
-        // Comandos especiales
-        if (str_contains($message, 'menú') || str_contains($message, 'inicio')) {
+        // Comandos especiales de navegación
+        if (str_contains($message, 'menú') || str_contains($message, 'inicio') || str_contains($message, 'principal')) {
             return $this->handleInitialMessage('');
         }
         
-        // Ver todas las categorías
-        if (str_contains($message, 'ver categorías') || str_contains($message, 'categorías') || str_contains($message, 'todas las categorías')) {
+        // Nueva búsqueda
+        if (str_contains($message, 'nueva búsqueda') || str_contains($message, 'buscar otro')) {
             return [
-                'message' => "📋 **Categorías de Documentos Disponibles:**
+                'message' => '📄 **Búsqueda de Documentos**
 
-• **Contexto de Planificación** - Documentos de planificación estratégica
-• **Procedimientos Normativos** - Normas y políticas corporativas  
-• **Procedimientos Operativos** - Procesos y procedimientos operacionales
-• **Mejora Continua** - Documentos de calidad y mejora continua
-• **General** - Documentos generales de la empresa
+¿Qué tipo de documento necesitas?
 
-¿Sobre qué categoría quieres buscar documentos?",
+• **Políticas** - Políticas corporativas y procedimientos
+• **Manuales** - Manuales técnicos y de usuario
+• **Contratos** - Contratos y acuerdos legales
+• **Reportes** - Reportes financieros y operativos
+• **Procedimientos** - Procedimientos internos
+
+Escribe el nombre del documento, categoría o palabra clave.',
                 'context' => ['step' => 'document_search', 'type' => 'document'],
-                'suggestions' => ['Procedimientos Operativos', 'Mejora Continua', 'Contexto de Planificación', 'General']
+                'suggestions' => ['Políticas HR', 'Manuales IT', 'Procedimientos', 'Ver categorías']
             ];
         }
-        
-        // Ver todos los documentos
-        if (str_contains($message, 'ver todos') || str_contains($message, 'todos los documentos') || str_contains($message, 'lista completa')) {
-            try {
-                $documents = CompanyDocument::active()->limit(15)->get();
-                
-                if ($documents->count() > 0) {
-                    $response = "📋 **Lista de Documentos Corporativos** (mostrando {$documents->count()}):\n\n";
-                    
-                    $categorizedDocs = $documents->groupBy('category');
-                    
-                    foreach ($categorizedDocs as $category => $categoryDocs) {
-                        $categoryName = match($category) {
-                            'contexto_planificacion' => 'Contexto de Planificación',
-                            'procedimientos_normativos' => 'Procedimientos Normativos',
-                            'procedimientos_operativos' => 'Procedimientos Operativos',
-                            'mejora_continua' => 'Mejora Continua',
-                            'general' => 'General',
-                            default => 'Sin Categoría'
-                        };
-                        
-                        $response .= "**📂 {$categoryName}:**\n";
-                        foreach ($categoryDocs as $doc) {
-                            $response .= "   📄 {$doc->title}";
-                            if ($doc->external_url) {
-                                $response .= " - [Ver documento]({$doc->external_url})";
-                            }
-                            $response .= "\n";
-                        }
-                        $response .= "\n";
-                    }
-                    
-                    $response .= "¿Necesitas información específica de algún documento?";
-                    
-                    return [
-                        'message' => $response,
-                        'context' => ['step' => 'document_search', 'type' => 'document'],
-                        'suggestions' => ['Buscar específico', 'Ver categorías', 'Menú principal']
-                    ];
-                } else {
-                    return [
-                        'message' => "❌ No hay documentos disponibles en el sistema.\n\n¿Quieres hacer otra consulta?",
-                        'context' => ['step' => 'document_search', 'type' => 'document'],
-                        'suggestions' => ['Nueva búsqueda', 'Menú principal']
-                    ];
-                }
-            } catch (\Exception $e) {
-                Log::error('Error al obtener documentos: ' . $e->getMessage());
-                return [
-                    'message' => "❌ Hubo un error al obtener los documentos. Por favor intenta de nuevo.",
-                    'context' => ['step' => 'document_search', 'type' => 'document'],
-                    'suggestions' => ['Nueva búsqueda', 'Menú principal']
-                ];
-            }
+    }
+
+    private function handleDocumentSearch($message, $context)
+    {
+        // Comandos especiales de navegación
+        if (str_contains($message, 'menú') || str_contains($message, 'inicio') || str_contains($message, 'principal')) {
+            return $this->handleInitialMessage('');
         }
         
-        // Buscar por categoría específica
-        $categoryMappings = [
-            'contexto_planificacion' => ['contexto', 'planificación', 'planificacion', 'estratégica', 'estrategica', 'planificar'],
-            'procedimientos_normativos' => ['normativos', 'normativo', 'políticas', 'politicas', 'normas', 'reglamentos'],
-            'procedimientos_operativos' => ['operativos', 'operativo', 'procedimientos', 'procesos', 'operaciones'],
-            'mejora_continua' => ['mejora', 'continua', 'calidad', 'mejoramiento', 'optimización'],
-            'general' => ['general', 'generales', 'varios', 'otros']
+        // Nueva búsqueda
+        if (str_contains($message, 'nueva búsqueda') || str_contains($message, 'buscar otro')) {
+            return [
+                'message' => '📄 **Búsqueda de Documentos**
+
+¿Qué tipo de documento necesitas?
+
+• **Políticas** - Políticas corporativas y procedimientos
+• **Manuales** - Manuales técnicos y de usuario
+• **Contratos** - Contratos y acuerdos legales
+• **Reportes** - Reportes financieros y operativos
+• **Procedimientos** - Procedimientos internos
+
+Escribe el nombre del documento, categoría o palabra clave.',
+                'context' => ['step' => 'document_search', 'type' => 'document'],
+                'suggestions' => ['Políticas HR', 'Manuales IT', 'Procedimientos', 'Ver categorías']
+            ];
+        }
+
+        // Ver tabla completa de documentos
+        if (str_contains($message, 'ver todos') || str_contains($message, 'tabla') || str_contains($message, 'lista completa')) {
+            return $this->getDocumentsTable();
+        }
+
+        $documents = CompanyDocument::active()->search($message)->limit(10)->get();
+        
+        if ($documents->count() > 0) {
+            $response = "✅ **Encontré " . $documents->count() . " documento(s):**\n\n";
+            
+            foreach ($documents as $doc) {
+                $response .= "📄 **{$doc->title}**\n";
+                $response .= "   📂 {$doc->category_label} - {$doc->type_label}\n";
+                $response .= "   🏢 {$doc->department}\n";
+                if ($doc->description) {
+                    $response .= "   📝 " . substr($doc->description, 0, 100) . "...\n";
+                }
+                if ($doc->external_url) {
+                    $response .= "   🔗 [Ver documento]({$doc->external_url})\n";
+                }
+                if ($doc->parent) {
+                    $response .= "   📁 Dentro de: {$doc->parent->title}\n";
+                }
+                $response .= "\n";
+            }
+        } else {
+            $response = "❌ No encontré documentos con esa información. ¿Podrías ser más específico sobre el tipo de documento?\n\n";
+            $response .= "💡 **Sugerencias:**\n";
+            $response .= "• Intenta con 'Procedimientos'\n";
+            $response .= "• Busca 'Manuales'\n";
+            $response .= "• Escribe 'ver todos' para la tabla completa\n";
+            $response .= "• Prueba con nombres específicos como 'Vacaciones'";
+        }
+        
+        return [
+            'message' => $response,
+            'context' => ['step' => 'document_search', 'type' => 'document'],
+            'suggestions' => ['Ver todos', 'Nueva búsqueda', 'Ver categorías', 'Menú principal']
         ];
+    }
+
+    private function getDocumentsTable()
+    {
+        $documents = CompanyDocument::active()
+            ->with(['parent', 'children'])
+            ->orderBy('sort_order')
+            ->get();
+            
+        $response = "📋 **Tabla de Documentos Corporativos**\n\n";
+        $response .= "| Título | URL | Categoría |\n";
+        $response .= "|--------|-----|----------|\n";
         
-        $searchCategory = null;
-        foreach ($categoryMappings as $category => $keywords) {
-            foreach ($keywords as $keyword) {
-                if (str_contains($message, $keyword)) {
-                    $searchCategory = $category;
-                    break 2;
-                }
+        // Organizar en estructura jerárquica
+        $rootDocuments = $documents->whereNull('parent_id');
+        
+        foreach ($rootDocuments as $doc) {
+            $response .= $this->formatDocumentRow($doc, 0);
+            
+            // Agregar hijos si los tiene
+            $children = $documents->where('parent_id', $doc->id);
+            foreach ($children as $child) {
+                $response .= $this->formatDocumentRow($child, 1);
             }
         }
         
-        if ($searchCategory) {
-            try {
-                $documents = CompanyDocument::active()->where('category', $searchCategory)->limit(10)->get();
-                
-                if ($documents->count() > 0) {
-                    $categoryName = match($searchCategory) {
-                        'contexto_planificacion' => 'Contexto de Planificación',
-                        'procedimientos_normativos' => 'Procedimientos Normativos',
-                        'procedimientos_operativos' => 'Procedimientos Operativos',
-                        'mejora_continua' => 'Mejora Continua',
-                        'general' => 'General',
-                        default => 'Sin Categoría'
-                    };
-                    
-                    $response = "📂 **Documentos de {$categoryName}** ({$documents->count()} encontrados):\n\n";
-                    
-                    foreach ($documents as $doc) {
-                        $response .= "📄 **{$doc->title}**\n";
-                        $response .= "   📂 Tipo: " . ucfirst($doc->type) . "\n";
-                        $response .= "   🏢 Departamento: {$doc->department}\n";
-                        
-                        if ($doc->description) {
-                            $response .= "   📝 " . substr($doc->description, 0, 100) . (strlen($doc->description) > 100 ? '...' : '') . "\n";
-                        }
-                        
-                        if ($doc->external_url) {
-                            $response .= "   🔗 [Ver documento]({$doc->external_url})\n";
-                        }
-                        
-                        if ($doc->owner_email) {
-                            $response .= "   👤 Responsable: {$doc->owner_email}\n";
-                        }
-                        
-                        $response .= "\n";
-                    }
-                    
-                    $response .= "¿Necesitas información específica de algún documento?";
-                    
-                    $suggestions = ['Ver detalles', 'Otra categoría', 'Ver todas', 'Menú principal'];
-                    
-                    return [
-                        'message' => $response,
-                        'context' => ['step' => 'document_search', 'type' => 'document'],
-                        'suggestions' => $suggestions
-                    ];
-                } else {
-                    $categoryName = match($searchCategory) {
-                        'contexto_planificacion' => 'Contexto de Planificación',
-                        'procedimientos_normativos' => 'Procedimientos Normativos',
-                        'procedimientos_operativos' => 'Procedimientos Operativos',
-                        'mejora_continua' => 'Mejora Continua',
-                        'general' => 'General',
-                        default => 'Sin Categoría'
-                    };
-                    
-                    return [
-                        'message' => "❌ No encontré documentos en la categoría **{$categoryName}**.\n\n¿Quieres buscar en otra categoría?",
-                        'context' => ['step' => 'document_search', 'type' => 'document'],
-                        'suggestions' => ['Ver categorías', 'IT', 'HR', 'Menú principal']
-                    ];
-                }
-            } catch (\Exception $e) {
-                Log::error('Error al buscar documentos por categoría: ' . $e->getMessage());
-                return [
-                    'message' => "❌ Hubo un error al buscar documentos. Por favor intenta de nuevo.",
-                    'context' => ['step' => 'document_search', 'type' => 'document'],
-                    'suggestions' => ['Nueva búsqueda', 'Menú principal']
-                ];
-            }
-        }
+        $response .= "\n🔍 **Leyenda:**\n";
+        $response .= "📁 = Carpeta/Categoría padre\n";
+        $response .= "📄 = Documento individual\n";
+        $response .= "└── = Documento hijo\n\n";
+        $response .= "💡 Puedes buscar por nombre específico o categoría.";
         
-        // Búsqueda general por texto
-        try {
-            $documents = CompanyDocument::active()->search($message)->limit(8)->get();
-            
-            if ($documents->count() > 0) {
-                $response = "✅ **Encontré {$documents->count()} documento(s):**\n\n";
-                
-                foreach ($documents as $doc) {
-                    $response .= "📄 **{$doc->title}**\n";
-                    
-                    $categoryName = match($doc->category) {
-                        'contexto_planificacion' => 'Contexto de Planificación',
-                        'procedimientos_normativos' => 'Procedimientos Normativos',
-                        'procedimientos_operativos' => 'Procedimientos Operativos',
-                        'mejora_continua' => 'Mejora Continua',
-                        'general' => 'General',
-                        default => 'Sin Categoría'
-                    };
-                    
-                    $response .= "   📂 {$categoryName} - " . ucfirst($doc->type) . "\n";
-                    $response .= "   🏢 {$doc->department}\n";
-                    
-                    if ($doc->description) {
-                        $response .= "   📝 " . substr($doc->description, 0, 80) . (strlen($doc->description) > 80 ? '...' : '') . "\n";
-                    }
-                    
-                    if ($doc->external_url) {
-                        $response .= "   🔗 [Ver documento]({$doc->external_url})\n";
-                    }
-                    
-                    if ($doc->effective_date) {
-                        $response .= "   📅 Vigente desde: " . date('d/m/Y', strtotime($doc->effective_date)) . "\n";
-                    }
-                    
-                    $response .= "\n";
-                }
-                
-                if ($documents->count() >= 8) {
-                    $response .= "_Mostrando los primeros 8 resultados. Sé más específico para menos resultados._\n\n";
-                }
-                
-                $response .= "¿Necesitas información específica de algún documento o quieres hacer otra búsqueda?";
-                
-                $suggestions = ['Ver detalles', 'Nueva búsqueda', 'Ver categorías', 'Menú principal'];
-                
-                // Agregar categorías como sugerencias si hay varios documentos
-                if ($documents->count() > 1) {
-                    $categories = $documents->pluck('category')->unique()->take(2);
-                    foreach ($categories as $cat) {
-                        $categoryName = match($cat) {
-                            'contexto_planificacion' => 'Contexto Planificación',
-                            'procedimientos_normativos' => 'Proc. Normativos',
-                            'procedimientos_operativos' => 'Proc. Operativos',
-                            'mejora_continua' => 'Mejora Continua',
-                            'general' => 'General',
-                            default => ucfirst($cat)
-                        };
-                        $suggestions = array_merge([$categoryName], $suggestions);
-                    }
-                }
-                
-            } else {
-                $response = "❌ **No encontré documentos** con la información \"*{$message}*\".\n\n";
-                $response .= "💡 **Sugerencias:**\n";
-                $response .= "• Intenta con el **nombre del documento** o **palabras clave**\n";
-                $response .= "• Busca por **categoría** (ej: HR, IT, Finanzas)\n";
-                $response .= "• Busca por **tipo** (ej: manual, política, procedimiento)\n";
-                $response .= "• Verifica la **ortografía**\n\n";
-                $response .= "¿Quieres intentar otra búsqueda?";
-                
-                $suggestions = ['Ver categorías', 'Procedimientos', 'Mejora Continua', 'General', 'Menú principal'];
-            }
-            
-            return [
-                'message' => $response,
-                'context' => ['step' => 'document_search', 'type' => 'document'],
-                'suggestions' => $suggestions
-            ];
-            
-        } catch (\Exception $e) {
-            Log::error('Error en búsqueda de documentos: ' . $e->getMessage());
-            return [
-                'message' => "❌ Hubo un error al buscar documentos. Por favor intenta de nuevo.",
-                'context' => ['step' => 'document_search', 'type' => 'document'],
-                'suggestions' => ['Nueva búsqueda', 'Ver categorías', 'Menú principal']
-            ];
-        }
+        return [
+            'message' => $response,
+            'context' => ['step' => 'document_search', 'type' => 'document'],
+            'suggestions' => ['Procedimientos', 'Manuales', 'Políticas', 'Nueva búsqueda', 'Menú principal']
+        ];
+    }
+
+    private function formatDocumentRow($doc, $level = 0)
+    {
+        $indent = str_repeat('&nbsp;&nbsp;', $level * 2);
+        $prefix = $level > 0 ? '└── ' : '';
+        $icon = $doc->is_folder ? '📁' : '📄';
+        
+        $title = $indent . $prefix . $icon . ' ' . $doc->title;
+        $url = $doc->external_url ? "[Ver]({$doc->external_url})" : 'Sin URL';
+        $category = $doc->category_label;
+        
+        return "| {$title} | {$url} | {$category} |\n";
     }
 }

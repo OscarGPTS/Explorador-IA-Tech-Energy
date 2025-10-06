@@ -3,8 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\RecommendationApiController;
-use App\Http\Controllers\Api\NewsApiController;
-
+use App\Http\Controllers\Api\NewsApiControl
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -36,6 +35,7 @@ Route::prefix('recommendations')->middleware(['auth:sanctum', 'recommendation.ra
     // Estadísticas y administración
     Route::get('/stats', [RecommendationApiController::class, 'getStats']);
     Route::get('/health', [RecommendationApiController::class, 'healthCheck']);
+$request->user();
 });
 
 // Rutas API para Noticias y Web Scraping

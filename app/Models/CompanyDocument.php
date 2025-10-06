@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema;
 
 class CompanyDocument extends Model
 {
@@ -69,10 +70,18 @@ class CompanyDocument extends Model
     public function scopeSearch(Builder $query, string $searchTerm): Builder
     {
         return $query->where(function ($q) use ($searchTerm) {
-            $q->where('title', 'like', "%{$searchTerm}%")
-              ->orWhere('description', 'like', "%{$searchTerm}%")
-              ->orWhere('summary', 'like', "%{$searchTerm}%")
-              ->orWhere('document_code', 'like', "%{$searchTerm}%");
+            $q->where('title', 'like', "%{$searchTerm}%");
+            
+            // Solo buscar en columnas que existen
+            if (Schema::hasColumn('company_documents', 'description')) {
+                $q->orWhere('description', 'like', "%{$searchTerm}%");
+            }
+            if (Schema::hasColumn('company_documents', 'summary')) {
+                $q->orWhere('summary', 'like', "%{$searchTerm}%");
+            }
+            if (Schema::hasColumn('company_documents', 'document_code')) {
+                $q->orWhere('document_code', 'like', "%{$searchTerm}%");
+            }
         });
     }
 
