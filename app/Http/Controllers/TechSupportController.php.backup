@@ -1,0 +1,1211 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use App\Models\TechSupportConversation;
+use App\Models\TechSupportCategory;
+use App\Models\TechSupportProblem;
+use Illuminate\Support\Facades\DB;
+
+class TechSupportController extends Controller
+{
+    /**
+     * Mostrar la página principal del módulo de soporte técnico
+     */
+    public function index()
+    {
+        $stats = $this->getStats();
+        $categories = TechSupportCategory::active()->ordered()->with('problems')->get();
+        
+        return view('tech-support.index', compact('stats', 'categories'));
+    }
+
+    /**
+     * Mostrar el dashboard con estadísticas
+     */
+    public function dashboard()
+    {
+        $stats = $this->getDetailedStats();
+        
+        return view('tech-support.dashboard', compact('stats'));
+    }
+
+    /**
+     * Manejar las interacciones del chat en el módulo
+     */
+    public function handleInteraction(Request $request)
+    {
+        try {
+            $action = $request->get('action');
+            $value = $request->get('value');
+            $sessionId = $request->get('session_id', Str::uuid());
+            
+            switch ($action) {
+                case 'get_categories':
+                    return $this->getCategories();
+                    
+                case 'select_category':
+                    return $this->selectCategory($value, $sessionId);
+                    
+                case 'select_problem':
+                    return $this->selectProblem($value, $sessionId);
+                    
+                case 'mark_resolved':
+                    return $this->markResolved($sessionId);
+                    
+                case 'escalate_to_it':
+                    return $this->escalateToIT($sessionId, $value);
+                    
+                default:
+                    return response()->json(['error' => 'Acción no válida'], 400);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Error en TechSupportController: ' . $e->getMessage());
+            return response()->json(['error' => 'Error interno del servidor'], 500);
+        }
+    }
+
+    /**
+     * Obtener las categorías principales
+     */
+    private function getCategories()
+    {
+        $categories = [
+            [
+                'id' => 'computadora',
+                'title' => '💻 Problemas con mi computadora',
+                'description' => 'Computadora lenta, no enciende, se congela, problemas de pantalla',
+                'icon' => '💻',
+                'color' => 'blue'
+            ],
+            [
+                'id' => 'internet',
+                'title' => '🌐 Problemas de Internet',
+                'description' => 'WiFi, conexión lenta, no puedo navegar',
+                'icon' => '🌐',
+                'color' => 'green'
+            ],
+            [
+                'id' => 'correo',
+                'title' => '📧 Problemas con el correo',
+                'description' => 'Gmail, Outlook, no recibo correos, no puedo enviar',
+                'icon' => '📧',
+                'color' => 'yellow'
+            ],
+            [
+                'id' => 'impresora',
+                'title' => '🖨️ Problemas con la impresora',
+                'description' => 'No imprime, papel atascado, sin tinta',
+                'icon' => '🖨️',
+                'color' => 'purple'
+            ],
+            [
+                'id' => 'software',
+                'title' => '📋 Problemas con programas',
+                'description' => 'Word, Excel, Google Docs, programas que no abren',
+                'icon' => '📋',
+                'color' => 'indigo'
+            ],
+            [
+                'id' => 'acceso',
+                'title' => '🔐 Problemas de acceso',
+                'description' => 'Contraseñas olvidadas, cuentas bloqueadas',
+                'icon' => '🔐',
+                'color' => 'red'
+            ]
+        ];
+
+        return response()->json(['categories' => $categories]);
+    }
+
+    /**
+     * Obtener las categorías principales dinámicamente
+     */
+    private function getCategoriesDynamic()
+    {
+        $categories = TechSupportCategory::active()->ordered()->get();
+        
+        $formattedCategories = $categories->map(function ($category) {
+            return [
+                'id' => $category->name,
+                'title' => $category->icon . ' ' . $category->display_name,
+                'description' => $category->description,
+                'icon' => $category->icon,
+                'color' => $this->getCategoryColor($category->name)
+            ];
+        })->toArray();
+
+        return response()->json(['categories' => $formattedCategories]);
+    }
+
+    /**
+     * Obtener color para una categoría
+     */
+    private function getCategoryColor($categoryName)
+    {
+        $colors = [
+            'computadora' => 'blue',
+            'internet' => 'green',
+            'correo' => 'yellow',
+            'impresora' => 'purple',
+            'software' => 'indigo',
+            'acceso' => 'red'
+        ];
+
+        return $colors[$categoryName] ?? 'gray';
+    }
+
+    /**
+     * Manejar selección de categoría
+     */
+    private function selectCategory($category, $sessionId)
+    {
+        $problems = $this->getProblemsByCategory($category);
+        
+        // Guardar interacción en la base de datos
+        TechSupportConversation::create([
+            'session_id' => $sessionId,
+            'user_message' => "Categoría seleccionada: {$category}",
+            'problem_category' => $this->mapCategoryToEnum($category),
+            'bot_response' => "Usuario seleccionó categoría: {$category}",
+            'context_data' => json_encode([
+                'action' => 'category_selected',
+                'category' => $category,
+                'timestamp' => now()
+            ]),
+            'user_ip' => request()->ip(),
+            'user_agent' => request()->userAgent()
+        ]);
+
+        return response()->json([
+            'category' => $category,
+            'problems' => $problems,
+            'session_id' => $sessionId
+        ]);
+    }
+
+    /**
+     * Obtener problemas por categoría
+     */
+    private function getProblemsByCategory($category)
+    {
+        $problemsMap = [
+            'computadora' => [
+                [
+                    'id' => 'computadora_lenta',
+                    'title' => '🐌 Mi computadora está muy lenta',
+                    'description' => 'Demora mucho en abrir programas o responder'
+                ],
+                [
+                    'id' => 'computadora_no_enciende',
+                    'title' => '⚡ Mi computadora no enciende',
+                    'description' => 'No pasa nada al presionar el botón de encendido'
+                ],
+                [
+                    'id' => 'computadora_pantalla',
+                    'title' => '🖥️ Problemas con la pantalla',
+                    'description' => 'Pantalla en negro, no se ve nada'
+                ],
+                [
+                    'id' => 'computadora_congela',
+                    'title' => '❄️ Se congela o se traba',
+                    'description' => 'La computadora se queda trabada y no responde'
+                ]
+            ],
+            'internet' => [
+                [
+                    'id' => 'internet_wifi',
+                    'title' => '📶 Problemas de WiFi',
+                    'description' => 'No se conecta al WiFi o se desconecta'
+                ],
+                [
+                    'id' => 'internet_lento',
+                    'title' => '🐌 Internet muy lento',
+                    'description' => 'Las páginas tardan mucho en cargar'
+                ],
+                [
+                    'id' => 'internet_no_navega',
+                    'title' => '🚫 No puedo navegar',
+                    'description' => 'No cargan las páginas web'
+                ]
+            ],
+            'correo' => [
+                [
+                    'id' => 'correo_gmail',
+                    'title' => '📬 Problemas con Gmail',
+                    'description' => 'No puedo entrar a Gmail o no funciona bien'
+                ],
+                [
+                    'id' => 'correo_outlook',
+                    'title' => '📮 Problemas con Outlook',
+                    'description' => 'Outlook no abre o no recibo correos'
+                ],
+                [
+                    'id' => 'correo_acceso',
+                    'title' => '🔑 No puedo entrar al correo',
+                    'description' => 'Problemas con contraseña o acceso'
+                ]
+            ],
+            'impresora' => [
+                [
+                    'id' => 'impresora_no_imprime',
+                    'title' => '🚫 No imprime nada',
+                    'description' => 'La impresora no imprime aunque esté encendida'
+                ],
+                [
+                    'id' => 'impresora_papel',
+                    'title' => '📄 Papel atascado',
+                    'description' => 'Hay papel atascado en la impresora'
+                ],
+                [
+                    'id' => 'impresora_tinta',
+                    'title' => '🖋️ Problemas de tinta',
+                    'description' => 'Imprime muy clarito o con rayas'
+                ]
+            ],
+            'software' => [
+                [
+                    'id' => 'software_office',
+                    'title' => '📋 Microsoft Office',
+                    'description' => 'Word, Excel, PowerPoint no funcionan'
+                ],
+                [
+                    'id' => 'software_google',
+                    'title' => '📄 Google Workspace',
+                    'description' => 'Google Docs, Sheets, Drive no cargan'
+                ],
+                [
+                    'id' => 'software_otro',
+                    'title' => '⚠️ Otro programa',
+                    'description' => 'Cualquier otro programa que no funciona'
+                ]
+            ],
+            'acceso' => [
+                [
+                    'id' => 'acceso_password',
+                    'title' => '🔑 Olvidé mi contraseña',
+                    'description' => 'No recuerdo la contraseña de alguna cuenta'
+                ],
+                [
+                    'id' => 'acceso_bloqueada',
+                    'title' => '🔒 Mi cuenta está bloqueada',
+                    'description' => 'No puedo entrar porque está bloqueada'
+                ],
+                [
+                    'id' => 'acceso_archivos',
+                    'title' => '🚪 No tengo acceso a archivos',
+                    'description' => 'No puedo abrir carpetas o documentos'
+                ]
+            ]
+        ];
+
+        return $problemsMap[$category] ?? [];
+    }
+
+    /**
+     * Obtener problemas por categoría dinámicamente
+     */
+    private function getProblemsByCategoryDynamic($category)
+    {
+        $categoryModel = TechSupportCategory::where('name', $category)->first();
+        
+        if (!$categoryModel) {
+            return [];
+        }
+
+        $problems = $categoryModel->problems()->get();
+        
+        return $problems->map(function ($problem) {
+            return [
+                'id' => $problem->problem_key,
+                'title' => $problem->title,
+                'description' => $problem->description
+            ];
+        })->toArray();
+        
+        return $problems->map(function ($problem) {
+            return [
+                'id' => $problem->problem_key,
+                'title' => $problem->title,
+                'description' => $problem->description
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Manejar selección de problema específico
+     */
+    private function selectProblem($problemId, $sessionId)
+    {
+        $solution = $this->getSolutionForProblem($problemId);
+        
+        // Determinar categoría del problema
+        $category = 'other';
+        if (str_starts_with($problemId, 'computadora_')) $category = 'computer';
+        elseif (str_starts_with($problemId, 'internet_')) $category = 'internet';
+        elseif (str_starts_with($problemId, 'correo_')) $category = 'email';
+        elseif (str_starts_with($problemId, 'impresora_')) $category = 'printer';
+        elseif (str_starts_with($problemId, 'software_')) $category = 'software';
+        elseif (str_starts_with($problemId, 'acceso_')) $category = 'access';
+        
+        // Guardar en la base de datos
+        TechSupportConversation::create([
+            'session_id' => $sessionId,
+            'user_message' => "Problema específico: {$problemId}",
+            'problem_category' => $category,
+            'problem_type' => $problemId,
+            'bot_response' => $solution['content'],
+            'context_data' => json_encode([
+                'action' => 'problem_selected',
+                'problem_id' => $problemId,
+                'timestamp' => now()
+            ]),
+            'user_ip' => request()->ip(),
+            'user_agent' => request()->userAgent()
+        ]);
+
+        return response()->json([
+            'problem_id' => $problemId,
+            'solution' => $solution,
+            'session_id' => $sessionId
+        ]);
+    }
+
+    /**
+     * Obtener solución para un problema específico
+     */
+    private function getSolutionForProblem($problemId)
+    {
+        $problem = TechSupportProblem::where('problem_key', $problemId)->where('is_active', true)->first();
+        
+        if (!$problem) {
+            return [
+                'title' => '❓ Problema no encontrado',
+                'content' => '<div class="text-center p-6"><p class="text-gray-600">Lo siento, no pude encontrar una solución para este problema específico. Por favor, contacta al departamento de IT para obtener ayuda personalizada.</p></div>',
+                'priority' => 'medium',
+                'estimated_time' => 'N/A'
+            ];
+        }
+
+        return [
+            'title' => $problem->solution_title,
+            'content' => $problem->solution_content,
+            'priority' => $problem->priority,
+            'estimated_time' => $problem->estimated_time
+        ];
+    }
+            // Categoría: Computadora
+            'computadora_lenta' => [
+                'title' => '💻 Tu computadora está lenta - Te ayudo paso a paso',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>🔄 Paso 1: Reiniciar (lo más importante)</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Cierra todos los programas que tengas abiertos</li>
+                            <li>Click en el botón de Windows (esquina inferior izquierda)</li>
+                            <li>Click en el ícono de encendido ⚡</li>
+                            <li>Selecciona 'Reiniciar' y espera</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>⚡ Paso 2: Si sigue lenta</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>No abras muchos programas al mismo tiempo</li>
+                            <li>Cierra pestañas del navegador que no uses</li>
+                            <li>Evita tener muchos archivos en el Escritorio</li>
+                        </ul>
+                    </div>
+                    <div class='bg-yellow-50 border border-yellow-300 p-3 rounded text-center'>
+                        <p class='text-yellow-800 font-semibold'>❓ ¿Sigues teniendo problemas?</p>
+                        <p class='text-yellow-700'>Llama a IT y diles que tu computadora está lenta.</p>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '5-10 minutos'
+            ],
+            'computadora_no_enciende' => [
+                'title' => '⚡ Tu computadora no enciende - Revisemos juntos',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🔌 Paso 1: Revisar la electricidad</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>¿Está conectado el cable de la pared?</li>
+                            <li>¿La luz del enchufe está funcionando?</li>
+                            <li>Prueba conectar en otro enchufe</li>
+                        </ul>
+                    </div>
+                    <div class='bg-orange-50 border-l-4 border-orange-400 p-4 rounded'>
+                        <h4 class='font-bold text-orange-800 mb-2'>💻 Paso 2: Revisar la computadora</h4>
+                        <ul class='list-disc list-inside text-orange-700 space-y-1'>
+                            <li>Busca el botón de encendido (suele tener este símbolo ⚡)</li>
+                            <li>Manténlo presionado por 10 segundos</li>
+                            <li>¿Se enciende alguna luz?</li>
+                        </ul>
+                    </div>
+                    <div class='bg-purple-50 border-l-4 border-purple-400 p-4 rounded'>
+                        <h4 class='font-bold text-purple-800 mb-2'>🖥️ Paso 3: Revisar la pantalla</h4>
+                        <ul class='list-disc list-inside text-purple-700 space-y-1'>
+                            <li>¿Está conectada la pantalla?</li>
+                            <li>¿Está encendida la pantalla?</li>
+                        </ul>
+                    </div>
+                    <div class='bg-red-100 border border-red-400 p-3 rounded text-center'>
+                        <p class='text-red-800 font-bold'>🚨 Si nada funciona: Llama inmediatamente a IT</p>
+                    </div>
+                </div>",
+                'priority' => 'high',
+                'estimated_time' => '10-15 minutos'
+            ],
+            'computadora_pantalla' => [
+                'title' => '🖥️ Problemas de pantalla - Guía de solución',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>🔍 Paso 1: Verificar conexiones</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Revisa que el cable de la pantalla esté bien conectado</li>
+                            <li>Verifica que la pantalla esté encendida (busca el botón de power)</li>
+                            <li>¿Hay alguna luz en la pantalla?</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>🔄 Paso 2: Probar otra conexión</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>Si tienes otro cable, pruébalo</li>
+                            <li>Si tienes otra pantalla, conéctala</li>
+                        </ul>
+                    </div>
+                    <div class='bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded'>
+                        <h4 class='font-bold text-yellow-800 mb-2'>⚡ Paso 3: Reiniciar la computadora</h4>
+                        <ul class='list-disc list-inside text-yellow-700 space-y-1'>
+                            <li>Mantén presionado el botón de encendido por 10 segundos</li>
+                            <li>Espera 30 segundos y enciende de nuevo</li>
+                        </ul>
+                    </div>
+                    <div class='bg-red-100 border border-red-400 p-3 rounded text-center'>
+                        <p class='text-red-800 font-bold'>⚫ Si sigue en negro: Contacta a IT inmediatamente</p>
+                    </div>
+                </div>",
+                'priority' => 'high',
+                'estimated_time' => '5-10 minutos'
+            ],
+            'computadora_congela' => [
+                'title' => '❄️ Computadora que se congela - Solución',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🔄 Paso 1: Reiniciar forzado</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Mantén presionado el botón de encendido por 10 segundos</li>
+                            <li>La computadora se apagará completamente</li>
+                            <li>Espera 30 segundos y enciende de nuevo</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>🛡️ Paso 2: Prevenir congelamiento</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>No abras muchos programas a la vez</li>
+                            <li>Cierra programas que no uses</li>
+                            <li>Guarda tu trabajo frecuentemente</li>
+                        </ul>
+                    </div>
+                    <div class='bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded'>
+                        <h4 class='font-bold text-yellow-800 mb-2'>📞 Paso 3: Si se sigue congelando</h4>
+                        <ul class='list-disc list-inside text-yellow-700 space-y-1'>
+                            <li>Anota qué programa estabas usando cuando se congeló</li>
+                            <li>Contacta a IT con esta información</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-100 border border-blue-400 p-3 rounded text-center'>
+                        <p class='text-blue-800 font-semibold'>💡 Consejo: Guarda tu trabajo cada 5 minutos</p>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '5 minutos'
+            ],
+
+            // Categoría: Internet
+            'internet_wifi' => [
+                'title' => '📶 Problemas de WiFi - Guía paso a paso',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>🔍 Paso 1: Revisar la conexión</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Mira la esquina inferior derecha de tu pantalla</li>
+                            <li>¿Ves el símbolo del WiFi? 📶</li>
+                            <li>Si tiene una X roja, haz click ahí</li>
+                            <li>Busca el nombre de tu red WiFi y conecta</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>🔄 Paso 2: Reiniciar WiFi</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>Busca la cajita del WiFi (router)</li>
+                            <li>Desconecta el cable de la pared por 1 minuto</li>
+                            <li>Vuelve a conectar y espera 3 minutos</li>
+                        </ul>
+                    </div>
+                    <div class='bg-red-100 border border-red-400 p-3 rounded text-center'>
+                        <p class='text-red-800 font-bold'>📞 Si no funciona: Llama a IT</p>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '5-10 minutos'
+            ],
+            'internet_lento' => [
+                'title' => '🐌 Internet lento - Cómo mejorarlo',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>❌ Paso 1: Cerrar programas innecesarios</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Cierra pestañas del navegador que no uses</li>
+                            <li>Cierra programas de música o video</li>
+                            <li>No descargues archivos grandes mientras trabajas</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>📶 Paso 2: Acercarse al router</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Si usas WiFi, acércate al router</li>
+                            <li>Evita paredes y obstáculos</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>🔄 Paso 3: Reiniciar conexión</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>Desconecta el WiFi y vuelve a conectar</li>
+                            <li>Reinicia tu computadora</li>
+                        </ul>
+                    </div>
+                    <div class='bg-yellow-100 border border-yellow-400 p-3 rounded text-center'>
+                        <p class='text-yellow-800 font-bold'>🐌 Si sigue lento: Contacta al proveedor de internet o IT</p>
+                    </div>
+                </div>",
+                'priority' => 'low',
+                'estimated_time' => '5 minutos'
+            ],
+            'internet_no_navega' => [
+                'title' => '🚫 No puedo navegar - Solución rápida',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>🔍 Paso 1: Verificar conexión</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>¿Dice que estás conectado al WiFi?</li>
+                            <li>Prueba abrir google.com</li>
+                            <li>Si no carga, el problema es de conexión</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>🌐 Paso 2: Reiniciar navegador</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>Cierra completamente tu navegador</li>
+                            <li>Abre de nuevo y prueba</li>
+                            <li>Intenta con otro navegador (Chrome, Edge, Firefox)</li>
+                        </ul>
+                    </div>
+                    <div class='bg-purple-50 border-l-4 border-purple-400 p-4 rounded'>
+                        <h4 class='font-bold text-purple-800 mb-2'>🔌 Paso 3: Verificar cable de red</h4>
+                        <ul class='list-disc list-inside text-purple-700 space-y-1'>
+                            <li>Si usas cable, revisa que esté bien conectado</li>
+                            <li>Prueba desconectar y volver a conectar</li>
+                        </ul>
+                    </div>
+                    <div class='bg-red-100 border border-red-400 p-3 rounded text-center'>
+                        <p class='text-red-800 font-bold'>📞 Si nada funciona: Llama a IT</p>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '3-5 minutos'
+            ],
+
+            // Categoría: Software
+            'software_office' => [
+                'title' => '📋 Problemas con Microsoft Office',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🚫 El programa no abre:</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Reinicia tu computadora</li>
+                            <li>Busca el programa en el menú de Windows</li>
+                            <li>Haz doble click en el ícono</li>
+                            <li>Ten paciencia, a veces demora un poco</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>💾 No puedes guardar:</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Presiona Ctrl + S</li>
+                            <li>Elige 'Documentos' como ubicación</li>
+                            <li>Ponle un nombre que reconozcas</li>
+                        </ul>
+                    </div>
+                    <div class='bg-yellow-100 border border-yellow-400 p-3 rounded text-center'>
+                        <p class='text-yellow-800 font-bold'>🔑 Para problemas de licencia: Llama a IT</p>
+                    </div>
+                </div>",
+                'priority' => 'low',
+                'estimated_time' => '5-10 minutos'
+            ],
+            'software_google' => [
+                'title' => '📄 Problemas con Google Workspace',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>📄 Google Docs/Sheets no carga:</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Verifica tu conexión a internet</li>
+                            <li>Cierra y abre de nuevo el navegador</li>
+                            <li>Intenta en modo incógnito (Ctrl + Shift + N)</li>
+                            <li>Prueba con otro navegador</li>
+                        </ul>
+                    </div>
+                    <div class='bg-orange-50 border-l-4 border-orange-400 p-4 rounded'>
+                        <h4 class='font-bold text-orange-800 mb-2'>✏️ No puedes editar documentos:</h4>
+                        <ul class='list-disc list-inside text-orange-700 space-y-1'>
+                            <li>Verifica que tengas permisos de edición</li>
+                            <li>Pide al dueño del documento que te dé acceso</li>
+                            <li>Asegúrate de estar logueado con la cuenta correcta</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>☁️ Google Drive no sincroniza:</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Revisa tu conexión a internet</li>
+                            <li>Cierra Google Drive y ábrelo de nuevo</li>
+                            <li>Si persiste, contacta a IT</li>
+                        </ul>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '3-5 minutos'
+            ],
+            'software_otro' => [
+                'title' => '⚠️ Otro programa no funciona',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🚫 Programa no abre:</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Reinicia tu computadora</li>
+                            <li>Busca el programa en el menú de Windows</li>
+                            <li>Haz click derecho → 'Ejecutar como administrador'</li>
+                            <li>Si no aparece, puede que no esté instalado</li>
+                        </ul>
+                    </div>
+                    <div class='bg-orange-50 border-l-4 border-orange-400 p-4 rounded'>
+                        <h4 class='font-bold text-orange-800 mb-2'>❌ Programa se cierra solo:</h4>
+                        <ul class='list-disc list-inside text-orange-700 space-y-1'>
+                            <li>Anota exactamente qué estabas haciendo</li>
+                            <li>Intenta abrir el programa de nuevo</li>
+                            <li>Si vuelve a pasar, llama a IT</li>
+                        </ul>
+                    </div>
+                    <div class='bg-purple-50 border-l-4 border-purple-400 p-4 rounded'>
+                        <h4 class='font-bold text-purple-800 mb-2'>⚠️ Error desconocido:</h4>
+                        <ul class='list-disc list-inside text-purple-700 space-y-1'>
+                            <li>Toma una foto del mensaje de error</li>
+                            <li>Anota los pasos que llevaron al error</li>
+                            <li>Contacta a IT con esta información</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-100 border border-blue-400 p-3 rounded text-center'>
+                        <p class='text-blue-800 font-semibold'>💡 Recuerda: Guarda tu trabajo frecuentemente</p>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '5-10 minutos'
+            ],
+
+            // Categoría: Correo
+            'correo_gmail' => [
+                'title' => '📬 Problemas con Gmail - Te guío paso a paso',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🚫 No puedes entrar a Gmail:</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Abre tu navegador (Chrome, Edge, etc.)</li>
+                            <li>Escribe: gmail.com</li>
+                            <li>Usa tu correo completo: tunombre@empresa.com</li>
+                            <li>Si no recuerdas la contraseña, click en '¿Olvidaste la contraseña?'</li>
+                        </ul>
+                    </div>
+                    <div class='bg-orange-50 border-l-4 border-orange-400 p-4 rounded'>
+                        <h4 class='font-bold text-orange-800 mb-2'>📭 No te llegan correos:</h4>
+                        <ul class='list-disc list-inside text-orange-700 space-y-1'>
+                            <li>Revisa la carpeta 'Spam' (correo no deseado)</li>
+                            <li>Revisa 'Promociones' (puede estar ahí)</li>
+                        </ul>
+                    </div>
+                    <div class='bg-yellow-100 border border-yellow-400 p-3 rounded text-center'>
+                        <p class='text-yellow-800 font-bold'>🔑 Para problemas de contraseña: Llama a IT</p>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '3-5 minutos'
+            ],
+            'correo_outlook' => [
+                'title' => '📮 Problemas con Outlook - Solución',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🚫 Outlook no abre:</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Busca 'Outlook' en el menú de Windows</li>
+                            <li>Si no está, puede que no esté instalado</li>
+                            <li>Prueba abrir tu correo en el navegador</li>
+                        </ul>
+                    </div>
+                    <div class='bg-orange-50 border-l-4 border-orange-400 p-4 rounded'>
+                        <h4 class='font-bold text-orange-800 mb-2'>📭 No recibes correos:</h4>
+                        <ul class='list-disc list-inside text-orange-700 space-y-1'>
+                            <li>Revisa la carpeta 'Correo no deseado'</li>
+                            <li>Verifica que tu buzón no esté lleno</li>
+                            <li>Click en 'Enviar y recibir' para actualizar</li>
+                        </ul>
+                    </div>
+                    <div class='bg-purple-50 border-l-4 border-purple-400 p-4 rounded'>
+                        <h4 class='font-bold text-purple-800 mb-2'>🌐 Error de conexión:</h4>
+                        <ul class='list-disc list-inside text-purple-700 space-y-1'>
+                            <li>Verifica tu conexión a internet</li>
+                            <li>Reinicia Outlook</li>
+                            <li>Si persiste, contacta a IT</li>
+                        </ul>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '5-10 minutos'
+            ],
+            'correo_acceso' => [
+                'title' => '🔑 No puedo entrar al correo - Ayuda',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>🔐 Olvidaste la contraseña:</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>En la página de login, click en 'Olvidé mi contraseña'</li>
+                            <li>Ingresa tu correo electrónico</li>
+                            <li>Revisa tu correo personal o teléfono</li>
+                            <li>Sigue las instrucciones para crear nueva contraseña</li>
+                        </ul>
+                    </div>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🔒 Cuenta bloqueada:</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Esto requiere ayuda de IT</li>
+                            <li>Llama inmediatamente: 555-TECH</li>
+                            <li>Ten a mano tu número de empleado</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>❓ No recuerdas tu usuario:</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>Generalmente es: nombre.apellido@empresa.com</li>
+                            <li>O tu número de empleado@empresa.com</li>
+                            <li>Pregunta a tu supervisor o IT</li>
+                        </ul>
+                    </div>
+                </div>",
+                'priority' => 'high',
+                'estimated_time' => '2-5 minutos'
+            ],
+
+            // Categoría: Impresora
+            'impresora_no_imprime' => [
+                'title' => '🚫 La impresora no imprime - Solución',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>🔍 Paso 1: Verificaciones básicas</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>¿Está encendida la impresora?</li>
+                            <li>¿Tiene papel?</li>
+                            <li>¿Hay alguna luz roja parpadeando?</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>🔌 Paso 2: Revisar conexión</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>Si es por cable USB, revisa que esté conectado</li>
+                            <li>Si es WiFi, verifica que esté conectada a la red</li>
+                        </ul>
+                    </div>
+                    <div class='bg-purple-50 border-l-4 border-purple-400 p-4 rounded'>
+                        <h4 class='font-bold text-purple-800 mb-2'>🔄 Paso 3: Reiniciar</h4>
+                        <ul class='list-disc list-inside text-purple-700 space-y-1'>
+                            <li>Apaga la impresora por 30 segundos</li>
+                            <li>Enciéndela de nuevo</li>
+                            <li>Intenta imprimir una página de prueba</li>
+                        </ul>
+                    </div>
+                    <div class='bg-red-100 border border-red-400 p-3 rounded text-center'>
+                        <p class='text-red-800 font-bold'>📞 Si sigue sin imprimir: Contacta a IT</p>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '5-10 minutos'
+            ],
+            'impresora_papel' => [
+                'title' => '📄 Papel atascado - Cómo quitarlo',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>⚡ Paso 1: Apagar la impresora</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Apaga la impresora completamente</li>
+                            <li>Desconecta el cable de corriente</li>
+                        </ul>
+                    </div>
+                    <div class='bg-orange-50 border-l-4 border-orange-400 p-4 rounded'>
+                        <h4 class='font-bold text-orange-800 mb-2'>🔓 Paso 2: Abrir la impresora</h4>
+                        <ul class='list-disc list-inside text-orange-700 space-y-1'>
+                            <li>Abre todas las tapas que puedas</li>
+                            <li>Busca el papel atascado</li>
+                            <li>NO uses fuerza excesiva</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>✋ Paso 3: Quitar el papel</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>Tira del papel suavemente en dirección de la alimentación</li>
+                            <li>Si está muy atorado, llama a IT</li>
+                            <li>Revisa que no queden pedazos</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>✅ Paso 4: Cerrar y probar</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Cierra todas las tapas</li>
+                            <li>Conecta y enciende</li>
+                            <li>Intenta imprimir algo</li>
+                        </ul>
+                    </div>
+                    <div class='bg-yellow-100 border border-yellow-400 p-3 rounded text-center'>
+                        <p class='text-yellow-800 font-bold'>🔄 Si se vuelve a atorar: Llama a IT</p>
+                    </div>
+                </div>",
+                'priority' => 'low',
+                'estimated_time' => '5-10 minutos'
+            ],
+            'impresora_tinta' => [
+                'title' => '🖋️ Problemas de tinta - Qué hacer',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded'>
+                        <h4 class='font-bold text-yellow-800 mb-2'>💡 Imprime muy clarito:</h4>
+                        <ul class='list-disc list-inside text-yellow-700 space-y-1'>
+                            <li>Probablemente se acabó la tinta</li>
+                            <li>Busca el cartucho que está vacío</li>
+                            <li>Reemplázalo por uno nuevo</li>
+                        </ul>
+                    </div>
+                    <div class='bg-orange-50 border-l-4 border-orange-400 p-4 rounded'>
+                        <h4 class='font-bold text-orange-800 mb-2'>〰️ Imprime con rayas:</h4>
+                        <ul class='list-disc list-inside text-orange-700 space-y-1'>
+                            <li>Los cabezales pueden estar sucios</li>
+                            <li>En la configuración de la impresora, busca 'Limpiar cabezales'</li>
+                            <li>Ejecuta la limpieza 2-3 veces</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>🔄 Cómo cambiar cartuchos:</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Abre la impresora</li>
+                            <li>Quita el cartucho vacío presionando la pestaña</li>
+                            <li>Instala el nuevo hasta que haga 'click'</li>
+                            <li>Cierra la impresora</li>
+                        </ul>
+                    </div>
+                    <div class='bg-red-100 border border-red-400 p-3 rounded text-center'>
+                        <p class='text-red-800 font-bold'>📞 Si sigue con problemas: Contacta a IT</p>
+                    </div>
+                </div>",
+                'priority' => 'low',
+                'estimated_time' => '5-15 minutos'
+            ],
+
+            // Categoría: Acceso
+            'acceso_password' => [
+                'title' => '🔑 Olvidé mi contraseña - Recuperación',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🏢 Para cuentas de empresa:</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Llama a IT: 555-TECH (555-8324)</li>
+                            <li>Ten a mano tu número de empleado</li>
+                            <li>Explica qué cuenta necesitas recuperar</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>📧 Para Gmail/Google:</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Ve a gmail.com</li>
+                            <li>Click en 'Olvidé mi contraseña'</li>
+                            <li>Ingresa tu correo</li>
+                            <li>Sigue las instrucciones</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>💻 Para programas específicos:</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>Cada programa tiene su propio proceso</li>
+                            <li>Busca 'Olvidé contraseña' en la pantalla de login</li>
+                            <li>Si no encuentras, contacta a IT</li>
+                        </ul>
+                    </div>
+                    <div class='bg-purple-100 border border-purple-400 p-3 rounded text-center'>
+                        <p class='text-purple-800 font-semibold'>💡 Consejo: Usa el mismo navegador donde guardas contraseñas</p>
+                    </div>
+                </div>",
+                'priority' => 'high',
+                'estimated_time' => '5-15 minutos'
+            ],
+            'acceso_bloqueada' => [
+                'title' => '🔒 Mi cuenta está bloqueada - Solución',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-red-50 border-l-4 border-red-400 p-4 rounded'>
+                        <h4 class='font-bold text-red-800 mb-2'>🚨 Cuenta de empresa bloqueada:</h4>
+                        <ul class='list-disc list-inside text-red-700 space-y-1'>
+                            <li>Esto requiere ayuda de IT obligatoriamente</li>
+                            <li>Llama inmediatamente: 555-TECH (555-8324)</li>
+                            <li>Ten tu número de empleado listo</li>
+                            <li>Explica cuándo se bloqueó y qué estabas haciendo</li>
+                        </ul>
+                    </div>
+                    <div class='bg-orange-50 border-l-4 border-orange-400 p-4 rounded'>
+                        <h4 class='font-bold text-orange-800 mb-2'>⏳ Mientras esperas:</h4>
+                        <ul class='list-disc list-inside text-orange-700 space-y-1'>
+                            <li>No intentes más intentos de login</li>
+                            <li>Esto puede empeorar el bloqueo</li>
+                            <li>Usa tu teléfono personal si es urgente</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>🛡️ Prevenir bloqueos:</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>No compartas tu contraseña</li>
+                            <li>No intentes adivinar contraseñas</li>
+                            <li>Usa solo programas autorizados</li>
+                        </ul>
+                    </div>
+                    <div class='bg-blue-100 border border-blue-400 p-3 rounded text-center'>
+                        <p class='text-blue-800 font-bold'>⚡ IT te desbloqueará en pocos minutos</p>
+                    </div>
+                </div>",
+                'priority' => 'high',
+                'estimated_time' => 'Inmediato - Contactar IT'
+            ],
+            'acceso_archivos' => [
+                'title' => '🚪 No tengo acceso a archivos - Ayuda',
+                'content' => "<div class='space-y-4'>
+                    <div class='bg-blue-50 border-l-4 border-blue-400 p-4 rounded'>
+                        <h4 class='font-bold text-blue-800 mb-2'>🌐 Archivos en red/servidor:</h4>
+                        <ul class='list-disc list-inside text-blue-700 space-y-1'>
+                            <li>Verifica tu conexión a internet</li>
+                            <li>Pregunta a tu supervisor si tienes permisos</li>
+                            <li>Si antes podías acceder, contacta a IT</li>
+                        </ul>
+                    </div>
+                    <div class='bg-green-50 border-l-4 border-green-400 p-4 rounded'>
+                        <h4 class='font-bold text-green-800 mb-2'>💻 Archivos en tu computadora:</h4>
+                        <ul class='list-disc list-inside text-green-700 space-y-1'>
+                            <li>¿Recuerdas dónde los guardaste?</li>
+                            <li>Busca en 'Documentos', 'Escritorio', 'Descargas'</li>
+                            <li>Usa la búsqueda de Windows (tecla Windows + buscar)</li>
+                        </ul>
+                    </div>
+                    <div class='bg-purple-50 border-l-4 border-purple-400 p-4 rounded'>
+                        <h4 class='font-bold text-purple-800 mb-2'>📁 Carpetas compartidas:</h4>
+                        <ul class='list-disc list-inside text-purple-700 space-y-1'>
+                            <li>Pide a quien compartió que verifique los permisos</li>
+                            <li>Asegúrate de usar la cuenta correcta</li>
+                            <li>Si es Google Drive/OneDrive, verifica que estés logueado</li>
+                        </ul>
+                    </div>
+                    <div class='bg-red-100 border border-red-400 p-3 rounded text-center'>
+                        <p class='text-red-800 font-bold'>📞 Si no encuentras archivos importantes: Contacta a IT inmediatamente</p>
+                    </div>
+                </div>",
+                'priority' => 'medium',
+                'estimated_time' => '5-10 minutos'
+            ],
+            // Continuaré con el resto en la siguiente respuesta para no hacer el mensaje muy largo
+        ];
+
+        return $solutions[$problemId] ?? [
+            'title' => 'Solución no encontrada',
+            'content' => "<div class='bg-red-100 border border-red-400 p-4 rounded text-center'>
+                <p class='text-red-800 font-bold'>❌ Lo siento, no tengo una solución específica para este problema.</p>
+                <p class='text-red-700 mt-2'>Por favor contacta a IT para ayuda personalizada.</p>
+            </div>",
+            'priority' => 'high',
+            'estimated_time' => 'Inmediato'
+        ];
+    }
+
+    /**
+     * Marcar problema como resuelto
+     */
+    private function markResolved($sessionId)
+    {
+        $conversation = TechSupportConversation::where('session_id', $sessionId)->latest()->first();
+        
+        if ($conversation) {
+            $conversation->update(['problem_solved' => true]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Problema marcado como resuelto']);
+    }
+
+    /**
+     * Escalar a IT
+     */
+    private function escalateToIT($sessionId, $reason = null)
+    {
+        $conversation = TechSupportConversation::where('session_id', $sessionId)->latest()->first();
+        
+        if ($conversation) {
+            $conversation->update([
+                'escalated_to_human' => true,
+                'resolution_method' => 'escalated_to_it'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Gracias por usar el sistema de soporte técnico. Para problemas más complejos que requieran atención personalizada, por favor contacta directamente al departamento de IT.'
+        ]);
+    }
+
+    /**
+     * Obtener estadísticas básicas
+     */
+    private function getStats()
+    {
+        $totalConversations = TechSupportConversation::count();
+        $resolvedToday = TechSupportConversation::whereDate('created_at', today())
+            ->where('problem_solved', true)->count();
+        $escalatedToday = TechSupportConversation::whereDate('created_at', today())
+            ->where('escalated_to_human', true)->count();
+
+        // Categorías populares de la última semana
+        $categoriesPopular = TechSupportConversation::selectRaw('problem_category, COUNT(*) as count')
+            ->whereDate('created_at', '>=', now()->subDays(7))
+            ->whereNotNull('problem_category')
+            ->groupBy('problem_category')
+            ->orderByDesc('count')
+            ->limit(3)
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'problem_category' => $item->problem_category,
+                    'count' => (int) $item->count
+                ];
+            });
+
+        return [
+            'total_conversations' => $totalConversations,
+            'resolved_today' => $resolvedToday,
+            'escalated_today' => $escalatedToday,
+            'categories_popular' => $categoriesPopular
+        ];
+    }
+
+    /**
+     * Obtener estadísticas detalladas para el dashboard
+     */
+    private function getDetailedStats()
+    {
+        $baseStats = TechSupportConversation::getSolutionEffectiveness();
+        
+        // Obtener estadísticas por categoría con formato consistente
+        $categoryStats = TechSupportConversation::selectRaw('
+            problem_category,
+            COUNT(*) as total,
+            SUM(CASE WHEN problem_solved = 1 THEN 1 ELSE 0 END) as resolved,
+            SUM(CASE WHEN escalated_to_human = 1 THEN 1 ELSE 0 END) as escalated
+        ')
+        ->whereDate('created_at', '>=', now()->subDays(30))
+        ->whereNotNull('problem_category')
+        ->groupBy('problem_category')
+        ->get()
+        ->map(function ($item) {
+            return (object) [
+                'problem_category' => $item->problem_category,
+                'total' => (int) $item->total,
+                'resolved' => (int) $item->resolved,
+                'escalated' => (int) $item->escalated
+            ];
+        });
+
+        // Obtener problemas populares
+        $popularProblems = TechSupportConversation::selectRaw('
+            problem_type,
+            problem_category,
+            COUNT(*) as count
+        ')
+        ->whereDate('created_at', '>=', now()->subDays(30))
+        ->whereNotNull('problem_type')
+        ->groupBy('problem_type', 'problem_category')
+        ->orderByDesc('count')
+        ->limit(10)
+        ->get()
+        ->map(function ($item) {
+            return (object) [
+                'problem_type' => $item->problem_type,
+                'problem_category' => $item->problem_category,
+                'count' => (int) $item->count
+            ];
+        });
+
+        // Estadísticas diarias
+        $dailyStats = TechSupportConversation::selectRaw('
+            DATE(created_at) as date, 
+            COUNT(*) as count
+        ')
+        ->whereDate('created_at', '>=', now()->subDays(7))
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get()
+        ->map(function ($item) {
+            return (object) [
+                'date' => $item->date,
+                'count' => (int) $item->count
+            ];
+        });
+
+        // Distribución horaria
+        $hourlyDistribution = TechSupportConversation::selectRaw('
+            HOUR(created_at) as hour, 
+            COUNT(*) as count
+        ')
+        ->whereDate('created_at', '>=', now()->subDays(7))
+        ->groupBy('hour')
+        ->orderBy('hour')
+        ->get()
+        ->map(function ($item) {
+            return (object) [
+                'hour' => (int) $item->hour,
+                'count' => (int) $item->count
+            ];
+        });
+
+        return array_merge($baseStats ?? [], [
+            'category_stats' => $categoryStats,
+            'popular_problems' => $popularProblems,
+            'daily_stats' => $dailyStats,
+            'hourly_distribution' => $hourlyDistribution
+        ]);
+    }
+
+    /**
+     * Mapear categoría a enum de la base de datos
+     */
+    private function mapCategoryToEnum($category)
+    {
+        $mapping = [
+            'computadora' => 'computer',
+            'internet' => 'internet',
+            'correo' => 'email',
+            'impresora' => 'printer',
+            'software' => 'software',
+            'acceso' => 'access'
+        ];
+        
+        return $mapping[$category] ?? 'other';
+    }
+}

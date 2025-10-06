@@ -207,11 +207,7 @@
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-600">Lunes - Viernes:</span>
-                            <span class="font-medium">8:00 AM - 6:00 PM</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Sábados:</span>
-                            <span class="font-medium">9:00 AM - 2:00 PM</span>
+                            <span class="font-medium">7:30 AM - 3:00 PM</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Emergencias:</span>
@@ -229,6 +225,7 @@
 <script>
 let currentSessionId = null;
 let currentStep = 'categories';
+let currentCategory = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Generar nuevo session ID
@@ -247,6 +244,10 @@ function generateSessionId() {
     return 'tech_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
+function getCurrentCategory() {
+    return currentCategory;
+}
+
 function loadCategories() {
     fetch('{{ route("tech-support.interact") }}', {
         method: 'POST',
@@ -255,7 +256,7 @@ function loadCategories() {
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
-            action: 'get_categories',
+            type: 'start',
             session_id: currentSessionId
         })
     })
@@ -308,6 +309,7 @@ function displayCategories(categories) {
 }
 
 function selectCategory(categoryId) {
+    currentCategory = categoryId; // Guardar la categoría actual
     addMessageToChat('user', `Seleccioné: ${categoryId}`);
     
     fetch('{{ route("tech-support.interact") }}', {
@@ -317,8 +319,8 @@ function selectCategory(categoryId) {
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
-            action: 'select_category',
-            value: categoryId,
+            type: 'category_selected',
+            category: categoryId,
             session_id: currentSessionId
         })
     })
@@ -380,8 +382,9 @@ function selectProblem(problemId) {
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
-            action: 'select_problem',
-            value: problemId,
+            type: 'problem_selected',
+            problem_id: problemId,
+            category: getCurrentCategory(),
             session_id: currentSessionId
         })
     })
@@ -470,6 +473,7 @@ function addMessageToChat(sender, message) {
 function restartChat() {
     currentSessionId = generateSessionId();
     currentStep = 'categories';
+    currentCategory = null; // Limpiar categoría actual
     
     // Limpiar chat completamente
     document.getElementById('tech-support-chat').innerHTML = `
@@ -507,8 +511,9 @@ function escalateToIT() {
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
-            action: 'escalate_to_it',
-            session_id: currentSessionId
+            type: 'escalate',
+            session_id: currentSessionId,
+            reason: 'Usuario solicitó escalamiento manual'
         })
     })
     .then(response => response.json())
@@ -532,7 +537,7 @@ function markAsResolved() {
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
-            action: 'mark_resolved',
+            type: 'mark_resolved',
             session_id: currentSessionId
         })
     })

@@ -10,6 +10,7 @@ use App\Http\Controllers\RecommendationsController;
 use App\Http\Controllers\AgentConfigurationController;
 use App\Http\Controllers\CorporateInfoController;
 use App\Http\Controllers\TechSupportController;
+use App\Http\Controllers\Admin\TechSupportManagementController;
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -87,6 +88,24 @@ Route::middleware('auth')->group(function () {
         // Rutas con parámetros AL FINAL
         Route::delete('/{employee}', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'destroy'])->name('destroy');
         Route::get('/{employee}', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'show'])->name('show');
+    });
+
+    // Rutas para gestión de soporte técnico
+    Route::prefix('admin/tech-support')->name('admin.tech-support.')->middleware(['auth'])->group(function () {
+        Route::get('/', [TechSupportManagementController::class, 'index'])->name('index');
+        
+        // Categorías
+        Route::post('/categories', [TechSupportManagementController::class, 'storeCategory'])->name('categories.store');
+        Route::put('/categories/{category}', [TechSupportManagementController::class, 'updateCategory'])->name('categories.update');
+        Route::delete('/categories/{category}', [TechSupportManagementController::class, 'destroyCategory'])->name('categories.destroy');
+        
+        // Problemas
+        Route::post('/problems', [TechSupportManagementController::class, 'storeProblem'])->name('problems.store');
+        Route::put('/problems/{problem}', [TechSupportManagementController::class, 'updateProblem'])->name('problems.update');
+        Route::delete('/problems/{problem}', [TechSupportManagementController::class, 'destroyProblem'])->name('problems.destroy');
+        
+        // Toggle active
+        Route::post('/toggle-active', [TechSupportManagementController::class, 'toggleActive'])->name('toggle-active');
     });
 });
 

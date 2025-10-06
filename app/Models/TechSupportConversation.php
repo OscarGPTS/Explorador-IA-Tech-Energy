@@ -22,7 +22,12 @@ class TechSupportConversation extends Model
         'resolution_method',
         'interaction_step',
         'context_data',
-        'resolved_at'
+        'resolved_at',
+        // Nuevas columnas para la estructura dinámica
+        'tech_support_category_id',
+        'tech_support_problem_id',
+        'problem_category_dynamic',
+        'problem_key'
     ];
 
     protected $casts = [
@@ -31,6 +36,17 @@ class TechSupportConversation extends Model
         'escalated_to_human' => 'boolean',
         'resolved_at' => 'datetime'
     ];
+
+    // Relaciones
+    public function category()
+    {
+        return $this->belongsTo(TechSupportCategory::class, 'tech_support_category_id');
+    }
+
+    public function problem()
+    {
+        return $this->belongsTo(TechSupportProblem::class, 'tech_support_problem_id');
+    }
 
     // Scopes
     public function scopeByCategory(Builder $query, string $category): Builder
@@ -61,6 +77,12 @@ class TechSupportConversation extends Model
     // Accessors
     public function getCategoryLabelAttribute(): string
     {
+        // Preferir la categoría dinámica si existe
+        if ($this->category) {
+            return $this->category->display_name;
+        }
+        
+        // Fallback a la categoría estática
         return match($this->problem_category) {
             'computer' => 'Problemas de Computadora',
             'internet' => 'Problemas de Internet',
@@ -71,7 +93,7 @@ class TechSupportConversation extends Model
             'google' => 'Google Suite',
             'office' => 'Microsoft Office',
             'other' => 'Otros',
-            default => 'Sin Categoría'
+            default => $this->problem_category_dynamic ?? 'Sin Categoría'
         };
     }
 
@@ -116,14 +138,65 @@ class TechSupportConversation extends Model
 
     public static function getCategoryStats(int $days = 30): array
     {
-        return self::recent($days)
-            ->selectRaw('problem_category, COUNT(*) as count, 
-                        SUM(CASE WHEN problem_solved = 1 THEN 1 ELSE 0 END) as solved,
-                        SUM(CASE WHEN escalated_to_human = 1 THEN 1 ELSE 0 END) as escalated')
-            ->whereNotNull('problem_category')
-            ->groupBy('problem_category')
-            ->orderByDesc('count')
+        // Estadísticas usando las nuevas categorías dinámicas
+        $dynamicStats = self::join('tech_support_categories', 'tech_support_conversations.tech_support_category_id', '=', 'tech_support_categories.id')
+            ->selectRaw('tech_support_categories.display_name as category_name, 
+                        tech_support_categories.name as category_key,
+                        COUNT(*) as count, 
+                        SUM(CASE WHEN tech_support_conversations.problem_solved = 1 THEN 1 ELSE 0 END) as solved,
+                        SUM(CASE WHEN tech_support_conversations.escalated_to_human = 1 THEN 1 ELSE 0 END) as escalated')
+            ->where('tech_support_conversations.created_at', '>=', now()->subDays($days))
+            ->whereNotNull('tech_support_conversations.tech_support_category_id')
+            ->groupBy('tech_support_categories.id', 'tech_support_categories.display_name', 'tech_support_categories.name')
             ->get()
-            ->toArray();
+            ->map(function ($item) {
+                return (object) [
+                    'problem_category' => $item->category_key,
+                    'category_name' => $item->category_name,
+                    'count' => (int) $item->count,
+                    'solved' => (int) $item->solved,
+                    'escalated' => (int) $item->escalated,
+                    'is_dynamic' => true
+                ];
+            });
+
+        // Estadísticas usando las categorías estáticas (para compatibilidad)
+        $staticStats = self::selectRaw('problem_category, COUNT(*) as count, 
+                    SUM(CASE WHEN problem_solved = 1 THEN 1 ELSE 0 END) as solved,
+                    SUM(CASE WHEN escalated_to_human = 1 THEN 1 ELSE 0 END) as escalated')
+            ->where('created_at', '>=', now()->subDays($days))
+            ->whereNotNull('problem_category')
+            ->whereNull('tech_support_category_id') // Solo los que no tienen categoría dinámica
+            ->groupBy('problem_category')
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'problem_category' => $item->problem_category,
+                    'category_name' => self::getCategoryNameFromOldValue($item->problem_category),
+                    'count' => (int) $item->count,
+                    'solved' => (int) $item->solved,
+                    'escalated' => (int) $item->escalated,
+                    'is_dynamic' => false
+                ];
+            });
+
+        // Combinar ambos conjuntos de estadísticas
+        return $dynamicStats->concat($staticStats)->toArray();
+    }
+
+    private static function getCategoryNameFromOldValue($category): string
+    {
+        return match($category) {
+            'computer' => 'Computadora (Legacy)',
+            'internet' => 'Internet (Legacy)',
+            'email' => 'Email (Legacy)',
+            'printer' => 'Impresora (Legacy)',
+            'software' => 'Software (Legacy)',
+            'access' => 'Acceso (Legacy)',
+            'google' => 'Google Suite (Legacy)',
+            'office' => 'Microsoft Office (Legacy)',
+            'other' => 'Otros (Legacy)',
+            default => $category . ' (Legacy)'
+        };
     }
 }
