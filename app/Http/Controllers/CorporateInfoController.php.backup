@@ -3,9 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use App\Models\TempEmployee;
-use App\Models\CompanyLocation;
-use App\Models\CompanyDocument;
+use App\Models\CompanyLoc        if (str_contains($message, 'soporte') || str_contains($message, 'ayuda técnica') || str_contains($message, 'problema') || str_contains($message, 'técnico') || str_contains($message, 'no funciona') || str_contains($message, 'error')) {
+            return [
+                'message' => '🔧 **Soporte Técnico - Te ayudo con lo que necesites**
+
+¿Qué problema tienes? Selecciona o describe:
+
+• **💻 Mi computadora** - Va lenta, no enciende, tiene errores
+• **🌐 Internet o WiFi** - No tengo internet, va muy lento
+• **📧 Correo electrónico** - Gmail, Outlook, no puedo enviar/recibir
+• **🖨️ Impresora** - No imprime, se atascó el papel
+• **📁 Google Drive/Docs** - No puedo abrir archivos, no guarda
+• **📊 Word/Excel** - Problemas con documentos de Office
+• **🔑 Contraseñas** - Olvidé mi contraseña, no puedo entrar
+• **📞 Hablar con un técnico** - Necesito ayuda personalizada
+
+Dime qué te pasa y te ayudo paso a paso 😊',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Mi computadora va lenta', 'No tengo internet', 'Problemas con Gmail', 'Hablar con técnico']
+            ];
+        }els\CompanyDocument;
+use App\Models\TechSupportConversation;
 
 class CorporateInfoController extends Controller
 {
@@ -27,9 +48,9 @@ class CorporateInfoController extends Controller
         
         if (!empty($department)) {
             $query->byDepartment($department);
-        }
-        
+       
         $employees = $query->limit(20)->get();
+        }
          
         return response()->json([
             'employees' => $employees->map(function($emp) {
@@ -123,7 +144,7 @@ class CorporateInfoController extends Controller
             return response()->json($response);
         } catch (\Exception $e) {
             // Log del error para debug
-            \Log::error('Error en chatBot: ' . $e->getMessage(), [
+            Log::error('Error en chatBot: ' . $e->getMessage(), [
                 'message' => $request->get('message', ''),
                 'context' => $request->get('context', []),
                 'trace' => $e->getTraceAsString()
@@ -151,8 +172,8 @@ class CorporateInfoController extends Controller
         switch ($context['step']) {
             case 'employee_search':
                 return $this->handleEmployeeSearch($message, $context);
-            case 'location_search':
-                return $this->handleLocationSearch($message, $context);
+            case 'tech_support':
+                return $this->handleTechSupport($message, $context);
             case 'document_search':
                 return $this->handleDocumentSearch($message, $context);
             default:
@@ -182,20 +203,22 @@ Escribe el nombre, departamento, cargo o cualquier término relacionado.',
             ];
         }
         
-        if (str_contains($message, 'oficina') || str_contains($message, 'ubicación') || str_contains($message, 'dirección') || str_contains($message, 'lugar')) {
+        if (str_contains($message, 'soporte') || str_contains($message, 'ayuda técnica') || str_contains($message, 'problema') || str_contains($message, 'técnico') || str_contains($message, 'no funciona') || str_contains($message, 'error')) {
             return [
-                'message' => '📍 **Ubicaciones de la Empresa**
+                'message' => '� **Soporte Técnico**
 
-Puedo ayudarte con información sobre:
+¿Qué tipo de problema técnico tienes?
 
-• **Oficina Principal** - Sede central
-• **Sucursales** - Oficinas regionales  
-• **Centros de Datos** - Infraestructura IT
-• **Almacenes** - Centros logísticos
+• **💻 Problemas de computadora** - Lenta, no enciende, pantalla azul
+• **🌐 Problemas de internet** - Sin conexión, lento, WiFi
+• **📧 Problemas de email** - No recibe, no envía, Outlook
+• **🖨️ Problemas de impresora** - No imprime, atascos, tóner
+• **📱 Problemas de software** - Aplicaciones, licencias, instalación
+• **🔐 Problemas de acceso** - Contraseñas, permisos, VPN
 
-¿Qué ubicación específica te interesa o quieres ver todas?',
-                'context' => ['step' => 'location_search', 'type' => 'location'],
-                'suggestions' => ['Oficina Principal', 'Ver todas', 'Por ciudad']
+Describe tu problema o selecciona una categoría.',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Computadora lenta', 'Sin internet', 'Email no funciona', 'Impresora']
             ];
         }
         
@@ -205,15 +228,15 @@ Puedo ayudarte con información sobre:
 
 Categorías disponibles:
 
-• **HR** - Políticas de recursos humanos
-• **IT** - Manuales técnicos y procedimientos
-• **Finanzas** - Políticas financieras
-• **Legal** - Documentos legales
-• **Operaciones** - Procedimientos operativos
+• **Contexto de Planificación** - Documentos de planificación estratégica
+• **Procedimientos Normativos** - Normas y políticas corporativas
+• **Procedimientos Operativos** - Procesos y procedimientos operacionales
+• **Mejora Continua** - Documentos de calidad y mejora continua
+• **General** - Documentos generales de la empresa
 
 ¿Qué tipo de documento necesitas?',
                 'context' => ['step' => 'document_search', 'type' => 'document'],
-                'suggestions' => ['Políticas HR', 'Manuales IT', 'Procedimientos', 'Ver categorías']
+                'suggestions' => ['Procedimientos Operativos', 'Mejora Continua', 'Ver todos', 'Ver categorías']
             ];
         }
         
@@ -223,18 +246,18 @@ Categorías disponibles:
 
 Puedo ayudarte con información interna de la empresa:
 
-**� Empleados**
+**👤 Empleados**
 Buscar contactos, departamentos y cargos
 
-**📍 Ubicaciones**  
-Oficinas, direcciones y horarios
-
-**📄 Documentos**
+**� Documentos**
 Políticas, manuales y procedimientos
+
+**� Soporte Técnico**
+Ayuda con problemas de computadora, internet, email e impresoras
 
 **¿Qué información necesitas?**',
             'context' => ['step' => 'initial'],
-            'suggestions' => ['Buscar empleado', 'Ver ubicaciones', 'Encontrar documento', 'Ayuda']
+            'suggestions' => ['Buscar empleado', 'Encontrar documento', 'Soporte técnico', 'Ayuda']
         ];
     }
 
@@ -243,26 +266,6 @@ Políticas, manuales y procedimientos
         // Comandos especiales
         if (str_contains($message, 'menú') || str_contains($message, 'inicio')) {
             return $this->handleInitialMessage('');
-        }
-        
-        // Nueva búsqueda
-        if (str_contains($message, 'nueva búsqueda') || str_contains($message, 'buscar otro')) {
-            return [
-                'message' => '👤 **Búsqueda de Empleados**
-
-¿Qué información específica necesitas?
-
-• Buscar por **nombre** (ej: "María González")
-• Buscar por **departamento** (ej: "Tecnología", "Recursos Humanos")
-• Buscar por **cargo/posición** (ej: "Gerente", "Desarrollador", "Analista")
-• Ver **departamentos disponibles**
-• Ver **cargos disponibles**
-• Buscar por **jefe/manager** (ej: "empleados de juan.perez@empresa.com")
-
-Escribe el nombre, departamento, cargo o cualquier término relacionado.',
-                'context' => ['step' => 'employee_search', 'type' => 'employee'],
-                'suggestions' => ['Ver departamentos', 'Ver cargos', 'Tecnología', 'Gerente']
-            ];
         }
         
                 // Ver departamentos
@@ -287,7 +290,7 @@ Escribe el nombre, departamento, cargo o cualquier término relacionado.',
                     ];
                 }
             } catch (\Exception $e) {
-                \Log::error('Error al obtener departamentos: ' . $e->getMessage());
+                Log::error('Error al obtener departamentos: ' . $e->getMessage());
                 return [
                     'message' => "❌ Hubo un error al obtener los departamentos. Por favor intenta de nuevo.",
                     'context' => ['step' => 'employee_search', 'type' => 'employee'],
@@ -320,7 +323,7 @@ Escribe el nombre, departamento, cargo o cualquier término relacionado.',
                     ];
                 }
             } catch (\Exception $e) {
-                \Log::error('Error al obtener cargos: ' . $e->getMessage());
+                Log::error('Error al obtener cargos: ' . $e->getMessage());
                 return [
                     'message' => "❌ Hubo un error al obtener los cargos. Por favor intenta de nuevo.",
                     'context' => ['step' => 'employee_search', 'type' => 'employee'],
@@ -446,196 +449,567 @@ Escribe el nombre, departamento, cargo o cualquier término relacionado.',
         ];
     }
 
-    private function handleLocationSearch($message, $context)
+    private function handleTechSupport($message, $context)
     {
-        // Comandos especiales de navegación
-        if (str_contains($message, 'menú') || str_contains($message, 'inicio') || str_contains($message, 'principal')) {
+        // Comandos especiales
+        if (str_contains($message, 'menú') || str_contains($message, 'inicio')) {
             return $this->handleInitialMessage('');
         }
         
-        // Nueva búsqueda
-        if (str_contains($message, 'nueva búsqueda') || str_contains($message, 'buscar otra')) {
+        // Problemas de computadora
+        if (str_contains($message, 'computadora') || str_contains($message, 'pc') || str_contains($message, 'lenta') || str_contains($message, 'lento') || str_contains($message, 'no enciende') || str_contains($message, 'pantalla azul')) {
             return [
-                'message' => '📍 **Ubicaciones de la Empresa**
+                'message' => '💻 **Problemas de Computadora**
 
-Puedo ayudarte con información sobre:
+**Computadora Lenta:**
+• Cierra programas innecesarios (Ctrl+Shift+Esc)
+• Reinicia la computadora
+• Verifica espacio en disco (debe tener al menos 15% libre)
+• Ejecuta antivirus
 
-• **Oficina Principal** - Sede central
-• **Sucursales** - Oficinas regionales  
-• **Centros de Datos** - Infraestructura IT
-• **Almacenes** - Centros logísticos
+**No Enciende:**
+• Verifica que el cable de poder esté conectado
+• Presiona el botón de encendido por 10 segundos
+• Verifica que el monitor esté encendido
+• Si persiste, contacta a IT: ext. 1001
 
-¿Qué ubicación específica te interesa o quieres ver todas?',
-                'context' => ['step' => 'location_search', 'type' => 'location'],
-                'suggestions' => ['Oficina Principal', 'Ver todas', 'Por ciudad']
+**Pantalla Azul (BSOD):**
+• Anota el código de error
+• Reinicia la computadora
+• Si se repite, contacta inmediatamente a IT
+• No instales software no autorizado
+
+¿Necesitas ayuda con algo específico?',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Contactar IT', 'Otro problema', 'Internet', 'Menú principal']
             ];
         }
         
-        $locations = CompanyLocation::active()->search($message)->limit(5)->get();
-        
-        if ($locations->count() > 0) {
-            $response = "Encontré " . $locations->count() . " ubicación(es):\n\n";
-            foreach ($locations as $loc) {
-                $response .= "📍 **{$loc->name}** ({$loc->type_label})\n";
-                $response .= "   🏠 {$loc->full_address}\n";
-                $response .= "   📞 {$loc->phone}\n";
-                if ($loc->contact_person) {
-                    $response .= "   👤 Contacto: {$loc->contact_person}\n";
-                }
-                $response .= "\n";
-            }
-        } else {
-            $response = "No encontré ubicaciones con esa información. ¿Podrías ser más específico?";
+        // Problemas de internet
+        if (str_contains($message, 'internet') || str_contains($message, 'wifi') || str_contains($message, 'conexión') || str_contains($message, 'sin internet') || str_contains($message, 'red')) {
+            return [
+                'message' => '🌐 **Problemas de Internet/WiFi**
+
+**Sin Conexión:**
+• Verifica que el cable de red esté conectado
+• Reinicia el router (desconecta 30 seg, conecta)
+• Verifica WiFi: busca red "EmpresaWiFi" 
+• Contraseña WiFi: Empresa2024!
+
+**Internet Lento:**
+• Cierra pestañas del navegador innecesarias
+• Pausa descargas grandes
+• Reinicia el navegador
+• Verifica uso de VPN (puede ser más lento)
+
+**Problemas de WiFi:**
+• Olvida y reconecta a la red WiFi
+• Acércate al punto de acceso
+• Verifica que otros dispositivos funcionen
+• Si persiste, contacta IT: ext. 1001
+
+**Configuración de Red:**
+• IP automática (DHCP habilitado)
+• DNS: 8.8.8.8 / 8.8.4.4
+• Proxy: Sin configurar
+
+¿El problema persiste?',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Contactar IT', 'Email', 'Impresora', 'Menú principal']
+            ];
         }
         
+        // Problemas de email
+        if (str_contains($message, 'email') || str_contains($message, 'correo') || str_contains($message, 'outlook') || str_contains($message, 'no recibe') || str_contains($message, 'no envía')) {
+            return [
+                'message' => '📧 **Problemas de Email/Outlook**
+
+**No Recibe Emails:**
+• Verifica la carpeta SPAM/Correo no deseado
+• Revisa que el buzón no esté lleno
+• Sincroniza: Enviar/Recibir (F9)
+• Verifica conexión a internet
+
+**No Puede Enviar:**
+• Verifica dirección del destinatario
+• Revisa tamaño de archivos adjuntos (máx 25MB)
+• Verifica conexión a internet
+• Reinicia Outlook
+
+**Configuración de Email:**
+• Servidor: mail.empresa.com
+• Puerto IMAP: 993 (SSL)
+• Puerto SMTP: 587 (TLS)
+• Usuario: tu.usuario@empresa.com
+
+**Outlook Lento/Colgado:**
+• Cierra y abre Outlook
+• Reinicia en modo seguro: Outlook /safe
+• Verifica actualizaciones de Office
+• Contacta IT si persiste: ext. 1001
+
+**Recuperar Email Eliminado:**
+• Revisa "Elementos eliminados"
+• Clic derecho > "Recuperar elementos eliminados"
+• Plazo: 30 días para recuperación
+
+¿Qué problema específico tienes?',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Contactar IT', 'Impresora', 'Software', 'Menú principal']
+            ];
+        }
+        
+        // Problemas de impresora
+        if (str_contains($message, 'impresora') || str_contains($message, 'imprimir') || str_contains($message, 'no imprime') || str_contains($message, 'atasco') || str_contains($message, 'tóner')) {
+            return [
+                'message' => '�️ **Problemas de Impresora**
+
+**No Imprime:**
+• Verifica que la impresora esté encendida
+• Revisa conexión USB o red
+• Verifica papel en la bandeja
+• Cancela trabajos pendientes
+• Reinicia la impresora
+
+**Atasco de Papel:**
+• Apaga la impresora
+• Abre todas las bandejas y puertas
+• Retira papel con cuidado (no fuerces)
+• Cierra todo y enciende
+• Si persiste, contacta IT: ext. 1001
+
+**Tóner/Tinta Baja:**
+• Remueve y agita el cartucho suavemente
+• Reinstala el cartucho
+• Para tóner: solicita reemplazo a Administración
+• Para emergencia: ext. 1001
+
+**Configuración:**
+• Impresora de red: \\\\servidor\\HP_LaserJet
+• Agregar impresora: Panel de Control > Dispositivos
+• Driver disponible en: \\\\servidor\\drivers
+
+**Calidad de Impresión:**
+• Verifica configuración (calidad/economía)
+• Limpia cabezales (utilidad de impresora)
+• Alinea cartuchos
+• Usa papel adecuado (75-90gr)
+
+¿Qué problema tienes exactamente?',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Contactar IT', 'Software', 'Acceso', 'Menú principal']
+            ];
+        }
+        
+        // Problemas de software
+        if (str_contains($message, 'software') || str_contains($message, 'programa') || str_contains($message, 'aplicación') || str_contains($message, 'instalación') || str_contains($message, 'licencia')) {
+            return [
+                'message' => '📱 **Problemas de Software**
+
+**Instalación de Software:**
+• Solo IT puede instalar nuevo software
+• Solicita por ticket: it@empresa.com
+• Incluye: nombre, versión, justificación
+• Tiempo de respuesta: 24-48 horas
+
+**Software Colgado/No Responde:**
+• Ctrl+Alt+Del > Administrador de tareas
+• Busca el programa y "Finalizar tarea"
+• Reinicia la aplicación
+• Si persiste, reinicia la computadora
+
+**Actualizaciones:**
+• Windows Update: automático (no desactives)
+• Office: automático via IT
+• Antivirus: automático
+• Otros: consulta con IT antes
+
+**Licencias/Activación:**
+• Office: contacta IT si pide activación
+• Windows: contacta IT inmediatamente
+• Software específico: verificar con IT
+• No uses software pirata (política empresa)
+
+**Software Autorizado:**
+• Microsoft Office 365
+• Adobe Acrobat Reader
+• Google Chrome/Firefox
+• Antivirus corporativo
+• Software específico por departamento
+
+**Problemas Comunes:**
+• Reinicia el programa
+• Verifica actualizaciones
+• Ejecuta como administrador
+• Contacta IT: ext. 1001
+
+¿Qué software te está dando problemas?',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Contactar IT', 'Acceso', 'Internet', 'Menú principal']
+            ];
+        }
+        
+        // Problemas de acceso/contraseñas
+        if (str_contains($message, 'contraseña') || str_contains($message, 'password') || str_contains($message, 'acceso') || str_contains($message, 'login') || str_contains($message, 'bloqueado') || str_contains($message, 'vpn')) {
+            return [
+                'message' => '🔐 **Problemas de Acceso y Contraseñas**
+
+**Contraseña Olvidada:**
+• Windows: Ctrl+Alt+Del > Cambiar contraseña
+• Si no funciona: contacta IT ext. 1001
+• Email: usar portal: https://portal.empresa.com
+• Tiempo de restablecimiento: 15 minutos
+
+**Cuenta Bloqueada:**
+• Espera 30 minutos (desbloqueo automático)
+• Si es urgente: contacta IT ext. 1001
+• Evita más intentos fallidos
+• Verifica CAPS LOCK
+
+**Política de Contraseñas:**
+• Mínimo 8 caracteres
+• Al menos 1 mayúscula, 1 número, 1 símbolo
+• Cambio cada 90 días
+• No reutilizar últimas 12 contraseñas
+
+**VPN (Trabajo Remoto):**
+• Cliente: Cisco AnyConnect
+• Servidor: vpn.empresa.com
+• Usuario: tu.usuario@empresa.com
+• Si no conecta: contacta IT ext. 1001
+
+**Acceso a Sistemas:**
+• ERP: https://erp.empresa.com
+• Portal empleados: https://portal.empresa.com
+• Timesheet: https://tiempo.empresa.com
+• Documentos: https://docs.empresa.com
+
+**Permisos de Carpetas:**
+• Si no puedes acceder: contacta tu supervisor
+• Solicitudes de acceso: it@empresa.com
+• Incluye: carpeta, nivel de acceso, justificación
+
+¿Qué tipo de acceso necesitas?',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Contactar IT', 'Computadora', 'Email', 'Menú principal']
+            ];
+        }
+        
+        // Contactar IT directamente
+        if (str_contains($message, 'contactar it') || str_contains($message, 'hablar con técnico') || str_contains($message, 'urgente')) {
+            return [
+                'message' => '📞 **Contactar Soporte IT**
+
+**Información de Contacto:**
+• **Teléfono:** Extensión 1001
+• **Email:** it@empresa.com
+• **Portal de Tickets:** https://soporte.empresa.com
+• **Horario:** Lunes a Viernes 8:00 AM - 6:00 PM
+
+**Para Emergencias (24/7):**
+• **Teléfono:** +1-800-IT-URGENTE
+• **WhatsApp:** +1-555-TECH-911
+
+**Información a Proporcionar:**
+• Tu nombre completo y departamento
+• Número de empleado
+• Descripción detallada del problema
+• Mensaje de error (si existe)
+• Pasos que ya intentaste
+
+**Tiempos de Respuesta:**
+• Crítico (sistema caído): 30 minutos
+• Alto (email/impresora): 2-4 horas  
+• Medio (software): 24 horas
+• Bajo (capacitación): 48-72 horas
+
+**Problemas Críticos:**
+• Servidor caído
+• Falta total de internet
+• Violación de seguridad
+• Pérdida de datos
+
+¿Es una emergencia o puedes esperar soporte regular?',
+                'context' => ['step' => 'tech_support', 'type' => 'support'],
+                'suggestions' => ['Es emergencia', 'Puede esperar', 'Otro problema', 'Menú principal']
+            ];
+        }
+        
+        // Búsqueda general o mensaje no reconocido
         return [
-            'message' => $response,
-            'context' => ['step' => 'location_search', 'type' => 'location'],
-            'suggestions' => ['Nueva búsqueda', 'Ver todas', 'Menú principal']
+            'message' => '🔧 **Soporte Técnico - ¿Cómo puedo ayudarte?**
+
+Selecciona el tipo de problema que tienes:
+
+• **💻 Computadora** - Lenta, no enciende, errores
+• **🌐 Internet/WiFi** - Sin conexión, lento
+• **📧 Email/Outlook** - No recibe, no envía
+• **🖨️ Impresora** - No imprime, atascos, tóner
+• **📱 Software** - Instalación, licencias, errores
+• **🔐 Acceso** - Contraseñas, permisos, VPN
+• **📞 Contactar IT** - Hablar con un técnico
+
+O describe tu problema con más detalle.',
+            'context' => ['step' => 'tech_support', 'type' => 'support'],
+            'suggestions' => ['Computadora lenta', 'Sin internet', 'Email problema', 'Contactar IT']
         ];
     }
 
     private function handleDocumentSearch($message, $context)
     {
-        // Comandos especiales de navegación
-        if (str_contains($message, 'menú') || str_contains($message, 'inicio') || str_contains($message, 'principal')) {
+        // Comandos especiales
+        if (str_contains($message, 'menú') || str_contains($message, 'inicio')) {
             return $this->handleInitialMessage('');
         }
         
-        // Nueva búsqueda
-        if (str_contains($message, 'nueva búsqueda') || str_contains($message, 'buscar otro')) {
+        // Ver todas las categorías
+        if (str_contains($message, 'ver categorías') || str_contains($message, 'categorías') || str_contains($message, 'todas las categorías')) {
             return [
-                'message' => '📄 **Búsqueda de Documentos**
+                'message' => "📋 **Categorías de Documentos Disponibles:**
 
-¿Qué tipo de documento necesitas?
+• **Contexto de Planificación** - Documentos de planificación estratégica
+• **Procedimientos Normativos** - Normas y políticas corporativas  
+• **Procedimientos Operativos** - Procesos y procedimientos operacionales
+• **Mejora Continua** - Documentos de calidad y mejora continua
+• **General** - Documentos generales de la empresa
 
-• **Políticas** - Políticas corporativas y procedimientos
-• **Manuales** - Manuales técnicos y de usuario
-• **Contratos** - Contratos y acuerdos legales
-• **Reportes** - Reportes financieros y operativos
-• **Procedimientos** - Procedimientos internos
-
-Escribe el nombre del documento, categoría o palabra clave.',
+¿Sobre qué categoría quieres buscar documentos?",
                 'context' => ['step' => 'document_search', 'type' => 'document'],
-                'suggestions' => ['Políticas HR', 'Manuales IT', 'Procedimientos', 'Ver categorías']
+                'suggestions' => ['Procedimientos Operativos', 'Mejora Continua', 'Contexto de Planificación', 'General']
             ];
         }
-    }
-
-    private function handleDocumentSearch($message, $context)
-    {
-        // Comandos especiales de navegación
-        if (str_contains($message, 'menú') || str_contains($message, 'inicio') || str_contains($message, 'principal')) {
-            return $this->handleInitialMessage('');
-        }
         
-        // Nueva búsqueda
-        if (str_contains($message, 'nueva búsqueda') || str_contains($message, 'buscar otro')) {
-            return [
-                'message' => '📄 **Búsqueda de Documentos**
-
-¿Qué tipo de documento necesitas?
-
-• **Políticas** - Políticas corporativas y procedimientos
-• **Manuales** - Manuales técnicos y de usuario
-• **Contratos** - Contratos y acuerdos legales
-• **Reportes** - Reportes financieros y operativos
-• **Procedimientos** - Procedimientos internos
-
-Escribe el nombre del documento, categoría o palabra clave.',
-                'context' => ['step' => 'document_search', 'type' => 'document'],
-                'suggestions' => ['Políticas HR', 'Manuales IT', 'Procedimientos', 'Ver categorías']
-            ];
-        }
-
-        // Ver tabla completa de documentos
-        if (str_contains($message, 'ver todos') || str_contains($message, 'tabla') || str_contains($message, 'lista completa')) {
-            return $this->getDocumentsTable();
-        }
-
-        $documents = CompanyDocument::active()->search($message)->limit(10)->get();
-        
-        if ($documents->count() > 0) {
-            $response = "✅ **Encontré " . $documents->count() . " documento(s):**\n\n";
-            
-            foreach ($documents as $doc) {
-                $response .= "📄 **{$doc->title}**\n";
-                $response .= "   📂 {$doc->category_label} - {$doc->type_label}\n";
-                $response .= "   🏢 {$doc->department}\n";
-                if ($doc->description) {
-                    $response .= "   📝 " . substr($doc->description, 0, 100) . "...\n";
+        // Ver todos los documentos
+        if (str_contains($message, 'ver todos') || str_contains($message, 'todos los documentos') || str_contains($message, 'lista completa')) {
+            try {
+                $documents = CompanyDocument::active()->limit(15)->get();
+                
+                if ($documents->count() > 0) {
+                    $response = "📋 **Lista de Documentos Corporativos** (mostrando {$documents->count()}):\n\n";
+                    
+                    $categorizedDocs = $documents->groupBy('category');
+                    
+                    foreach ($categorizedDocs as $category => $categoryDocs) {
+                        $categoryName = match($category) {
+                            'contexto_planificacion' => 'Contexto de Planificación',
+                            'procedimientos_normativos' => 'Procedimientos Normativos',
+                            'procedimientos_operativos' => 'Procedimientos Operativos',
+                            'mejora_continua' => 'Mejora Continua',
+                            'general' => 'General',
+                            default => 'Sin Categoría'
+                        };
+                        
+                        $response .= "**📂 {$categoryName}:**\n";
+                        foreach ($categoryDocs as $doc) {
+                            $response .= "   📄 {$doc->title}";
+                            if ($doc->external_url) {
+                                $response .= " - [Ver documento]({$doc->external_url})";
+                            }
+                            $response .= "\n";
+                        }
+                        $response .= "\n";
+                    }
+                    
+                    $response .= "¿Necesitas información específica de algún documento?";
+                    
+                    return [
+                        'message' => $response,
+                        'context' => ['step' => 'document_search', 'type' => 'document'],
+                        'suggestions' => ['Buscar específico', 'Ver categorías', 'Menú principal']
+                    ];
+                } else {
+                    return [
+                        'message' => "❌ No hay documentos disponibles en el sistema.\n\n¿Quieres hacer otra consulta?",
+                        'context' => ['step' => 'document_search', 'type' => 'document'],
+                        'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                    ];
                 }
-                if ($doc->external_url) {
-                    $response .= "   🔗 [Ver documento]({$doc->external_url})\n";
-                }
-                if ($doc->parent) {
-                    $response .= "   📁 Dentro de: {$doc->parent->title}\n";
-                }
-                $response .= "\n";
-            }
-        } else {
-            $response = "❌ No encontré documentos con esa información. ¿Podrías ser más específico sobre el tipo de documento?\n\n";
-            $response .= "💡 **Sugerencias:**\n";
-            $response .= "• Intenta con 'Procedimientos'\n";
-            $response .= "• Busca 'Manuales'\n";
-            $response .= "• Escribe 'ver todos' para la tabla completa\n";
-            $response .= "• Prueba con nombres específicos como 'Vacaciones'";
-        }
-        
-        return [
-            'message' => $response,
-            'context' => ['step' => 'document_search', 'type' => 'document'],
-            'suggestions' => ['Ver todos', 'Nueva búsqueda', 'Ver categorías', 'Menú principal']
-        ];
-    }
-
-    private function getDocumentsTable()
-    {
-        $documents = CompanyDocument::active()
-            ->with(['parent', 'children'])
-            ->orderBy('sort_order')
-            ->get();
-            
-        $response = "📋 **Tabla de Documentos Corporativos**\n\n";
-        $response .= "| Título | URL | Categoría |\n";
-        $response .= "|--------|-----|----------|\n";
-        
-        // Organizar en estructura jerárquica
-        $rootDocuments = $documents->whereNull('parent_id');
-        
-        foreach ($rootDocuments as $doc) {
-            $response .= $this->formatDocumentRow($doc, 0);
-            
-            // Agregar hijos si los tiene
-            $children = $documents->where('parent_id', $doc->id);
-            foreach ($children as $child) {
-                $response .= $this->formatDocumentRow($child, 1);
+            } catch (\Exception $e) {
+                Log::error('Error al obtener documentos: ' . $e->getMessage());
+                return [
+                    'message' => "❌ Hubo un error al obtener los documentos. Por favor intenta de nuevo.",
+                    'context' => ['step' => 'document_search', 'type' => 'document'],
+                    'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                ];
             }
         }
         
-        $response .= "\n🔍 **Leyenda:**\n";
-        $response .= "📁 = Carpeta/Categoría padre\n";
-        $response .= "📄 = Documento individual\n";
-        $response .= "└── = Documento hijo\n\n";
-        $response .= "💡 Puedes buscar por nombre específico o categoría.";
-        
-        return [
-            'message' => $response,
-            'context' => ['step' => 'document_search', 'type' => 'document'],
-            'suggestions' => ['Procedimientos', 'Manuales', 'Políticas', 'Nueva búsqueda', 'Menú principal']
+        // Buscar por categoría específica
+        $categoryMappings = [
+            'contexto_planificacion' => ['contexto', 'planificación', 'planificacion', 'estratégica', 'estrategica', 'planificar'],
+            'procedimientos_normativos' => ['normativos', 'normativo', 'políticas', 'politicas', 'normas', 'reglamentos'],
+            'procedimientos_operativos' => ['operativos', 'operativo', 'procedimientos', 'procesos', 'operaciones'],
+            'mejora_continua' => ['mejora', 'continua', 'calidad', 'mejoramiento', 'optimización'],
+            'general' => ['general', 'generales', 'varios', 'otros']
         ];
-    }
-
-    private function formatDocumentRow($doc, $level = 0)
-    {
-        $indent = str_repeat('&nbsp;&nbsp;', $level * 2);
-        $prefix = $level > 0 ? '└── ' : '';
-        $icon = $doc->is_folder ? '📁' : '📄';
         
-        $title = $indent . $prefix . $icon . ' ' . $doc->title;
-        $url = $doc->external_url ? "[Ver]({$doc->external_url})" : 'Sin URL';
-        $category = $doc->category_label;
+        $searchCategory = null;
+        foreach ($categoryMappings as $category => $keywords) {
+            foreach ($keywords as $keyword) {
+                if (str_contains($message, $keyword)) {
+                    $searchCategory = $category;
+                    break 2;
+                }
+            }
+        }
         
-        return "| {$title} | {$url} | {$category} |\n";
+        if ($searchCategory) {
+            try {
+                $documents = CompanyDocument::active()->where('category', $searchCategory)->limit(10)->get();
+                
+                if ($documents->count() > 0) {
+                    $categoryName = match($searchCategory) {
+                        'contexto_planificacion' => 'Contexto de Planificación',
+                        'procedimientos_normativos' => 'Procedimientos Normativos',
+                        'procedimientos_operativos' => 'Procedimientos Operativos',
+                        'mejora_continua' => 'Mejora Continua',
+                        'general' => 'General',
+                        default => 'Sin Categoría'
+                    };
+                    
+                    $response = "📂 **Documentos de {$categoryName}** ({$documents->count()} encontrados):\n\n";
+                    
+                    foreach ($documents as $doc) {
+                        $response .= "📄 **{$doc->title}**\n";
+                        $response .= "   📂 Tipo: " . ucfirst($doc->type) . "\n";
+                        $response .= "   🏢 Departamento: {$doc->department}\n";
+                        
+                        if ($doc->description) {
+                            $response .= "   📝 " . substr($doc->description, 0, 100) . (strlen($doc->description) > 100 ? '...' : '') . "\n";
+                        }
+                        
+                        if ($doc->external_url) {
+                            $response .= "   🔗 [Ver documento]({$doc->external_url})\n";
+                        }
+                        
+                        if ($doc->owner_email) {
+                            $response .= "   👤 Responsable: {$doc->owner_email}\n";
+                        }
+                        
+                        $response .= "\n";
+                    }
+                    
+                    $response .= "¿Necesitas información específica de algún documento?";
+                    
+                    $suggestions = ['Ver detalles', 'Otra categoría', 'Ver todas', 'Menú principal'];
+                    
+                    return [
+                        'message' => $response,
+                        'context' => ['step' => 'document_search', 'type' => 'document'],
+                        'suggestions' => $suggestions
+                    ];
+                } else {
+                    $categoryName = match($searchCategory) {
+                        'contexto_planificacion' => 'Contexto de Planificación',
+                        'procedimientos_normativos' => 'Procedimientos Normativos',
+                        'procedimientos_operativos' => 'Procedimientos Operativos',
+                        'mejora_continua' => 'Mejora Continua',
+                        'general' => 'General',
+                        default => 'Sin Categoría'
+                    };
+                    
+                    return [
+                        'message' => "❌ No encontré documentos en la categoría **{$categoryName}**.\n\n¿Quieres buscar en otra categoría?",
+                        'context' => ['step' => 'document_search', 'type' => 'document'],
+                        'suggestions' => ['Ver categorías', 'IT', 'HR', 'Menú principal']
+                    ];
+                }
+            } catch (\Exception $e) {
+                Log::error('Error al buscar documentos por categoría: ' . $e->getMessage());
+                return [
+                    'message' => "❌ Hubo un error al buscar documentos. Por favor intenta de nuevo.",
+                    'context' => ['step' => 'document_search', 'type' => 'document'],
+                    'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                ];
+            }
+        }
+        
+        // Búsqueda general por texto
+        try {
+            $documents = CompanyDocument::active()->search($message)->limit(8)->get();
+            
+            if ($documents->count() > 0) {
+                $response = "✅ **Encontré {$documents->count()} documento(s):**\n\n";
+                
+                foreach ($documents as $doc) {
+                    $response .= "📄 **{$doc->title}**\n";
+                    
+                    $categoryName = match($doc->category) {
+                        'contexto_planificacion' => 'Contexto de Planificación',
+                        'procedimientos_normativos' => 'Procedimientos Normativos',
+                        'procedimientos_operativos' => 'Procedimientos Operativos',
+                        'mejora_continua' => 'Mejora Continua',
+                        'general' => 'General',
+                        default => 'Sin Categoría'
+                    };
+                    
+                    $response .= "   📂 {$categoryName} - " . ucfirst($doc->type) . "\n";
+                    $response .= "   🏢 {$doc->department}\n";
+                    
+                    if ($doc->description) {
+                        $response .= "   📝 " . substr($doc->description, 0, 80) . (strlen($doc->description) > 80 ? '...' : '') . "\n";
+                    }
+                    
+                    if ($doc->external_url) {
+                        $response .= "   🔗 [Ver documento]({$doc->external_url})\n";
+                    }
+                    
+                    if ($doc->effective_date) {
+                        $response .= "   📅 Vigente desde: " . date('d/m/Y', strtotime($doc->effective_date)) . "\n";
+                    }
+                    
+                    $response .= "\n";
+                }
+                
+                if ($documents->count() >= 8) {
+                    $response .= "_Mostrando los primeros 8 resultados. Sé más específico para menos resultados._\n\n";
+                }
+                
+                $response .= "¿Necesitas información específica de algún documento o quieres hacer otra búsqueda?";
+                
+                $suggestions = ['Ver detalles', 'Nueva búsqueda', 'Ver categorías', 'Menú principal'];
+                
+                // Agregar categorías como sugerencias si hay varios documentos
+                if ($documents->count() > 1) {
+                    $categories = $documents->pluck('category')->unique()->take(2);
+                    foreach ($categories as $cat) {
+                        $categoryName = match($cat) {
+                            'contexto_planificacion' => 'Contexto Planificación',
+                            'procedimientos_normativos' => 'Proc. Normativos',
+                            'procedimientos_operativos' => 'Proc. Operativos',
+                            'mejora_continua' => 'Mejora Continua',
+                            'general' => 'General',
+                            default => ucfirst($cat)
+                        };
+                        $suggestions = array_merge([$categoryName], $suggestions);
+                    }
+                }
+                
+            } else {
+                $response = "❌ **No encontré documentos** con la información \"*{$message}*\".\n\n";
+                $response .= "💡 **Sugerencias:**\n";
+                $response .= "• Intenta con el **nombre del documento** o **palabras clave**\n";
+                $response .= "• Busca por **categoría** (ej: HR, IT, Finanzas)\n";
+                $response .= "• Busca por **tipo** (ej: manual, política, procedimiento)\n";
+                $response .= "• Verifica la **ortografía**\n\n";
+                $response .= "¿Quieres intentar otra búsqueda?";
+                
+                $suggestions = ['Ver categorías', 'Procedimientos', 'Mejora Continua', 'General', 'Menú principal'];
+            }
+            
+            return [
+                'message' => $response,
+                'context' => ['step' => 'document_search', 'type' => 'document'],
+                'suggestions' => $suggestions
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('Error en búsqueda de documentos: ' . $e->getMessage());
+            return [
+                'message' => "❌ Hubo un error al buscar documentos. Por favor intenta de nuevo.",
+                'context' => ['step' => 'document_search', 'type' => 'document'],
+                'suggestions' => ['Nueva búsqueda', 'Ver categorías', 'Menú principal']
+            ];
+        }
     }
 }

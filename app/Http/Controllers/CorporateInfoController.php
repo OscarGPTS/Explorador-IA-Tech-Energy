@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use App\Models\TempEmployee;
 use App\Models\CompanyLocation;
 use App\Models\CompanyDocument;
+use App\Models\TechSupportConversation;
 
 class CorporateInfoController extends Controller
 {
@@ -143,6 +145,11 @@ class CorporateInfoController extends Controller
         // Limpiar y normalizar el mensaje
         $message = strtolower(trim($message));
         
+        // Manejar acciones de botones
+        if (isset($context['action'])) {
+            return $this->handleButtonAction($context['action'], $context['value'] ?? null, $message);
+        }
+        
         // Si no hay contexto, inicializar
         if (empty($context['step'])) {
             return $this->handleInitialMessage($message);
@@ -152,10 +159,10 @@ class CorporateInfoController extends Controller
         switch ($context['step']) {
             case 'employee_search':
                 return $this->handleEmployeeSearch($message, $context);
-            case 'location_search':
-                return $this->handleLocationSearch($message, $context);
             case 'document_search':
                 return $this->handleDocumentSearch($message, $context);
+            case 'tech_support':
+                return $this->handleTechSupport($message);
             default:
                 return $this->handleInitialMessage($message);
         }
@@ -183,23 +190,6 @@ Escribe el nombre, departamento, cargo o cualquier término relacionado.',
             ];
         }
         
-        if (str_contains($message, 'oficina') || str_contains($message, 'ubicación') || str_contains($message, 'dirección') || str_contains($message, 'lugar')) {
-            return [
-                'message' => '📍 **Ubicaciones de la Empresa**
-
-Puedo ayudarte con información sobre:
-
-• **Oficina Principal** - Sede central
-• **Sucursales** - Oficinas regionales  
-• **Centros de Datos** - Infraestructura IT
-• **Almacenes** - Centros logísticos
-
-¿Qué ubicación específica te interesa o quieres ver todas?',
-                'context' => ['step' => 'location_search', 'type' => 'location'],
-                'suggestions' => ['Oficina Principal', 'Ver todas', 'Por ciudad']
-            ];
-        }
-        
         if (str_contains($message, 'documento') || str_contains($message, 'archivo') || str_contains($message, 'manual') || str_contains($message, 'política') || str_contains($message, 'procedimiento')) {
             return [
                 'message' => '📄 **Documentos Corporativos**
@@ -218,24 +208,37 @@ Categorías disponibles:
             ];
         }
         
+        // Soporte técnico keywords
+        if (str_contains($message, 'soporte') || str_contains($message, 'ayuda') || str_contains($message, 'problema') || 
+            str_contains($message, 'computadora') || str_contains($message, 'internet') || str_contains($message, 'correo') ||
+            str_contains($message, 'impresora') || str_contains($message, 'wifi') || str_contains($message, 'software') ||
+            str_contains($message, 'contraseña') || str_contains($message, 'no funciona') || str_contains($message, 'error') ||
+            str_contains($message, 'gmail') || str_contains($message, 'outlook') || str_contains($message, 'word') ||
+            str_contains($message, 'excel') || str_contains($message, 'google docs') || str_contains($message, 'no abre') ||
+            str_contains($message, 'no enciende') || str_contains($message, 'lenta') || str_contains($message, 'lento') ||
+            str_contains($message, 'no imprime') || str_contains($message, 'no puedo entrar') || str_contains($message, 'bloqueado') ||
+            str_contains($message, 'no conecta') || str_contains($message, 'no carga') || str_contains($message, 'se cierra')) {
+            return $this->handleTechSupport($message);
+        }
+        
         // Respuesta por defecto mejorada
         return [
             'message' => '🏢 **¡Hola! Soy tu Asistente Corporativo**
 
 Puedo ayudarte con información interna de la empresa:
 
-**� Empleados**
+**👤 Empleados**
 Buscar contactos, departamentos y cargos
-
-**📍 Ubicaciones**  
-Oficinas, direcciones y horarios
 
 **📄 Documentos**
 Políticas, manuales y procedimientos
 
+**🆘 Soporte Técnico**
+Ayuda con computadoras, internet, correo y software
+
 **¿Qué información necesitas?**',
             'context' => ['step' => 'initial'],
-            'suggestions' => ['Buscar empleado', 'Ver ubicaciones', 'Encontrar documento', 'Ayuda']
+            'suggestions' => ['Buscar empleado', 'Soporte técnico', 'Encontrar documento', 'Ayuda']
         ];
     }
 
@@ -424,6 +427,857 @@ Políticas, manuales y procedimientos
             'message' => $response,
             'context' => ['step' => 'employee_search', 'type' => 'employee'],
             'suggestions' => $suggestions
+        ];
+    }
+
+    public function handleTechSupport($query)
+    {
+        $query = strtolower($query);
+        $sessionId = Str::uuid();
+        
+        // Categorías principales de soporte técnico
+        $categories = [
+            'computadora' => [
+                'keywords' => ['computadora', 'pc', 'laptop', 'ordenador', 'computador', 'lenta', 'lento', 'se cuelga', 'no enciende', 'pantalla', 'no funciona'],
+                'subcategories' => [
+                    'rendimiento' => ['lenta', 'lento', 'se cuelga', 'congelada'],
+                    'encendido' => ['no enciende', 'no prende', 'no arranca'],
+                    'pantalla' => ['pantalla', 'monitor', 'no se ve', 'negro']
+                ]
+            ],
+            'internet' => [
+                'keywords' => ['internet', 'wifi', 'conexión', 'red', 'no navega', 'no conecta', 'lento internet'],
+                'subcategories' => [
+                    'wifi' => ['wifi', 'inalámbrica', 'no conecta'],
+                    'velocidad' => ['lento', 'lenta conexión'],
+                    'navegación' => ['no navega', 'no carga']
+                ]
+            ],
+            'correo' => [
+                'keywords' => ['correo', 'email', 'outlook', 'gmail', 'no recibe', 'no envía', 'contraseña'],
+                'subcategories' => [
+                    'gmail' => ['gmail', 'google mail'],
+                    'outlook' => ['outlook', 'microsoft mail'],
+                    'acceso' => ['contraseña', 'no puedo entrar']
+                ]
+            ],
+            'impresora' => [
+                'keywords' => ['impresora', 'imprimir', 'no imprime', 'papel', 'tinta', 'cartuchos'],
+                'subcategories' => [
+                    'impresión' => ['no imprime', 'no sale'],
+                    'papel' => ['papel', 'atascado'],
+                    'tinta' => ['tinta', 'cartuchos', 'sin tinta']
+                ]
+            ],
+            'software' => [
+                'keywords' => ['word', 'excel', 'powerpoint', 'programa', 'aplicación', 'no abre', 'error', 'google docs', 'google sheets', 'google drive'],
+                'subcategories' => [
+                    'office' => ['word', 'excel', 'powerpoint', 'office'],
+                    'google' => ['google docs', 'google sheets', 'google drive'],
+                    'errores' => ['error', 'no abre', 'se cierra']
+                ]
+            ],
+            'acceso' => [
+                'keywords' => ['contraseña', 'usuario', 'no puedo entrar', 'bloqueado', 'acceso'],
+                'subcategories' => [
+                    'contraseñas' => ['contraseña', 'password', 'clave'],
+                    'cuentas' => ['usuario', 'cuenta bloqueada'],
+                    'permisos' => ['no tengo acceso', 'permisos']
+                ]
+            ]
+        ];
+
+        $response = '';
+        $category = 'general';
+        $subcategory = null;
+        
+        // Detectar categoría y subcategoría
+        foreach ($categories as $cat => $data) {
+            foreach ($data['keywords'] as $keyword) {
+                if (strpos($query, $keyword) !== false) {
+                    $category = $cat;
+                    
+                    // Detectar subcategoría
+                    if (isset($data['subcategories'])) {
+                        foreach ($data['subcategories'] as $subcat => $subkeywords) {
+                            foreach ($subkeywords as $subkeyword) {
+                                if (strpos($query, $subkeyword) !== false) {
+                                    $subcategory = $subcat;
+                                    break 3;
+                                }
+                            }
+                        }
+                    }
+                    break 2;
+                }
+            }
+        }
+
+        // Generar respuesta específica con lenguaje simple para usuarios no técnicos
+        switch ($category) {
+            case 'computadora':
+                if (strpos($query, 'lenta') !== false || strpos($query, 'lento') !== false) {
+                    $response = "💻 **Tu computadora está lenta - Te ayudo paso a paso:**\n\n" .
+                               "**Paso 1: Reiniciar (lo más importante)**\n" .
+                               "• Cierra todos los programas que tengas abiertos\n" .
+                               "• Click en el botón de Windows (esquina inferior izquierda)\n" .
+                               "• Click en el ícono de encendido ⚡\n" .
+                               "• Selecciona 'Reiniciar' y espera\n\n" .
+                               "**Paso 2: Si sigue lenta**\n" .
+                               "• No abras muchos programas al mismo tiempo\n" .
+                               "• Cierra pestañas del navegador que no uses\n" .
+                               "• Evita tener muchos archivos en el Escritorio\n\n" .
+                               "**¿Sigues teniendo problemas?** Llama a IT y diles que tu computadora está lenta.";
+                } else if (strpos($query, 'no enciende') !== false) {
+                    $response = "⚡ **Tu computadora no enciende - Revisemos juntos:**\n\n" .
+                               "**Paso 1: Revisar la electricidad**\n" .
+                               "• ¿Está conectado el cable de la pared?\n" .
+                               "• ¿La luz del enchufe está funcionando?\n" .
+                               "• Prueba conectar en otro enchufe\n\n" .
+                               "**Paso 2: Revisar la computadora**\n" .
+                               "• Busca el botón de encendido (suele tener este símbolo ⚡)\n" .
+                               "• Manténlo presionado por 10 segundos\n" .
+                               "• ¿Se enciende alguna luz?\n\n" .
+                               "**Paso 3: Revisar la pantalla**\n" .
+                               "• ¿Está conectada la pantalla?\n" .
+                               "• ¿Está encendida la pantalla?\n\n" .
+                               "**Si nada funciona:** Llama inmediatamente a IT.";
+                } else {
+                    $response = "💻 **Problemas con tu computadora:**\n\n" .
+                               "Para ayudarte mejor, dime qué está pasando:\n\n" .
+                               "• **\"Está muy lenta\"** - Demora mucho en abrir programas\n" .
+                               "• **\"No enciende\"** - No pasa nada al presionar el botón\n" .
+                               "• **\"Se congela\"** - Se queda trabada y no responde\n" .
+                               "• **\"Pantalla en negro\"** - No se ve nada en la pantalla\n\n" .
+                               "Mientras tanto, intenta reiniciarla:\n" .
+                               "1. Cierra todo lo que tengas abierto\n" .
+                               "2. Click en Windows → Reiniciar";
+                }
+                break;
+
+            case 'internet':
+                $response = "🌐 **Problemas de Internet - Solucionemos paso a paso:**\n\n" .
+                           "**Paso 1: Revisar la conexión WiFi**\n" .
+                           "• Mira la esquina inferior derecha de tu pantalla\n" .
+                           "• ¿Ves el símbolo del WiFi? 📶\n" .
+                           "• Si tiene una X roja, haz click ahí\n" .
+                           "• Busca el nombre de tu red WiFi y conecta\n\n" .
+                           "**Paso 2: Reiniciar el WiFi (muy efectivo)**\n" .
+                           "• Busca la cajita del WiFi (router)\n" .
+                           "• Desconecta el cable de la pared por 1 minuto\n" .
+                           "• Vuelve a conectar y espera 3 minutos\n\n" .
+                           "**Paso 3: Probar**\n" .
+                           "• Abre tu navegador (Chrome, Edge, etc.)\n" .
+                           "• Intenta entrar a google.com\n\n" .
+                           "**Si no funciona:** Llama a IT y diles que no tienes internet.";
+                break;
+
+            case 'correo':
+                if (strpos($query, 'gmail') !== false || strpos($query, 'google') !== false) {
+                    $response = "📧 **Problemas con Gmail - Te guío paso a paso:**\n\n" .
+                               "**No puedes entrar a Gmail:**\n" .
+                               "• Abre tu navegador (Chrome, Edge, etc.)\n" .
+                               "• Escribe: gmail.com\n" .
+                               "• Usa tu correo completo: tunombre@empresa.com\n" .
+                               "• Si no recuerdas la contraseña, click en '¿Olvidaste la contraseña?'\n\n" .
+                               "**No te llegan correos:**\n" .
+                               "• Revisa la carpeta 'Spam' (correo no deseado)\n" .
+                               "• Revisa 'Promociones' (puede estar ahí)\n" .
+                               "• Pide a alguien que te mande un correo de prueba\n\n" .
+                               "**No puedes enviar correos:**\n" .
+                               "• Verifica que escribiste bien el correo del destinatario\n" .
+                               "• Si adjuntaste archivos, que no sean muy grandes\n\n" .
+                               "**Para problemas de contraseña:** Llama a IT.";
+                } else if (strpos($query, 'outlook') !== false) {
+                    $response = "📧 **Problemas con Outlook - Soluciones simples:**\n\n" .
+                               "**Outlook no abre:**\n" .
+                               "• Cierra completamente el programa\n" .
+                               "• Reinicia tu computadora\n" .
+                               "• Busca 'Outlook' en el menú de Windows\n" .
+                               "• Haz doble click para abrirlo\n\n" .
+                               "**No te llegan correos nuevos:**\n" .
+                               "• Busca un botón que diga 'Enviar y recibir'\n" .
+                               "• Haz click ahí y espera unos minutos\n" .
+                               "• Revisa si tienes internet\n\n" .
+                               "**Outlook está muy lento:**\n" .
+                               "• Cierra y abre Outlook nuevamente\n" .
+                               "• Elimina correos muy antiguos\n" .
+                               "• Vacía la papelera de Outlook\n\n" .
+                               "**Si no funciona:** Llama a IT.";
+                } else {
+                    $response = "📧 **Problemas con el correo - ¿Cuál usas?**\n\n" .
+                               "**Gmail (desde el navegador):**\n" .
+                               "• Abre tu navegador\n" .
+                               "• Ve a gmail.com\n" .
+                               "• Usa tu correo completo para entrar\n\n" .
+                               "**Outlook (programa en la computadora):**\n" .
+                               "• Busca el ícono de Outlook en tu escritorio\n" .
+                               "• O búscalo en el menú de Windows\n\n" .
+                               "**Problemas comunes:**\n" .
+                               "• **No puedo entrar** → Verifica tu correo y contraseña\n" .
+                               "• **No recibo correos** → Revisa la carpeta de Spam\n" .
+                               "• **No puedo enviar** → Verifica tu internet\n\n" .
+                               "**Para cambiar contraseñas:** Llama a IT.";
+                }
+                break;
+
+            case 'impresora':
+                $response = "🖨️ **Problemas con la impresora - Te ayudo:**\n\n" .
+                           "**La impresora no imprime nada:**\n" .
+                           "• ¿Está encendida? Busca una luz verde\n" .
+                           "• ¿Tiene papel? Revisa la bandeja de papel\n" .
+                           "• ¿Está conectada? Revisa el cable USB\n" .
+                           "• Apágala y enciéndela de nuevo\n\n" .
+                           "**Papel atascado (muy común):**\n" .
+                           "• Apaga la impresora primero\n" .
+                           "• Abre todas las tapas que puedas\n" .
+                           "• Saca el papel MUY DESPACIO para que no se rompa\n" .
+                           "• Cierra todo y enciende de nuevo\n\n" .
+                           "**Imprime muy clarito o con rayas:**\n" .
+                           "• Probablemente se está acabando la tinta\n" .
+                           "• Revisa si parpadea alguna luz\n\n" .
+                           "**Para cambio de tintas o cartuchos:** Llama a IT.";
+                break;
+
+            case 'software':
+                if (strpos($query, 'word') !== false || strpos($query, 'excel') !== false || strpos($query, 'powerpoint') !== false || strpos($query, 'office') !== false) {
+                    $response = "📋 **Problemas con Word, Excel o PowerPoint:**\n\n" .
+                               "**El programa no abre:**\n" .
+                               "• Reinicia tu computadora\n" .
+                               "• Busca el programa en el menú de Windows\n" .
+                               "• Haz doble click en el ícono\n" .
+                               "• Ten paciencia, a veces demora un poco\n\n" .
+                               "**No puedes guardar tu trabajo:**\n" .
+                               "• Presiona las teclas Ctrl + S al mismo tiempo\n" .
+                               "• Elige dónde guardar (recomiendo 'Documentos')\n" .
+                               "• Ponle un nombre que reconozcas\n" .
+                               "• Click en 'Guardar'\n\n" .
+                               "**No encuentras un archivo que guardaste:**\n" .
+                               "• Abre el programa (Word, Excel, etc.)\n" .
+                               "• Ve a 'Archivo' → 'Abrir' → 'Reciente'\n" .
+                               "• O busca en la carpeta 'Documentos'\n\n" .
+                               "**Para problemas de licencia:** Llama a IT.";
+                } else if (strpos($query, 'google') !== false) {
+                    $response = "📄 **Problemas con Google Docs, Sheets o Drive:**\n\n" .
+                               "**No cargan los documentos:**\n" .
+                               "• Abre tu navegador\n" .
+                               "• Ve a docs.google.com (para documentos)\n" .
+                               "• O sheets.google.com (para hojas de cálculo)\n" .
+                               "• Asegúrate de usar tu correo de trabajo\n\n" .
+                               "**No puedes editar un documento:**\n" .
+                               "• Verifica que tengas permiso para editarlo\n" .
+                               "• Si dice 'Solo lectura', pide permisos al dueño\n" .
+                               "• Revisa tu conexión a internet\n\n" .
+                               "**No encuentras un archivo:**\n" .
+                               "• Ve a drive.google.com\n" .
+                               "• Usa el cuadrito de búsqueda arriba\n" .
+                               "• Revisa 'Compartido conmigo'\n" .
+                               "• Pregunta a quien te compartió el archivo\n\n" .
+                               "**Para permisos especiales:** Llama a IT.";
+                } else {
+                    $response = "💻 **Problemas con programas - ¿Cuál te da problemas?**\n\n" .
+                               "**Microsoft Office (Word, Excel, PowerPoint):**\n" .
+                               "• Son los programas instalados en tu computadora\n" .
+                               "• Búscalos en el menú de Windows\n\n" .
+                               "**Google Workspace (Docs, Sheets, Drive):**\n" .
+                               "• Se usan desde el navegador\n" .
+                               "• Ve a docs.google.com o drive.google.com\n\n" .
+                               "**Solución básica para cualquier programa:**\n" .
+                               "1. Cierra el programa completamente\n" .
+                               "2. Reinicia tu computadora\n" .
+                               "3. Abre el programa de nuevo\n" .
+                               "4. Si no aparece, búscalo en el menú de Windows\n\n" .
+                               "Dime exactamente qué programa y qué problema tienes.";
+                }
+                break;
+
+            case 'acceso':
+                $response = "🔐 **Problemas para entrar a cuentas o programas:**\n\n" .
+                           "**Olvidé mi contraseña:**\n" .
+                           "• **Para cuentas de la empresa:** Llama INMEDIATAMENTE a IT\n" .
+                           "• **Para Gmail personal:** Click en '¿Olvidaste tu contraseña?'\n" .
+                           "• **Para otras páginas:** Busca 'Recuperar contraseña'\n\n" .
+                           "**Mi cuenta está bloqueada:**\n" .
+                           "• Espera 15 minutos sin intentar entrar\n" .
+                           "• Si sigue bloqueada, llama a IT\n" .
+                           "• NO sigas intentando porque se bloquea más\n\n" .
+                           "**No tengo acceso a un archivo o carpeta:**\n" .
+                           "• Pregunta a tu jefe si deberías tener acceso\n" .
+                           "• Llama a IT para pedir permisos\n" .
+                           "• Diles exactamente qué archivo necesitas\n\n" .
+                           "**🚨 MUY IMPORTANTE:** Nunca le des tu contraseña a nadie.";
+                break;
+
+            default:
+                $response = "🆘 **Soporte Técnico - Te ayudo con cualquier problema:**\n\n" .
+                           "**Selecciona tu problema haciendo click en una categoría:**\n\n" .
+                           "💡 **Tip:** Siempre intenta reiniciar primero - resuelve el 70% de los problemas.";
+        }
+
+        // Guardar la conversación en la base de datos
+        try {
+            TechSupportConversation::create([
+                'session_id' => $sessionId,
+                'user_message' => $query,
+                'problem_category' => $this->mapCategoryToEnum($category),
+                'problem_type' => $subcategory,
+                'bot_response' => $response,
+                'context_data' => json_encode([
+                    'timestamp' => now(),
+                    'user_agent' => request()->userAgent(),
+                    'ip_address' => request()->ip(),
+                    'original_category' => $category
+                ]),
+                'user_ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saving tech support conversation: ' . $e->getMessage());
+        }
+
+        return [
+            'message' => $response,
+            'type' => 'tech_support',
+            'category' => $category,
+            'session_id' => $sessionId,
+            'context' => ['step' => 'tech_support'],
+            'buttons' => $this->getTechSupportButtons($category),
+            'suggestions' => ['Otro problema', 'Empleados', 'Documentos', 'Menú principal']
+        ];
+    }
+
+    private function mapCategoryToEnum($category)
+    {
+        $mapping = [
+            'computadora' => 'computer',
+            'internet' => 'internet',
+            'correo' => 'email',
+            'impresora' => 'printer',
+            'software' => 'software',
+            'acceso' => 'access',
+            'general' => 'other'
+        ];
+        
+        return $mapping[$category] ?? 'other';
+    }
+
+    private function getTechSupportButtons($category)
+    {
+        if ($category === 'general') {
+            // Botones principales de categorías
+            return [
+                [
+                    'text' => '💻 Mi computadora',
+                    'action' => 'tech_support_category',
+                    'value' => 'computadora',
+                    'description' => 'Lenta, no enciende, se congela'
+                ],
+                [
+                    'text' => '🌐 Internet',
+                    'action' => 'tech_support_category',
+                    'value' => 'internet',
+                    'description' => 'WiFi, no navega, conexión lenta'
+                ],
+                [
+                    'text' => '📧 Correo electrónico',
+                    'action' => 'tech_support_category',
+                    'value' => 'correo',
+                    'description' => 'Gmail, Outlook, no recibo correos'
+                ],
+                [
+                    'text' => '🖨️ Impresora',
+                    'action' => 'tech_support_category',
+                    'value' => 'impresora',
+                    'description' => 'No imprime, papel atascado, sin tinta'
+                ],
+                [
+                    'text' => '📋 Programas',
+                    'action' => 'tech_support_category',
+                    'value' => 'software',
+                    'description' => 'Word, Excel, Google Docs, no abren'
+                ],
+                [
+                    'text' => '🔐 No puedo entrar',
+                    'action' => 'tech_support_category',
+                    'value' => 'acceso',
+                    'description' => 'Contraseñas, cuentas bloqueadas'
+                ]
+            ];
+        }
+
+        // Botones específicos por categoría
+        switch ($category) {
+            case 'computadora':
+                return [
+                    [
+                        'text' => '🐌 Mi computadora está lenta',
+                        'action' => 'tech_support_specific',
+                        'value' => 'computadora_lenta'
+                    ],
+                    [
+                        'text' => '⚡ No enciende',
+                        'action' => 'tech_support_specific',
+                        'value' => 'computadora_no_enciende'
+                    ],
+                    [
+                        'text' => '🖥️ Problemas de pantalla',
+                        'action' => 'tech_support_specific',
+                        'value' => 'computadora_pantalla'
+                    ],
+                    [
+                        'text' => '❄️ Se congela/traba',
+                        'action' => 'tech_support_specific',
+                        'value' => 'computadora_congela'
+                    ]
+                ];
+
+            case 'internet':
+                return [
+                    [
+                        'text' => '📶 Problemas de WiFi',
+                        'action' => 'tech_support_specific',
+                        'value' => 'internet_wifi'
+                    ],
+                    [
+                        'text' => '🐌 Internet muy lento',
+                        'action' => 'tech_support_specific',
+                        'value' => 'internet_lento'
+                    ],
+                    [
+                        'text' => '🚫 No puedo navegar',
+                        'action' => 'tech_support_specific',
+                        'value' => 'internet_no_navega'
+                    ]
+                ];
+
+            case 'correo':
+                return [
+                    [
+                        'text' => '📬 Problemas con Gmail',
+                        'action' => 'tech_support_specific',
+                        'value' => 'correo_gmail'
+                    ],
+                    [
+                        'text' => '📮 Problemas con Outlook',
+                        'action' => 'tech_support_specific',
+                        'value' => 'correo_outlook'
+                    ],
+                    [
+                        'text' => '🔑 No puedo entrar al correo',
+                        'action' => 'tech_support_specific',
+                        'value' => 'correo_acceso'
+                    ]
+                ];
+
+            case 'impresora':
+                return [
+                    [
+                        'text' => '🚫 No imprime nada',
+                        'action' => 'tech_support_specific',
+                        'value' => 'impresora_no_imprime'
+                    ],
+                    [
+                        'text' => '📄 Papel atascado',
+                        'action' => 'tech_support_specific',
+                        'value' => 'impresora_papel'
+                    ],
+                    [
+                        'text' => '🖋️ Problemas de tinta',
+                        'action' => 'tech_support_specific',
+                        'value' => 'impresora_tinta'
+                    ]
+                ];
+
+            case 'software':
+                return [
+                    [
+                        'text' => '📋 Microsoft Office (Word, Excel, PowerPoint)',
+                        'action' => 'tech_support_specific',
+                        'value' => 'software_office'
+                    ],
+                    [
+                        'text' => '📄 Google Workspace (Docs, Sheets, Drive)',
+                        'action' => 'tech_support_specific',
+                        'value' => 'software_google'
+                    ],
+                    [
+                        'text' => '⚠️ Otro programa no funciona',
+                        'action' => 'tech_support_specific',
+                        'value' => 'software_otro'
+                    ]
+                ];
+
+            case 'acceso':
+                return [
+                    [
+                        'text' => '🔑 Olvidé mi contraseña',
+                        'action' => 'tech_support_specific',
+                        'value' => 'acceso_password'
+                    ],
+                    [
+                        'text' => '🔒 Mi cuenta está bloqueada',
+                        'action' => 'tech_support_specific',
+                        'value' => 'acceso_bloqueada'
+                    ],
+                    [
+                        'text' => '🚪 No tengo acceso a archivos',
+                        'action' => 'tech_support_specific',
+                        'value' => 'acceso_archivos'
+                    ]
+                ];
+
+            default:
+                return [];
+        }
+    }
+
+    private function handleButtonAction($action, $value, $originalMessage = '')
+    {
+        $sessionId = Str::uuid();
+        
+        switch ($action) {
+            case 'tech_support_category':
+                return $this->handleTechSupportCategory($value, $sessionId);
+                
+            case 'tech_support_specific':
+                return $this->handleTechSupportSpecific($value, $sessionId);
+                
+            default:
+                return $this->handleInitialMessage($originalMessage);
+        }
+    }
+
+    private function handleTechSupportCategory($category, $sessionId)
+    {
+        $responses = [
+            'computadora' => "💻 **Problemas con tu computadora**\n\n¿Qué está pasando exactamente? Selecciona el problema más parecido:",
+            'internet' => "🌐 **Problemas de Internet**\n\n¿Cuál es el problema específico con tu conexión?",
+            'correo' => "📧 **Problemas con el correo electrónico**\n\n¿Qué servicio de correo usas y cuál es el problema?",
+            'impresora' => "🖨️ **Problemas con la impresora**\n\n¿Qué problema específico tienes con la impresora?",
+            'software' => "📋 **Problemas con programas**\n\n¿Con qué programa tienes problemas?",
+            'acceso' => "🔐 **Problemas de acceso**\n\n¿Qué tipo de problema de acceso tienes?"
+        ];
+
+        $response = $responses[$category] ?? "Categoría no encontrada";
+
+        // Guardar en base de datos
+        try {
+            TechSupportConversation::create([
+                'session_id' => $sessionId,
+                'user_message' => "Selección de categoría: " . $category,
+                'problem_category' => $this->mapCategoryToEnum($category),
+                'bot_response' => $response,
+                'context_data' => json_encode([
+                    'timestamp' => now(),
+                    'interaction_type' => 'button_click',
+                    'category_selected' => $category
+                ]),
+                'user_ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saving tech support category selection: ' . $e->getMessage());
+        }
+
+        return [
+            'message' => $response,
+            'type' => 'tech_support',
+            'category' => $category,
+            'session_id' => $sessionId,
+            'context' => ['step' => 'tech_support', 'category' => $category],
+            'buttons' => $this->getTechSupportButtons($category),
+            'suggestions' => ['Volver al menú', 'Otro problema', 'Llamar a IT']
+        ];
+    }
+
+    private function handleTechSupportSpecific($problemType, $sessionId)
+    {
+        $specificResponses = [
+            // Computadora
+            'computadora_lenta' => "💻 **Tu computadora está lenta - Te ayudo paso a paso:**\n\n" .
+                                  "**Paso 1: Reiniciar (lo más importante)**\n" .
+                                  "• Cierra todos los programas que tengas abiertos\n" .
+                                  "• Click en el botón de Windows (esquina inferior izquierda)\n" .
+                                  "• Click en el ícono de encendido ⚡\n" .
+                                  "• Selecciona 'Reiniciar' y espera\n\n" .
+                                  "**Paso 2: Si sigue lenta**\n" .
+                                  "• No abras muchos programas al mismo tiempo\n" .
+                                  "• Cierra pestañas del navegador que no uses\n" .
+                                  "• Evita tener muchos archivos en el Escritorio\n\n" .
+                                  "**¿Sigues teniendo problemas?** Llama a IT y diles que tu computadora está lenta.",
+
+            'computadora_no_enciende' => "⚡ **Tu computadora no enciende - Revisemos juntos:**\n\n" .
+                                        "**Paso 1: Revisar la electricidad**\n" .
+                                        "• ¿Está conectado el cable de la pared?\n" .
+                                        "• ¿La luz del enchufe está funcionando?\n" .
+                                        "• Prueba conectar en otro enchufe\n\n" .
+                                        "**Paso 2: Revisar la computadora**\n" .
+                                        "• Busca el botón de encendido (suele tener este símbolo ⚡)\n" .
+                                        "• Manténlo presionado por 10 segundos\n" .
+                                        "• ¿Se enciende alguna luz?\n\n" .
+                                        "**Si nada funciona:** Llama inmediatamente a IT.",
+
+            'computadora_pantalla' => "🖥️ **Problemas de pantalla - Verificaciones básicas:**\n\n" .
+                                     "**Paso 1: Revisar conexiones**\n" .
+                                     "• ¿Está conectado el cable de la pantalla?\n" .
+                                     "• ¿Está encendida la pantalla? (busca botón de power)\n" .
+                                     "• ¿Hay alguna luz en la pantalla?\n\n" .
+                                     "**Paso 2: Reiniciar**\n" .
+                                     "• Reinicia la computadora\n" .
+                                     "• Espera a que cargue completamente\n\n" .
+                                     "**Si la pantalla sigue en negro:** Llama a IT inmediatamente.",
+
+            'computadora_congela' => "❄️ **Computadora se congela - Soluciones:**\n\n" .
+                                    "**Paso 1: Forzar reinicio**\n" .
+                                    "• Mantén presionado el botón de encendido por 10 segundos\n" .
+                                    "• Espera 30 segundos\n" .
+                                    "• Vuelve a encender\n\n" .
+                                    "**Paso 2: Prevenir congelamiento**\n" .
+                                    "• No abras muchos programas a la vez\n" .
+                                    "• Cierra pestañas del navegador que no uses\n" .
+                                    "• Guarda tu trabajo frecuentemente\n\n" .
+                                    "**Si se sigue congelando:** Llama a IT.",
+
+            // Internet
+            'internet_wifi' => "📶 **Problemas de WiFi - Guía paso a paso:**\n\n" .
+                              "**Paso 1: Revisar la conexión**\n" .
+                              "• Mira la esquina inferior derecha de tu pantalla\n" .
+                              "• ¿Ves el símbolo del WiFi? 📶\n" .
+                              "• Si tiene una X roja, haz click ahí\n" .
+                              "• Busca el nombre de tu red WiFi y conecta\n\n" .
+                              "**Paso 2: Reiniciar WiFi**\n" .
+                              "• Busca la cajita del WiFi (router)\n" .
+                              "• Desconecta el cable de la pared por 1 minuto\n" .
+                              "• Vuelve a conectar y espera 3 minutos\n\n" .
+                              "**Si no funciona:** Llama a IT.",
+
+            'internet_lento' => "🐌 **Internet lento - Mejora tu velocidad:**\n\n" .
+                               "**Paso 1: Cerrar programas**\n" .
+                               "• Cierra programas que no estés usando\n" .
+                               "• Cierra pestañas del navegador\n" .
+                               "• Pausa descargas grandes\n\n" .
+                               "**Paso 2: Reiniciar conexión**\n" .
+                               "• Desconecta y reconecta el WiFi\n" .
+                               "• Reinicia tu computadora\n\n" .
+                               "**Paso 3: Prueba**\n" .
+                               "• Ve a google.com para probar\n" .
+                               "• Si sigue lento, llama a IT.",
+
+            'internet_no_navega' => "🚫 **No puedes navegar - Soluciones:**\n\n" .
+                                   "**Paso 1: Verificar conexión**\n" .
+                                   "• ¿Tienes WiFi conectado?\n" .
+                                   "• ¿Otros dispositivos funcionan?\n\n" .
+                                   "**Paso 2: Reiniciar navegador**\n" .
+                                   "• Cierra completamente el navegador\n" .
+                                   "• Abre nuevamente\n" .
+                                   "• Intenta ir a google.com\n\n" .
+                                   "**Si no funciona:** Llama a IT.",
+
+            // Correo
+            'correo_gmail' => "📬 **Problemas con Gmail - Te guío paso a paso:**\n\n" .
+                             "**No puedes entrar a Gmail:**\n" .
+                             "• Abre tu navegador (Chrome, Edge, etc.)\n" .
+                             "• Escribe: gmail.com\n" .
+                             "• Usa tu correo completo: tunombre@empresa.com\n" .
+                             "• Si no recuerdas la contraseña, click en '¿Olvidaste la contraseña?'\n\n" .
+                             "**No te llegan correos:**\n" .
+                             "• Revisa la carpeta 'Spam' (correo no deseado)\n" .
+                             "• Revisa 'Promociones' (puede estar ahí)\n\n" .
+                             "**Para problemas de contraseña:** Llama a IT.",
+
+            'correo_outlook' => "📮 **Problemas con Outlook - Soluciones simples:**\n\n" .
+                               "**Outlook no abre:**\n" .
+                               "• Cierra completamente el programa\n" .
+                               "• Reinicia tu computadora\n" .
+                               "• Busca 'Outlook' en el menú de Windows\n\n" .
+                               "**No te llegan correos nuevos:**\n" .
+                               "• Busca un botón que diga 'Enviar y recibir'\n" .
+                               "• Haz click ahí y espera unos minutos\n\n" .
+                               "**Si no funciona:** Llama a IT.",
+
+            'correo_acceso' => "🔑 **No puedes entrar al correo:**\n\n" .
+                              "**Para Gmail:**\n" .
+                              "• Ve a gmail.com\n" .
+                              "• Usa tu correo completo\n" .
+                              "• Si olvidaste la contraseña, click en 'Recuperar'\n\n" .
+                              "**Para Outlook:**\n" .
+                              "• Abre el programa Outlook\n" .
+                              "• Si pide contraseña, úsala\n\n" .
+                              "**Para cuentas de empresa:** Llama inmediatamente a IT.",
+
+            // Impresora
+            'impresora_no_imprime' => "🚫 **La impresora no imprime - Revisemos:**\n\n" .
+                                     "**Paso 1: Verificaciones básicas**\n" .
+                                     "• ¿Está encendida? Busca una luz verde\n" .
+                                     "• ¿Tiene papel? Revisa la bandeja\n" .
+                                     "• ¿Está conectada? Revisa el cable USB\n\n" .
+                                     "**Paso 2: Reiniciar**\n" .
+                                     "• Apaga la impresora\n" .
+                                     "• Espera 30 segundos\n" .
+                                     "• Enciende nuevamente\n\n" .
+                                     "**Si no imprime:** Llama a IT.",
+
+            'impresora_papel' => "📄 **Papel atascado - Cómo sacarlo:**\n\n" .
+                                "**Paso 1: Apagar impresora**\n" .
+                                "• Apaga la impresora primero\n" .
+                                "• Nunca saques papel con la impresora encendida\n\n" .
+                                "**Paso 2: Sacar papel**\n" .
+                                "• Abre todas las tapas que puedas\n" .
+                                "• Saca el papel MUY DESPACIO\n" .
+                                "• No lo rompas, tira suavemente\n\n" .
+                                "**Paso 3: Encender**\n" .
+                                "• Cierra todas las tapas\n" .
+                                "• Enciende la impresora\n\n" .
+                                "**Si no puedes sacarlo:** Llama a IT.",
+
+            'impresora_tinta' => "🖋️ **Problemas de tinta - Qué revisar:**\n\n" .
+                                "**Síntomas de poca tinta:**\n" .
+                                "• Imprime muy clarito\n" .
+                                "• Salen rayas en el papel\n" .
+                                "• Parpadea alguna luz\n\n" .
+                                "**Qué hacer:**\n" .
+                                "• Revisa si hay mensajes en la pantalla\n" .
+                                "• Anota qué color falta\n" .
+                                "• NO toques los cartuchos\n\n" .
+                                "**Para cambio de tintas:** Llama a IT inmediatamente.",
+
+            // Software
+            'software_office' => "📋 **Problemas con Microsoft Office:**\n\n" .
+                                "**El programa no abre:**\n" .
+                                "• Reinicia tu computadora\n" .
+                                "• Busca el programa en el menú de Windows\n" .
+                                "• Haz doble click en el ícono\n\n" .
+                                "**No puedes guardar:**\n" .
+                                "• Presiona Ctrl + S\n" .
+                                "• Elige 'Documentos' como ubicación\n" .
+                                "• Ponle un nombre que reconozcas\n\n" .
+                                "**No encuentras archivos:**\n" .
+                                "• Ve a 'Archivo' → 'Abrir' → 'Reciente'\n" .
+                                "• O busca en 'Documentos'\n\n" .
+                                "**Para problemas de licencia:** Llama a IT.",
+
+            'software_google' => "📄 **Problemas con Google Workspace:**\n\n" .
+                                "**No cargan documentos:**\n" .
+                                "• Abre tu navegador\n" .
+                                "• Ve a docs.google.com\n" .
+                                "• Usa tu correo de trabajo\n\n" .
+                                "**No puedes editar:**\n" .
+                                "• Verifica que tengas permisos\n" .
+                                "• Si dice 'Solo lectura', pide permisos\n\n" .
+                                "**No encuentras archivos:**\n" .
+                                "• Ve a drive.google.com\n" .
+                                "• Usa el buscador\n" .
+                                "• Revisa 'Compartido conmigo'\n\n" .
+                                "**Para permisos:** Llama a IT.",
+
+            'software_otro' => "⚠️ **Problema con otro programa:**\n\n" .
+                              "**Solución universal:**\n" .
+                              "1. Cierra el programa completamente\n" .
+                              "2. Reinicia tu computadora\n" .
+                              "3. Abre el programa nuevamente\n" .
+                              "4. Si no aparece, búscalo en Windows\n\n" .
+                              "**Si el problema persiste:**\n" .
+                              "• Anota exactamente qué programa es\n" .
+                              "• Anota qué error aparece\n" .
+                              "• Llama a IT con esa información.",
+
+            // Acceso
+            'acceso_password' => "🔑 **Olvidé mi contraseña:**\n\n" .
+                                "**Para cuentas de la empresa:**\n" .
+                                "• Llama INMEDIATAMENTE a IT\n" .
+                                "• NO intentes adivinar la contraseña\n" .
+                                "• Ellos pueden resetearla\n\n" .
+                                "**Para Gmail personal:**\n" .
+                                "• Ve a gmail.com\n" .
+                                "• Click en '¿Olvidaste tu contraseña?'\n" .
+                                "• Sigue las instrucciones\n\n" .
+                                "**🚨 IMPORTANTE:** Nunca le des tu contraseña a nadie.",
+
+            'acceso_bloqueada' => "🔒 **Mi cuenta está bloqueada:**\n\n" .
+                                 "**Qué hacer:**\n" .
+                                 "• Para 15 minutos sin intentar entrar\n" .
+                                 "• NO sigas intentando\n" .
+                                 "• Cada intento la bloquea más tiempo\n\n" .
+                                 "**Si sigue bloqueada:**\n" .
+                                 "• Llama a IT inmediatamente\n" .
+                                 "• Diles tu nombre de usuario\n" .
+                                 "• Ellos pueden desbloquearla\n\n" .
+                                 "**Para prevenir bloqueos:** Anota tu contraseña en lugar seguro.",
+
+            'acceso_archivos' => "🚪 **No tengo acceso a archivos:**\n\n" .
+                                "**Paso 1: Verificar**\n" .
+                                "• ¿Deberías tener acceso a este archivo?\n" .
+                                "• Pregunta a tu jefe o compañeros\n\n" .
+                                "**Paso 2: Solicitar acceso**\n" .
+                                "• Llama a IT\n" .
+                                "• Diles exactamente qué archivo necesitas\n" .
+                                "• Diles quién te autorizó\n\n" .
+                                "**Paso 3: Esperar**\n" .
+                                "• Los permisos pueden tardar unos minutos\n" .
+                                "• Cierra y abre el archivo después"
+        ];
+
+        $response = $specificResponses[$problemType] ?? "Tipo de problema no encontrado.";
+        
+        // Determinar categoría del problema
+        $category = 'general';
+        if (str_starts_with($problemType, 'computadora_')) $category = 'computadora';
+        elseif (str_starts_with($problemType, 'internet_')) $category = 'internet';
+        elseif (str_starts_with($problemType, 'correo_')) $category = 'correo';
+        elseif (str_starts_with($problemType, 'impresora_')) $category = 'impresora';
+        elseif (str_starts_with($problemType, 'software_')) $category = 'software';
+        elseif (str_starts_with($problemType, 'acceso_')) $category = 'acceso';
+
+        // Guardar en base de datos
+        try {
+            TechSupportConversation::create([
+                'session_id' => $sessionId,
+                'user_message' => "Problema específico: " . $problemType,
+                'problem_category' => $this->mapCategoryToEnum($category),
+                'problem_type' => $problemType,
+                'bot_response' => $response,
+                'context_data' => json_encode([
+                    'timestamp' => now(),
+                    'interaction_type' => 'specific_problem',
+                    'problem_type' => $problemType
+                ]),
+                'user_ip' => request()->ip(),
+                'user_agent' => request()->userAgent()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saving specific tech support response: ' . $e->getMessage());
+        }
+
+        return [
+            'message' => $response,
+            'type' => 'tech_support',
+            'category' => $category,
+            'problem_type' => $problemType,
+            'session_id' => $sessionId,
+            'context' => ['step' => 'tech_support_complete'],
+            'buttons' => [
+                [
+                    'text' => '✅ Esto resolvió mi problema',
+                    'action' => 'problem_resolved',
+                    'value' => $sessionId
+                ],
+                [
+                    'text' => '❌ Sigo teniendo problemas',
+                    'action' => 'problem_not_resolved',
+                    'value' => $sessionId
+                ],
+                [
+                    'text' => '📞 Llamar a IT',
+                    'action' => 'call_it',
+                    'value' => $problemType
+                ],
+                [
+                    'text' => '🔄 Otro problema',
+                    'action' => 'tech_support_category',
+                    'value' => 'general'
+                ]
+            ],
+            'suggestions' => ['Problema resuelto', 'Llamar a IT', 'Nuevo problema']
         ];
     }
 

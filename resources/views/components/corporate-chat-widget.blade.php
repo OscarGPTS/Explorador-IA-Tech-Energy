@@ -47,7 +47,7 @@
                 <div class="bg-white dark:bg-gray-700 rounded-lg p-3 max-w-xs shadow-sm">
                     <p class="text-sm text-gray-700 dark:text-gray-300">
                         ¡Hola! Soy tu asistente de información corporativa. 
-                        Puedo ayudarte con empleados, ubicaciones y documentos. 
+                        Puedo ayudarte con empleados, documentos y soporte técnico. 
                         ¿Qué necesitas?
                     </p>
                 </div>
@@ -60,8 +60,8 @@
                 <button onclick="sendQuickMessage('Buscar empleado')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
                     👤 Empleado
                 </button>
-                <button onclick="sendQuickMessage('Ver ubicaciones')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
-                    📍 Ubicaciones
+                <button onclick="sendQuickMessage('Soporte técnico')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+                    � Soporte
                 </button>
                 <button onclick="sendQuickMessage('Encontrar documento')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
                     📄 Documentos
@@ -131,20 +131,29 @@ function handleChatKeyPress(event) {
     }
 }
 
-async function sendChatMessage() {
+async function sendChatMessage(buttonAction = null, buttonValue = null) {
     const input = document.getElementById('chat-input');
-    const message = input.value.trim();
+    const message = buttonAction ? `Button: ${buttonAction}` : input.value.trim();
     
-    if (!message) return;
+    if (!message && !buttonAction) return;
     
-    // Agregar mensaje del usuario
-    addMessageToChat(message, 'user');
-    input.value = '';
+    // Agregar mensaje del usuario (solo si no es una acción de botón)
+    if (!buttonAction) {
+        addMessageToChat(message, 'user');
+        input.value = '';
+    }
     
     // Mostrar indicador de escritura
     showTypingIndicator();
     
     try {
+        // Preparar contexto con información del botón si aplica
+        const requestContext = { ...chatContext };
+        if (buttonAction) {
+            requestContext.action = buttonAction;
+            requestContext.value = buttonValue;
+        }
+        
         const response = await fetch('/corporate-chat/message', {
             method: 'POST',
             headers: {
@@ -152,8 +161,8 @@ async function sendChatMessage() {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
             body: JSON.stringify({
-                message: message,
-                context: chatContext
+                message: buttonAction ? buttonValue || buttonAction : message,
+                context: requestContext
             })
         });
         
@@ -163,7 +172,7 @@ async function sendChatMessage() {
         hideTypingIndicator();
         
         // Agregar respuesta del asistente
-        addMessageToChat(data.message, 'assistant');
+        addMessageToChat(data.message, 'assistant', data.buttons);
         
         // Actualizar contexto
         if (data.context) {
@@ -182,10 +191,10 @@ async function sendChatMessage() {
     }
 }
 
-function addMessageToChat(message, sender) {
+function addMessageToChat(message, sender, buttons = null) {
     const messagesContainer = document.getElementById('chat-messages');
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'flex items-start';
+    messageDiv.className = 'flex items-start mb-3';
     
     if (sender === 'user') {
         messageDiv.innerHTML = `
@@ -199,12 +208,31 @@ function addMessageToChat(message, sender) {
             </div>
         `;
     } else {
+        let buttonsHTML = '';
+        if (buttons && buttons.length > 0) {
+            buttonsHTML = `
+                <div class="mt-3 space-y-1">
+                    ${buttons.map(button => `
+                        <button 
+                            onclick="sendChatMessage('${button.action}', '${button.value || ''}')"
+                            class="block w-full text-left text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg p-2 transition-colors duration-200"
+                            title="${button.description || ''}"
+                        >
+                            ${escapeHtml(button.text)}
+                            ${button.description ? `<div class="text-xs text-blue-500 mt-1">${escapeHtml(button.description)}</div>` : ''}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
         messageDiv.innerHTML = `
             <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
                 <span class="text-white text-xs">🏢</span>
             </div>
             <div class="bg-white dark:bg-gray-700 rounded-lg p-3 max-w-xs shadow-sm">
                 <p class="text-sm text-gray-700 dark:text-gray-300">${formatMessage(message)}</p>
+                ${buttonsHTML}
             </div>
         `;
     }
