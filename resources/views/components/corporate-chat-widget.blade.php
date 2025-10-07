@@ -394,40 +394,44 @@ function showGeneralInfo() {
 function showCorporateMainMenu() {
     const chatMessages = document.getElementById('chat-messages');
     
-    // Limpiar mensajes anteriores
+    // Limpiar mensajes anteriores (reset del chat)
     chatMessages.innerHTML = '';
     
-    // Mensaje de bienvenida del menú
-    addMessageToChat(
-        '🏠 **Menú Principal - Centro de Información Corporativa**\n\n¿Qué necesitas hacer hoy? Elige una opción para obtener asistencia especializada:', 
-        'bot'
-    );
+    // Recrear el mensaje de bienvenida inicial
+    const welcomeMessage = document.createElement('div');
+    welcomeMessage.className = 'flex items-start space-x-2 mb-3';
+    welcomeMessage.innerHTML = `
+        <div class="w-8 h-8 bg-gradient-to-r from-red-500 to-yellow-400 rounded-full flex items-center justify-center mr-2 flex-shrink-0 shadow-lg">
+            <span class="text-white text-xs">🏢</span>
+        </div>
+        <div class="bg-white dark:bg-gray-700 rounded-lg p-3 max-w-xs shadow-sm border border-red-100">
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+                ¡Hola! Soy tu asistente de información corporativa. 
+                Puedo ayudarte con empleados, documentos y soporte técnico. 
+                ¿Qué necesitas?
+            </p>
+        </div>
+    `;
     
-    // Opciones del menú principal
-    const menuOptions = [
-        {
-            text: '👥 Buscar Empleados',
-            action: 'show_employee_search',
-            description: 'Encuentra información de contacto'
-        },
-        {
-            text: '📄 Documentos Corporativos', 
-            action: 'show_document_search',
-            description: 'Políticas, manuales y procedimientos'
-        },
-        {
-            text: '🔧 Soporte Técnico',
-            action: 'show_tech_support',
-            description: 'Asistencia con problemas tecnológicos'
-        },
-        {
-            text: '🏢 Información General',
-            action: 'show_general_info',
-            description: 'Horarios, contactos y servicios'
-        }
-    ];
+    chatMessages.appendChild(welcomeMessage);
     
-    addMessageToChat('Selecciona una opción:', 'bot', menuOptions);
+    // Restaurar las sugerencias rápidas originales
+    const suggestionsContainer = document.getElementById('chat-suggestions');
+    suggestionsContainer.style.display = 'block';
+    
+    // Asegurar que las sugerencias contengan los 3 tags originales
+    const suggestionsInner = suggestionsContainer.querySelector('.flex');
+    suggestionsInner.innerHTML = `
+        <button onclick="sendQuickMessage('Buscar empleado')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+            👤 Empleado
+        </button>
+        <button onclick="sendQuickMessage('Soporte técnico')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+            🔧 Soporte
+        </button>
+        <button onclick="sendQuickMessage('Encontrar documento')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+            📄 Documentos
+        </button>
+    `;
     
     // Scroll hacia abajo
     setTimeout(() => {
