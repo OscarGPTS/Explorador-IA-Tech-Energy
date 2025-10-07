@@ -121,6 +121,102 @@
             </div>
         </div>
 
+        <!-- Secciones adicionales: Empleados y Documentos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Búsqueda de Empleados -->
+            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-white/20">
+                <div class="bg-gradient-to-r from-blue-600 to-cyan-500 p-6">
+                    <h2 class="text-2xl font-bold text-white flex items-center">
+                        <i class="fas fa-users mr-3"></i>
+                        Buscar Empleados
+                    </h2>
+                    <p class="text-blue-100 mt-2">
+                        Encuentra información de contacto de empleados
+                    </p>
+                </div>
+                
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="employee-search" class="block text-sm font-medium text-gray-700 mb-2">
+                                Buscar por nombre, departamento o cargo
+                            </label>
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    id="employee-search" 
+                                    placeholder="Ej: Juan Pérez, IT, Administración, Dirección General..."
+                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2" id="employee-tags">
+                            <!-- Los tags se cargarán dinámicamente -->
+                            <div class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm">
+                                <i class="fas fa-spinner fa-spin mr-1"></i>Cargando...
+                            </div>
+                        </div>
+                        
+                        <div id="employee-results" class="mt-4 max-h-64 overflow-y-auto">
+                            <div class="text-center text-gray-500 py-8">
+                                <i class="fas fa-search text-3xl mb-2"></i>
+                                <p>Usa el campo de búsqueda o los filtros para encontrar empleados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Búsqueda de Documentos -->
+            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-white/20">
+                <div class="bg-gradient-to-r from-green-600 to-teal-500 p-6">
+                    <h2 class="text-2xl font-bold text-white flex items-center">
+                        <i class="fas fa-file-alt mr-3"></i>
+                        Documentos Corporativos
+                    </h2>
+                    <p class="text-green-100 mt-2">
+                        Accede a políticas, manuales y procedimientos
+                    </p>
+                </div>
+                
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="document-search" class="block text-sm font-medium text-gray-700 mb-2">
+                                Buscar documentos
+                            </label>
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    id="document-search" 
+                                    placeholder="Ej: Manual, Política, Procedimiento..."
+                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                >
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div id="document-tags-container" class="grid grid-cols-1 gap-2">
+                            <!-- Los tags se cargarán dinámicamente aquí -->
+                            <div class="text-center text-gray-500 py-4">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                Cargando categorías...
+                            </div>
+                        </div>
+                        
+                        <div id="document-results" class="mt-4 max-h-64 overflow-y-auto">
+                            <div class="text-center text-gray-500 py-8">
+                                <i class="fas fa-folder-open text-3xl mb-2"></i>
+                                <p>Selecciona una categoría o busca documentos específicos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Sección principal de soporte con tema rojo-amarillo -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Chat interactivo -->
@@ -157,7 +253,11 @@
                     
                     <!-- Input area -->
                     <div class="p-4 bg-white border-t">
-                        <div class="flex space-x-3">
+                        <div class="flex flex-wrap gap-3">
+                            <button id="main-menu" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg border-2 border-blue-300">
+                                <i class="fas fa-home mr-2"></i>
+                                Menú Principal
+                            </button>
                             <button id="restart-chat" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-200">
                                 <i class="fas fa-redo mr-2"></i>
                                 Nuevo Problema
@@ -261,6 +361,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCategories();
     
     // Event listeners
+    document.getElementById('main-menu').addEventListener('click', showMainMenu);
     document.getElementById('restart-chat').addEventListener('click', restartChat);
     document.getElementById('escalate-to-it').addEventListener('click', escalateToIT);
     document.getElementById('mark-resolved').addEventListener('click', markAsResolved);
@@ -496,6 +597,170 @@ function addMessageToChat(sender, message) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+function showMainMenu() {
+    // Limpiar opciones anteriores si existen
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) {
+        existingOptions.remove();
+    }
+    
+    // Agregar mensaje del bot sobre el menú
+    addMessageToChat('bot', '📋 **Menú Principal - ¿Qué necesitas hacer?**\n\nPuedes elegir una de estas opciones para una experiencia más rápida:');
+    
+    // Mostrar opciones del menú principal
+    setTimeout(() => {
+        displayMainMenuOptions();
+    }, 300);
+    
+    // Ocultar botones de acción
+    document.getElementById('escalate-to-it').style.display = 'none';
+    document.getElementById('mark-resolved').style.display = 'none';
+    
+    currentStep = 'main_menu';
+}
+
+function displayMainMenuOptions() {
+    const chatContainer = document.getElementById('tech-support-chat');
+    
+    // Crear un nuevo div para las opciones del menú
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 mb-4';
+    optionsDiv.id = 'current-options';
+    
+    const menuOptions = [
+        {
+            id: 'solve_problem',
+            title: '🔧 Resolver un Problema',
+            description: 'Asistencia paso a paso para problemas técnicos',
+            color: 'blue',
+            icon: '🔧',
+            action: () => {
+                addMessageToChat('user', 'Quiero resolver un problema técnico');
+                setTimeout(() => {
+                    restartChat();
+                }, 500);
+            }
+        },
+        {
+            id: 'quick_actions',
+            title: '⚡ Acciones Rápidas',
+            description: 'Soluciones inmediatas a problemas comunes',
+            color: 'green',
+            icon: '⚡',
+            action: () => {
+                addMessageToChat('user', 'Mostrar acciones rápidas');
+                setTimeout(() => {
+                    showQuickActionsMenu();
+                }, 500);
+            }
+        },
+        {
+            id: 'contact_support',
+            title: '📞 Contactar Soporte',
+            description: 'Hablar directamente con el equipo de IT',
+            color: 'purple',
+            icon: '📞',
+            action: () => {
+                addMessageToChat('user', 'Quiero contactar con soporte');
+                setTimeout(() => {
+                    quickAction('contact_it');
+                }, 500);
+            }
+        },
+        {
+            id: 'system_status',
+            title: '📊 Estado del Sistema',
+            description: 'Verificar el estado de servicios y conexiones',
+            color: 'orange',
+            icon: '📊',
+            action: () => {
+                addMessageToChat('user', 'Verificar estado del sistema');
+                setTimeout(() => {
+                    showSystemStatus();
+                }, 500);
+            }
+        }
+    ];
+    
+    menuOptions.forEach(option => {
+        const button = document.createElement('button');
+        button.className = `p-4 bg-${option.color}-50 hover:bg-${option.color}-100 border border-${option.color}-200 hover:border-${option.color}-300 rounded-lg text-left transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md`;
+        button.innerHTML = `
+            <div class="flex items-center">
+                <span class="text-2xl mr-3">${option.icon}</span>
+                <div>
+                    <div class="font-semibold text-gray-800">${option.title}</div>
+                    <div class="text-sm text-gray-600">${option.description}</div>
+                </div>
+            </div>
+        `;
+        button.onclick = option.action;
+        optionsDiv.appendChild(button);
+    });
+    
+    // Agregar las opciones al chat
+    chatContainer.appendChild(optionsDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function showQuickActionsMenu() {
+    addMessageToChat('bot', '⚡ **Acciones Rápidas Disponibles:**\n\nElige la acción que necesitas realizar:');
+    
+    const chatContainer = document.getElementById('tech-support-chat');
+    
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'grid grid-cols-1 gap-3 mt-4 mb-4';
+    optionsDiv.id = 'current-options';
+    
+    const quickActions = [
+        { id: 'restart_computer', title: '🔄 Reiniciar Computadora', description: 'Guía paso a paso para reiniciar' },
+        { id: 'check_internet', title: '🌐 Verificar Internet', description: 'Diagnosticar problemas de conexión' },
+        { id: 'contact_it', title: '📞 Contactar IT', description: 'Información de contacto directa' }
+    ];
+    
+    quickActions.forEach(action => {
+        const button = document.createElement('button');
+        button.className = 'p-3 bg-white hover:bg-gray-50 border border-gray-200 hover:border-blue-300 rounded-lg text-left transition duration-200 shadow-sm';
+        button.innerHTML = `
+            <div class="flex items-center">
+                <span class="text-xl mr-3">${action.title.split(' ')[0]}</span>
+                <div>
+                    <div class="font-semibold text-gray-800">${action.title.substring(2)}</div>
+                    <div class="text-sm text-gray-600">${action.description}</div>
+                </div>
+            </div>
+        `;
+        button.onclick = () => {
+            addMessageToChat('user', `Seleccioné: ${action.title}`);
+            quickAction(action.id);
+        };
+        optionsDiv.appendChild(button);
+    });
+    
+    chatContainer.appendChild(optionsDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function showSystemStatus() {
+    addMessageToChat('bot', `📊 **Estado del Sistema:**
+
+🔍 **Verificaciones Básicas:**
+• Conexión a Internet: ✅ Activa
+• Servidor de Correo: ✅ Funcionando  
+• Red Interna: ✅ Conectada
+• Impresoras de Red: ⚠️ Verificando...
+
+🕐 **Última Actualización:** ${new Date().toLocaleTimeString()}
+
+💡 **Recomendaciones:**
+• Si tienes problemas específicos, usa "Resolver un Problema"
+• Para asistencia inmediata, contacta IT: 555-TECH
+
+¿Necesitas verificar algo más específico?`);
+    
+    showActionButtons();
+}
+
 function restartChat() {
     currentSessionId = generateSessionId();
     currentStep = 'categories';
@@ -658,6 +923,561 @@ Si nada funciona, el problema puede ser del proveedor de internet.`);
 
 function showError(message) {
     addMessageToChat('bot', `❌ ${message}. Por favor intenta nuevamente o contacta a IT.`);
+}
+
+// Funciones para búsqueda de empleados
+document.addEventListener('DOMContentLoaded', function() {
+    const employeeSearch = document.getElementById('employee-search');
+    const documentSearch = document.getElementById('document-search');
+
+    // Cargar tags dinámicos
+    loadEmployeeTags();
+    loadDocumentTags();
+
+    // Búsqueda de empleados en tiempo real
+    let employeeSearchTimeout;
+    employeeSearch.addEventListener('input', function() {
+        clearTimeout(employeeSearchTimeout);
+        employeeSearchTimeout = setTimeout(() => {
+            if (this.value.length >= 2) {
+                searchEmployees(this.value);
+            } else {
+                showEmployeeDefaultMessage();
+            }
+        }, 300);
+    });
+
+    // Búsqueda de documentos en tiempo real
+    let documentSearchTimeout;
+    documentSearch.addEventListener('input', function() {
+        clearTimeout(documentSearchTimeout);
+        documentSearchTimeout = setTimeout(() => {
+            if (this.value.length >= 2) {
+                searchDocuments(this.value);
+            } else {
+                showDocumentDefaultMessage();
+            }
+        }, 300);
+    });
+});
+
+function loadEmployeeTags() {
+    fetch('/corporate-chat/employees/tags')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al cargar tags');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const tagsContainer = document.getElementById('employee-tags');
+        let html = '';
+        
+        // Mostrar TODOS los departamentos disponibles (no solo algunos principales)
+        if (data.departments && data.departments.length > 0) {
+            data.departments.slice(0, 8).forEach(dept => { // Mostrar hasta 8 departamentos
+                const displayName = dept === 'Recursos Humanos' ? 'RRHH' : 
+                                   dept === 'Administración y Finanzas' ? 'Admin y Finanzas' :
+                                   dept.length > 15 ? dept.substring(0, 12) + '...' : dept;
+                html += `
+                    <button onclick="selectEmployeeTag('department', '${dept}')" class="employee-tag-btn px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-all duration-200" data-type="department" data-value="${dept}" title="${dept}">
+                        ${displayName}
+                    </button>
+                `;
+            });
+        }
+        
+        // Agregar algunas posiciones principales si hay espacio
+        if (data.positions && data.positions.length > 0) {
+            const mainPositions = ['Dirección General', 'Administración y Finanzas', 'Jefe de Área'];
+            mainPositions.forEach(pos => {
+                if (data.positions.includes(pos)) {
+                    const displayName = pos === 'Dirección General' ? 'Dirección' : 
+                                       pos === 'Administración y Finanzas' ? 'Finanzas' : pos;
+                    html += `
+                        <button onclick="selectEmployeeTag('position', '${pos}')" class="employee-tag-btn px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm hover:bg-blue-300 transition-all duration-200" data-type="position" data-value="${pos}" title="${pos}">
+                            ${displayName}
+                        </button>
+                    `;
+                }
+            });
+        }
+        
+        // Botón "Ver todos" mejorado
+        html += `
+            <button onclick="loadAllEmployees()" class="px-3 py-1 bg-blue-500 text-white rounded-full text-sm hover:bg-blue-600 transition-all duration-200 font-medium">
+                <i class="fas fa-users mr-1"></i>Ver todos
+            </button>
+        `;
+        
+        tagsContainer.innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error loading tags:', error);
+        // Fallback a tags estáticos si falla
+        const tagsContainer = document.getElementById('employee-tags');
+        tagsContainer.innerHTML = `
+            <button onclick="selectEmployeeTag('department', 'IT')" class="employee-tag-btn px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-all duration-200" data-type="department" data-value="IT">
+                IT
+            </button>
+            <button onclick="selectEmployeeTag('department', 'Recursos Humanos')" class="employee-tag-btn px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-all duration-200" data-type="department" data-value="Recursos Humanos">
+                RRHH
+            </button>
+            <button onclick="loadAllEmployees()" class="px-3 py-1 bg-blue-500 text-white rounded-full text-sm hover:bg-blue-600 transition-all duration-200 font-medium">
+                <i class="fas fa-users mr-1"></i>Ver todos
+            </button>
+        `;
+    });
+}
+
+function loadDocumentTags() {
+    fetch('/corporate-chat/documents/tags')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al cargar categorías de documentos');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const tagsContainer = document.getElementById('document-tags-container');
+        let html = '';
+        
+        // Mapear categorías a nombres y iconos amigables
+        const categoryMap = {
+            'contexto_planificacion': { name: 'Contexto y Planificación', icon: 'fas fa-calendar-alt' },
+            'procedimientos_normativos': { name: 'Políticas y Normas', icon: 'fas fa-gavel' },
+            'procedimientos_operativos': { name: 'Procedimientos Operativos', icon: 'fas fa-cogs' },
+            'mejora_continua': { name: 'Mejora Continua', icon: 'fas fa-chart-line' },
+            'general': { name: 'General', icon: 'fas fa-folder' }
+        };
+        
+        // Crear botones para cada categoría
+        data.categories.forEach(category => {
+            const categoryInfo = categoryMap[category] || { name: category, icon: 'fas fa-file' };
+            html += `
+                <button onclick="selectDocumentCategory('${category}')" class="document-category-btn w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-all duration-200 border border-green-200" data-category="${category}">
+                    <i class="${categoryInfo.icon} mr-2 text-green-600"></i>
+                    <span class="font-medium">${categoryInfo.name}</span>
+                </button>
+            `;
+        });
+        
+        tagsContainer.innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error loading document categories:', error);
+        // Fallback a categorías estáticas si falla
+        const tagsContainer = document.getElementById('document-tags-container');
+        tagsContainer.innerHTML = `
+            <button onclick="selectDocumentCategory('general')" class="document-category-btn w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-all duration-200 border border-green-200" data-category="general">
+                <i class="fas fa-folder mr-2 text-green-600"></i>
+                <span class="font-medium">General</span>
+            </button>
+        `;
+    });
+}
+
+function searchEmployees(query) {
+    const resultsContainer = document.getElementById('employee-results');
+    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Buscando...</div>';
+
+    fetch('/corporate-chat/employees/search?' + new URLSearchParams({
+        search: query
+    }))
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Employees search result:', data); // Debug
+        displayEmployeeResults(data.employees || []);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al buscar empleados. Por favor, intenta de nuevo.</div>';
+    });
+}
+
+function selectEmployeeTag(type, value) {
+    // Remover estado activo de todos los botones de empleados
+    document.querySelectorAll('.employee-tag-btn').forEach(btn => {
+        const btnType = btn.getAttribute('data-type');
+        
+        if (btnType === 'department') {
+            btn.classList.remove('bg-blue-300', 'text-blue-900');
+            btn.classList.add('bg-blue-100', 'text-blue-700');
+        } else if (btnType === 'position') {
+            btn.classList.remove('bg-blue-400', 'text-blue-900');
+            btn.classList.add('bg-blue-200', 'text-blue-800');
+        }
+    });
+    
+    // Activar el botón seleccionado
+    const selectedBtn = document.querySelector(`[data-type="${type}"][data-value="${value}"]`);
+    if (selectedBtn) {
+        if (type === 'department') {
+            selectedBtn.classList.remove('bg-blue-100', 'text-blue-700');
+            selectedBtn.classList.add('bg-blue-300', 'text-blue-900');
+        } else if (type === 'position') {
+            selectedBtn.classList.remove('bg-blue-200', 'text-blue-800');
+            selectedBtn.classList.add('bg-blue-400', 'text-blue-900');
+        }
+    }
+    
+    // Ejecutar la búsqueda
+    searchEmployeesByType(type, value);
+}
+
+function searchEmployeesByType(type, value) {
+    const resultsContainer = document.getElementById('employee-results');
+    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Buscando...</div>';
+
+    const params = {};
+    params[type] = value;
+
+    fetch('/corporate-chat/employees/search?' + new URLSearchParams(params))
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Employees by type result:', data); // Debug
+        displayEmployeeResults(data.employees || []);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al buscar empleados. Por favor, intenta de nuevo.</div>';
+    });
+}
+
+function loadAllEmployees() {
+    const resultsContainer = document.getElementById('employee-results');
+    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Cargando todos los empleados...</div>';
+
+    fetch('/corporate-chat/employees/search')
+    .then(response => response.json())
+    .then(data => {
+        console.log('All employees data:', data); // Debug
+        
+        if (!data.employees || data.employees.length === 0) {
+            resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">No se encontraron empleados</div>';
+            return;
+        }
+
+        // Mostrar todos los empleados en una lista completa
+        let html = `
+            <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <h4 class="font-semibold text-blue-800 flex items-center">
+                    <i class="fas fa-users mr-2"></i>
+                    Directorio Completo de Empleados (${data.employees.length} total)
+                </h4>
+                <p class="text-sm text-blue-600 mt-1">Mostrando todos los empleados registrados en el sistema</p>
+            </div>
+            <div class="space-y-3">
+        `;
+
+        // Ordenar empleados por departamento y luego por nombre
+        const sortedEmployees = data.employees.sort((a, b) => {
+            const deptA = a.department || 'ZZ Sin departamento';
+            const deptB = b.department || 'ZZ Sin departamento';
+            if (deptA !== deptB) {
+                return deptA.localeCompare(deptB);
+            }
+            return (a.full_name || '').localeCompare(b.full_name || '');
+        });
+
+        let currentDept = '';
+        sortedEmployees.forEach(emp => {
+            const empDept = emp.department || 'Sin departamento';
+            
+            // Agregar separador de departamento si cambió
+            if (empDept !== currentDept) {
+                html += `
+                    <div class="bg-blue-100 px-3 py-2 rounded-lg mt-4 first:mt-0">
+                        <h5 class="font-medium text-blue-700 flex items-center">
+                            <i class="fas fa-building mr-2 text-blue-600"></i>
+                            ${empDept}
+                        </h5>
+                    </div>
+                `;
+                currentDept = empDept;
+            }
+
+            html += `
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors ml-4">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">${emp.full_name || 'Nombre no disponible'}</h4>
+                            <p class="text-sm text-gray-600">${emp.position || 'Cargo no especificado'}</p>
+                            ${emp.location ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${emp.location}</p>` : ''}
+                        </div>
+                        <div class="text-right">
+                            ${emp.email ? `<a href="mailto:${emp.email}" class="text-blue-600 hover:text-blue-800 text-sm block"><i class="fas fa-envelope mr-1"></i>${emp.email}</a>` : ''}
+                            ${emp.phone ? `<a href="tel:${emp.phone}" class="text-green-600 hover:text-green-800 text-sm block mt-1"><i class="fas fa-phone mr-1"></i>${emp.phone}</a>` : ''}
+                            ${emp.extension ? `<div class="text-gray-600 text-xs mt-1">Ext: ${emp.extension}</div>` : ''}
+                            ${emp.employee_id ? `<div class="text-gray-500 text-xs mt-1">ID: ${emp.employee_id}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+
+        resultsContainer.innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al cargar empleados. Por favor, intenta de nuevo.</div>';
+    });
+}
+
+function loadAllDepartments() {
+    const resultsContainer = document.getElementById('employee-results');
+    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Cargando departamentos...</div>';
+
+    fetch('/corporate-chat/employees/search')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Response data:', data); // Debug
+        
+        if (!data.employees || data.employees.length === 0) {
+            resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">No se encontraron empleados</div>';
+            return;
+        }
+
+        // Agrupar por departamentos
+        const byDepartment = {};
+        data.employees.forEach(emp => {
+            const dept = emp.department || 'Sin departamento';
+            if (!byDepartment[dept]) {
+                byDepartment[dept] = [];
+            }
+            byDepartment[dept].push(emp);
+        });
+
+        let html = '<div class="space-y-3">';
+        Object.keys(byDepartment).sort().forEach(dept => {
+            html += `
+                <div class="border rounded-lg p-3">
+                    <h4 class="font-semibold text-gray-800 mb-2 flex items-center justify-between">
+                        <span>${dept}</span>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${byDepartment[dept].length}</span>
+                    </h4>
+                    <div class="space-y-1">
+                        ${byDepartment[dept].slice(0, 3).map(emp => `
+                            <div class="text-sm text-gray-600 border-b border-gray-100 pb-1">
+                                <strong>${emp.full_name || 'Nombre no disponible'}</strong> - ${emp.position || 'Cargo no especificado'}
+                                ${emp.email ? `<br><a href="mailto:${emp.email}" class="text-blue-600 text-xs">${emp.email}</a>` : ''}
+                            </div>
+                        `).join('')}
+                        ${byDepartment[dept].length > 3 ? `
+                            <button onclick="searchEmployeesByType('department', '${dept}')" class="text-xs text-blue-600 hover:text-blue-800 underline">
+                                Ver todos los ${byDepartment[dept].length} empleados de ${dept}
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+
+        resultsContainer.innerHTML = html;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al cargar departamentos. Por favor, intenta de nuevo.</div>';
+    });
+}
+
+function displayEmployeeResults(employees) {
+    const resultsContainer = document.getElementById('employee-results');
+    
+    if (!employees || employees.length === 0) {
+        resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">No se encontraron empleados</div>';
+        return;
+    }
+
+    let html = '<div class="space-y-3">';
+    employees.forEach(emp => {
+        html += `
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-800">${emp.full_name || 'Nombre no disponible'}</h4>
+                        <p class="text-sm text-gray-600">${emp.position || 'Cargo no especificado'}</p>
+                        <p class="text-xs text-gray-500">${emp.department || 'Departamento no especificado'}</p>
+                        ${emp.location ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${emp.location}</p>` : ''}
+                    </div>
+                    <div class="text-right">
+                        ${emp.email ? `<a href="mailto:${emp.email}" class="text-blue-600 hover:text-blue-800 text-sm block"><i class="fas fa-envelope mr-1"></i>${emp.email}</a>` : ''}
+                        ${emp.phone ? `<a href="tel:${emp.phone}" class="text-green-600 hover:text-green-800 text-sm block mt-1"><i class="fas fa-phone mr-1"></i>${emp.phone}</a>` : ''}
+                        ${emp.extension ? `<div class="text-gray-600 text-xs mt-1">Ext: ${emp.extension}</div>` : ''}
+                        ${emp.employee_id ? `<div class="text-gray-500 text-xs mt-1">ID: ${emp.employee_id}</div>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    resultsContainer.innerHTML = html;
+}
+
+function showEmployeeDefaultMessage() {
+    document.getElementById('employee-results').innerHTML = `
+        <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-search text-3xl mb-2"></i>
+            <p>Usa el campo de búsqueda o los filtros para encontrar empleados</p>
+        </div>
+    `;
+}
+
+// Funciones para búsqueda de documentos
+function searchDocuments(query) {
+    const resultsContainer = document.getElementById('document-results');
+    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-green-500"></i> Buscando...</div>';
+
+    fetch('/corporate-chat/documents/search?' + new URLSearchParams({
+        search: query
+    }))
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Documents search result:', data); // Debug
+        displayDocumentResults(data.documents || []);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al buscar documentos. Por favor, intenta de nuevo.</div>';
+    });
+}
+
+function selectDocumentCategory(category) {
+    // Remover estado activo de todos los botones de categoría
+    document.querySelectorAll('.document-category-btn').forEach(btn => {
+        btn.classList.remove('bg-green-200', 'border-green-400', 'shadow-md');
+        btn.classList.add('bg-green-50', 'border-green-200');
+        
+        // Resetear color del ícono y texto
+        const icon = btn.querySelector('i');
+        const span = btn.querySelector('span');
+        if (icon) icon.classList.remove('text-green-800');
+        if (icon) icon.classList.add('text-green-600');
+        if (span) span.classList.remove('text-green-800');
+    });
+    
+    // Activar el botón seleccionado
+    const selectedBtn = document.querySelector(`[data-category="${category}"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.remove('bg-green-50', 'border-green-200');
+        selectedBtn.classList.add('bg-green-200', 'border-green-400', 'shadow-md');
+        
+        // Cambiar color del ícono y texto
+        const icon = selectedBtn.querySelector('i');
+        const span = selectedBtn.querySelector('span');
+        if (icon) {
+            icon.classList.remove('text-green-600');
+            icon.classList.add('text-green-800');
+        }
+        if (span) {
+            span.classList.add('text-green-800');
+        }
+    }
+    
+    // Ejecutar la búsqueda
+    searchDocumentsByCategory(category);
+}
+
+function searchDocumentsByCategory(category) {
+    const resultsContainer = document.getElementById('document-results');
+    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-green-500"></i> Buscando...</div>';
+
+    fetch('/corporate-chat/documents/search?' + new URLSearchParams({
+        category: category
+    }))
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Documents by category result:', data); // Debug
+        displayDocumentResults(data.documents || []);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al buscar documentos. Por favor, intenta de nuevo.</div>';
+    });
+}
+
+function displayDocumentResults(documents) {
+    const resultsContainer = document.getElementById('document-results');
+    
+    if (!documents || documents.length === 0) {
+        resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">No se encontraron documentos</div>';
+        return;
+    }
+
+    let html = '<div class="space-y-3">';
+    documents.forEach(doc => {
+        const categoryName = getCategoryDisplayName(doc.category);
+        html += `
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-800">${doc.title || 'Documento sin título'}</h4>
+                        ${doc.description ? `<p class="text-sm text-gray-600 mt-1">${doc.description}</p>` : ''}
+                        <div class="flex items-center mt-2 space-x-2">
+                            <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">${categoryName}</span>
+                            ${doc.type ? `<span class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">${doc.type}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        ${doc.external_url ? `
+                            <a href="${doc.external_url}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                                <i class="fas fa-external-link-alt mr-1"></i>Ver
+                            </a>
+                        ` : `
+                            <span class="bg-gray-300 text-gray-600 px-3 py-1 rounded text-sm">Sin enlace</span>
+                        `}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+
+    resultsContainer.innerHTML = html;
+}
+
+function getCategoryDisplayName(category) {
+    const names = {
+        'contexto_planificacion': 'Contexto de Planificación',
+        'procedimientos_normativos': 'Procedimientos Normativos',
+        'procedimientos_operativos': 'Procedimientos Operativos',
+        'mejora_continua': 'Mejora Continua',
+        'general': 'General'
+    };
+    return names[category] || 'Sin categoría';
+}
+
+function showDocumentDefaultMessage() {
+    document.getElementById('document-results').innerHTML = `
+        <div class="text-center text-gray-500 py-8">
+            <i class="fas fa-folder-open text-3xl mb-2"></i>
+            <p>Selecciona una categoría o busca documentos específicos</p>
+        </div>
+    `;
 }
 </script>
 @endpush

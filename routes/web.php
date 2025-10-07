@@ -55,6 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('corporate-chat')->name('corporate.')->group(function () {
         Route::post('/message', [CorporateInfoController::class, 'chatBot'])->name('chat');
         Route::get('/employees/search', [CorporateInfoController::class, 'searchEmployees'])->name('employees.search');
+        Route::get('/employees/tags', [CorporateInfoController::class, 'getEmployeeTags'])->name('employees.tags');
+        Route::get('/documents/tags', [CorporateInfoController::class, 'getDocumentTags'])->name('documents.tags');
         Route::get('/locations/search', [CorporateInfoController::class, 'searchLocations'])->name('locations.search');
         Route::get('/documents/search', [CorporateInfoController::class, 'searchDocuments'])->name('documents.search');
     });

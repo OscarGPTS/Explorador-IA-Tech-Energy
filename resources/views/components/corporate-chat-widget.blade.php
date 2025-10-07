@@ -70,6 +70,20 @@
             </div>
         </div>
 
+        <!-- Menú Principal -->
+        <div class="px-4 py-2 border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
+            <button
+                onclick="showCorporateMainMenu()"
+                class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-105 shadow-lg border-2 border-blue-300 flex items-center justify-center"
+            >
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m8 15 4-4 4 4"></path>
+                </svg>
+                Menú Principal
+            </button>
+        </div>
+
         <!-- Input del chat -->
         <div class="p-4 border-t border-gray-200 dark:border-gray-600">
             <div class="flex items-center space-x-2">
@@ -137,6 +151,39 @@ async function sendChatMessage(buttonAction = null, buttonValue = null) {
     const message = buttonAction ? `Button: ${buttonAction}` : input.value.trim();
     
     if (!message && !buttonAction) return;
+    
+    // Manejar acciones del menú principal localmente
+    if (buttonAction) {
+        switch(buttonAction) {
+            case 'show_employee_search':
+                addMessageToChat('Buscar empleados', 'user');
+                showEmployeeSearchInterface();
+                return;
+            case 'show_document_search':
+                addMessageToChat('Ver documentos corporativos', 'user');
+                showDocumentSearchInterface();
+                return;
+            case 'show_tech_support':
+                addMessageToChat('Necesito soporte técnico', 'user');
+                showTechSupportRedirect();
+                return;
+            case 'show_general_info':
+                addMessageToChat('Información general', 'user');
+                showGeneralInfo();
+                return;
+            case 'back_to_menu':
+                addMessageToChat('Volver al menú principal', 'user');
+                showCorporateMainMenu();
+                return;
+            case 'go_to_tech_support':
+                addMessageToChat('Ir al módulo de soporte técnico', 'user');
+                addMessageToChat('🚀 **Redirigiendo al Soporte Técnico...**\n\nTe llevaré al módulo especializado de soporte técnico donde tendrás acceso a:\n\n• Asistente interactivo paso a paso\n• Diagnósticos automáticos\n• Soluciones en tiempo real\n• Escalamiento directo a IT\n\n*Redirigiendo en 3 segundos...*', 'bot');
+                setTimeout(() => {
+                    window.location.href = '/tech-support';
+                }, 3000);
+                return;
+        }
+    }
     
     // Agregar mensaje del usuario (solo si no es una acción de botón)
     if (!buttonAction) {
@@ -280,6 +327,112 @@ function formatMessage(message) {
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">$1</a>')
         .replace(/\n/g, '<br>')
         .replace(/•/g, '&bullet;');
+}
+
+function showEmployeeSearchInterface() {
+    addMessageToChat(
+        '👥 **Búsqueda de Empleados**\n\nPuedes buscar empleados por:\n\n• **Nombre completo**\n• **Departamento** (IT, RRHH, Administración, etc.)\n• **Cargo o posición**\n\nEscribe tu consulta en el chat o haz clic en una opción rápida:', 
+        'bot'
+    );
+    
+    const quickOptions = [
+        { text: '🏢 Ver todos los departamentos', action: 'list_departments' },
+        { text: '👔 Buscar por cargo', action: 'search_by_position' },
+        { text: '📧 Directorio completo', action: 'full_directory' }
+    ];
+    
+    addMessageToChat('Opciones rápidas:', 'bot', quickOptions);
+}
+
+function showDocumentSearchInterface() {
+    addMessageToChat(
+        '📄 **Documentos Corporativos**\n\nAccede a nuestra biblioteca de documentos:\n\n• **Políticas y Normas**\n• **Procedimientos Operativos**\n• **Manuales y Guías**\n• **Contexto de Planificación**\n• **Mejora Continua**\n\nEscribe el nombre del documento que buscas o selecciona una categoría:', 
+        'bot'
+    );
+    
+    const docCategories = [
+        { text: '📋 Políticas y Normas', action: 'docs_policies' },
+        { text: '⚙️ Procedimientos Operativos', action: 'docs_procedures' },
+        { text: '📈 Mejora Continua', action: 'docs_improvement' },
+        { text: '📁 Ver todas las categorías', action: 'docs_all_categories' }
+    ];
+    
+    addMessageToChat('Categorías disponibles:', 'bot', docCategories);
+}
+
+function showTechSupportRedirect() {
+    addMessageToChat(
+        '🔧 **Soporte Técnico Especializado**\n\nPara obtener la mejor asistencia técnica, te recomiendo usar nuestro **Asistente de Soporte Técnico** especializado.\n\n✨ **Características:**\n• Diagnóstico paso a paso\n• Soluciones interactivas\n• Escalamiento automático\n• Seguimiento de casos\n\n¿Te gustaría ir al módulo de soporte técnico?', 
+        'bot'
+    );
+    
+    const supportOptions = [
+        { text: '🚀 Ir a Soporte Técnico', action: 'go_to_tech_support' },
+        { text: '📞 Contacto directo IT', action: 'direct_it_contact' },
+        { text: '🔙 Volver al menú', action: 'back_to_menu' }
+    ];
+    
+    addMessageToChat('¿Qué prefieres hacer?', 'bot', supportOptions);
+}
+
+function showGeneralInfo() {
+    addMessageToChat(
+        '🏢 **Información General Corporativa**\n\n**📞 Contactos Principales:**\n• Recepción: (555) 123-4567\n• IT/Soporte: (555) 123-TECH\n• Recursos Humanos: (555) 123-RRHH\n\n**🕐 Horarios:**\n• Lunes - Viernes: 8:00 AM - 6:00 PM\n• Sábados: 9:00 AM - 2:00 PM\n• Soporte 24/7: Emergencias\n\n**📍 Ubicación:**\nEd. Corporativo Principal\nPiso 3, Oficina 301\n\n¿Necesitas información específica sobre algún servicio?', 
+        'bot'
+    );
+    
+    const infoOptions = [
+        { text: '🏥 Servicios médicos', action: 'medical_services' },
+        { text: '🍽️ Comedor y cafetería', action: 'dining_services' },
+        { text: '🚗 Estacionamiento', action: 'parking_info' },
+        { text: '🔙 Volver al menú', action: 'back_to_menu' }
+    ];
+    
+    addMessageToChat('Servicios disponibles:', 'bot', infoOptions);
+}
+
+function showCorporateMainMenu() {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Limpiar mensajes anteriores
+    chatMessages.innerHTML = '';
+    
+    // Mensaje de bienvenida del menú
+    addMessageToChat(
+        '🏠 **Menú Principal - Centro de Información Corporativa**\n\n¿Qué necesitas hacer hoy? Elige una opción para obtener asistencia especializada:', 
+        'bot'
+    );
+    
+    // Opciones del menú principal
+    const menuOptions = [
+        {
+            text: '👥 Buscar Empleados',
+            action: 'show_employee_search',
+            description: 'Encuentra información de contacto'
+        },
+        {
+            text: '📄 Documentos Corporativos', 
+            action: 'show_document_search',
+            description: 'Políticas, manuales y procedimientos'
+        },
+        {
+            text: '🔧 Soporte Técnico',
+            action: 'show_tech_support',
+            description: 'Asistencia con problemas tecnológicos'
+        },
+        {
+            text: '🏢 Información General',
+            action: 'show_general_info',
+            description: 'Horarios, contactos y servicios'
+        }
+    ];
+    
+    addMessageToChat('Selecciona una opción:', 'bot', menuOptions);
+    
+    // Scroll hacia abajo
+    setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 100);
 }
 
 // Opcional: Auto-abrir chat en ciertas páginas

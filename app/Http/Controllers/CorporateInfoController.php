@@ -30,9 +30,9 @@ class CorporateInfoController extends Controller
         
         if (!empty($department)) {
             $query->byDepartment($department);
-       
-        $employees = $query->limit(20)->get();
         }
+         
+        $employees = $query->limit(20)->get();
          
         return response()->json([
             'employees' => $employees->map(function($emp) {
@@ -53,6 +53,40 @@ class CorporateInfoController extends Controller
             'count' => $employees->count()
         ]);
     } 
+
+    public function getEmployeeTags(Request $request)
+    {
+        $departments = TempEmployee::distinct()
+            ->pluck('department')
+            ->filter()
+            ->sort()
+            ->values();
+            
+        $positions = TempEmployee::distinct()
+            ->pluck('position')
+            ->filter()
+            ->sort()
+            ->take(10) // Limitamos a 10 posiciones más comunes
+            ->values();
+            
+        return response()->json([
+            'departments' => $departments,
+            'positions' => $positions
+        ]);
+    }
+
+    public function getDocumentTags()
+    {
+        $categories = CompanyDocument::distinct()
+            ->pluck('category')
+            ->filter()
+            ->sort()
+            ->values();
+            
+        return response()->json([
+            'categories' => $categories
+        ]);
+    }
 
     public function searchLocations(Request $request)
     {
