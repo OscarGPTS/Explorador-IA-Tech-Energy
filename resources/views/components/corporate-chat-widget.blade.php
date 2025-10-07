@@ -1,9 +1,10 @@
 <!-- Chat Flotante Corporativo -->
-<div id="corporate-chat-widget" class="fixed bottom-4 right-4 z-50">
+<div id="corporate-chat" class="fixed bottom-4 right-4 z-50">
+   
     <!-- Botón para abrir/cerrar chat -->
     <button
         id="chat-toggle-btn"
-        class="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300"
+        class="bg-gradient-to-r from-red-600 to-yellow-500 hover:from-red-700 hover:to-yellow-600 text-white rounded-full p-4 shadow-lg transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-red-300"
         onclick="toggleCorporateChat()"
     >
         <svg id="chat-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,17 +21,17 @@
         class="hidden absolute bottom-16 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 w-80 h-[500px] flex flex-col"
     >
         <!-- Header del chat -->
-        <div class="bg-blue-600 text-white p-4 rounded-t-lg flex items-center justify-between">
+        <div class="bg-gradient-to-r from-red-600 to-yellow-500 text-white p-4 rounded-t-lg flex items-center justify-between">
             <div class="flex items-center">
-                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                <div class="w-8 h-8 bg-gradient-to-r from-red-500 to-yellow-400 rounded-full flex items-center justify-center mr-3 shadow-lg">
                     <span class="text-sm font-bold">🏢</span>
                 </div>
                 <div>
                     <h3 class="font-semibold text-sm">Asistente Corporativo</h3>
-                    <p class="text-xs text-blue-100">En línea • Respuesta inmediata</p>
+                    <p class="text-xs text-red-100">En línea • Respuesta inmediata</p>
                 </div>
             </div>
-            <button onclick="toggleCorporateChat()" class="text-blue-100 hover:text-white">
+            <button onclick="toggleCorporateChat()" class="text-red-100 hover:text-white transition-colors duration-200">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
@@ -41,10 +42,10 @@
         <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-gray-900">
             <!-- Mensaje de bienvenida -->
             <div class="flex items-start">
-                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                <div class="w-8 h-8 bg-gradient-to-r from-red-500 to-yellow-400 rounded-full flex items-center justify-center mr-2 flex-shrink-0 shadow-lg">
                     <span class="text-white text-xs">🏢</span>
                 </div>
-                <div class="bg-white dark:bg-gray-700 rounded-lg p-3 max-w-xs shadow-sm">
+                <div class="bg-white dark:bg-gray-700 rounded-lg p-3 max-w-xs shadow-sm border border-red-100">
                     <p class="text-sm text-gray-700 dark:text-gray-300">
                         ¡Hola! Soy tu asistente de información corporativa. 
                         Puedo ayudarte con empleados, documentos y soporte técnico. 
@@ -199,10 +200,10 @@ function addMessageToChat(message, sender, buttons = null) {
     if (sender === 'user') {
         messageDiv.innerHTML = `
             <div class="flex justify-end w-full">
-                <div class="bg-blue-600 text-white rounded-lg p-3 max-w-xs shadow-sm ml-auto">
+                <div class="bg-gradient-to-r from-red-600 to-yellow-500 text-white rounded-lg p-3 max-w-xs shadow-sm ml-auto">
                     <p class="text-sm">${escapeHtml(message)}</p>
                 </div>
-                <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center ml-2 flex-shrink-0">
+                <div class="w-8 h-8 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center ml-2 flex-shrink-0 shadow-lg">
                     <span class="text-white text-xs">👤</span>
                 </div>
             </div>
@@ -215,11 +216,11 @@ function addMessageToChat(message, sender, buttons = null) {
                     ${buttons.map(button => `
                         <button 
                             onclick="sendChatMessage('${button.action}', '${button.value || ''}')"
-                            class="block w-full text-left text-sm bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg p-2 transition-colors duration-200"
+                            class="block w-full text-left text-sm bg-gradient-to-r from-red-50 to-yellow-50 hover:from-red-100 hover:to-yellow-100 text-red-700 border border-red-200 rounded-lg p-2 transition-all duration-200 shadow-sm"
                             title="${button.description || ''}"
                         >
                             ${escapeHtml(button.text)}
-                            ${button.description ? `<div class="text-xs text-blue-500 mt-1">${escapeHtml(button.description)}</div>` : ''}
+                            ${button.description ? `<div class="text-xs text-red-500 mt-1">${escapeHtml(button.description)}</div>` : ''}
                         </button>
                     `).join('')}
                 </div>
@@ -227,10 +228,10 @@ function addMessageToChat(message, sender, buttons = null) {
         }
         
         messageDiv.innerHTML = `
-            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+            <div class="w-8 h-8 bg-gradient-to-r from-red-500 to-yellow-400 rounded-full flex items-center justify-center mr-2 flex-shrink-0 shadow-lg">
                 <span class="text-white text-xs">🏢</span>
             </div>
-            <div class="bg-white dark:bg-gray-700 rounded-lg p-3 max-w-xs shadow-sm">
+            <div class="bg-white dark:bg-gray-700 rounded-lg p-3 max-w-xs shadow-sm border border-red-100">
                 <p class="text-sm text-gray-700 dark:text-gray-300">${formatMessage(message)}</p>
                 ${buttonsHTML}
             </div>
@@ -252,7 +253,7 @@ function hideTypingIndicator() {
 function updateSuggestions(suggestions) {
     const suggestionsContainer = document.getElementById('chat-suggestions');
     const buttonsHTML = suggestions.map(suggestion => 
-        `<button onclick="sendQuickMessage('${escapeHtml(suggestion)}')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+        `<button onclick="sendQuickMessage('${escapeHtml(suggestion)}')" class="text-xs bg-gradient-to-r from-red-100 to-yellow-100 hover:from-red-200 hover:to-yellow-200 text-red-700 px-2 py-1 rounded-full transition-all duration-200 border border-red-200">
             ${escapeHtml(suggestion)}
         </button>`
     ).join('');

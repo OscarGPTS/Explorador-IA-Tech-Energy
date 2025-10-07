@@ -175,17 +175,9 @@ class CorporateInfoController extends Controller
             return [
                 'message' => '👤 **Búsqueda de Empleados**
 
-¿Qué información específica necesitas?
-
-• Buscar por **nombre** (ej: "María González")
-• Buscar por **departamento** (ej: "Tecnología", "Recursos Humanos")
-• Buscar por **cargo/posición** (ej: "Gerente", "Desarrollador", "Analista")
-• Ver **departamentos disponibles**
-• Ver **cargos disponibles**
-• Buscar por **jefe/manager** (ej: "empleados de juan.perez@empresa.com")
-
-Escribe el nombre, departamento, cargo o cualquier término relacionado.',
+¿Qué tipo de búsqueda necesitas?',
                 'context' => ['step' => 'employee_search', 'type' => 'employee'],
+                'buttons' => $this->getEmployeeSearchButtons('general'),
                 'suggestions' => ['Ver departamentos', 'Ver cargos', 'Tecnología', 'Gerente']
             ];
         }
@@ -194,16 +186,9 @@ Escribe el nombre, departamento, cargo o cualquier término relacionado.',
             return [
                 'message' => '📄 **Documentos Corporativos**
 
-Categorías disponibles:
-
-• **Contexto de Planificación** - Documentos de planificación estratégica
-• **Procedimientos Normativos** - Normas y políticas corporativas
-• **Procedimientos Operativos** - Procesos y procedimientos operacionales
-• **Mejora Continua** - Documentos de calidad y mejora continua
-• **General** - Documentos generales de la empresa
-
 ¿Qué tipo de documento necesitas?',
                 'context' => ['step' => 'document_search', 'type' => 'document'],
+                'buttons' => $this->getDocumentSearchButtons('general'),
                 'suggestions' => ['Procedimientos Operativos', 'Mejora Continua', 'Ver todos', 'Ver categorías']
             ];
         }
@@ -948,6 +933,15 @@ Ayuda con computadoras, internet, correo y software
             case 'tech_support_specific':
                 return $this->handleTechSupportSpecific($value, $sessionId);
                 
+            case 'employee_search_type':
+                return $this->handleEmployeeSearchType($value, $sessionId);
+                
+            case 'document_search_category':
+                return $this->handleDocumentSearchCategory($value, $sessionId);
+                
+            case 'document_search_type':
+                return $this->handleDocumentSearchType($value, $sessionId);
+                
             default:
                 return $this->handleInitialMessage($originalMessage);
         }
@@ -1313,6 +1307,220 @@ Ayuda con computadoras, internet, correo y software
         ];
     }
 
+    private function handleEmployeeSearchType($searchType, $sessionId)
+    {
+        switch ($searchType) {
+            case 'name':
+                return [
+                    'message' => '👤 **Búsqueda por nombre**
+
+Escribe el nombre de la persona que buscas. Puedes usar:
+• Nombre completo: "María González"
+• Solo nombre: "María"
+• Solo apellido: "González"
+
+¿A quién buscas?',
+                    'context' => ['step' => 'employee_search', 'search_type' => 'name'],
+                    'suggestions' => ['María', 'González', 'Juan', 'Menú principal']
+                ];
+
+            case 'department':
+                try {
+                    $departments = TempEmployee::getAllDepartments();
+                    if ($departments && $departments->count() > 0) {
+                        $deptArray = $departments->toArray();
+                        return [
+                            'message' => '🏢 **Buscar por departamento**
+
+Selecciona un departamento o escribe su nombre:
+
+• ' . implode("\n• ", $deptArray),
+                            'context' => ['step' => 'employee_search', 'search_type' => 'department'],
+                            'suggestions' => array_slice($deptArray, 0, 4)
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error getting departments: ' . $e->getMessage());
+                }
+                
+                return [
+                    'message' => '🏢 **Buscar por departamento**
+
+Escribe el nombre del departamento (ej: Tecnología, Recursos Humanos, Ventas)',
+                    'context' => ['step' => 'employee_search', 'search_type' => 'department'],
+                    'suggestions' => ['Tecnología', 'Recursos Humanos', 'Ventas', 'Menú principal']
+                ];
+
+            case 'position':
+                try {
+                    $positions = TempEmployee::getAllPositions();
+                    if ($positions && $positions->count() > 0) {
+                        $positionsArray = $positions->take(10)->toArray();
+                        return [
+                            'message' => '💼 **Buscar por cargo**
+
+Selecciona un cargo o escribe el nombre:
+
+• ' . implode("\n• ", $positionsArray),
+                            'context' => ['step' => 'employee_search', 'search_type' => 'position'],
+                            'suggestions' => array_slice($positionsArray, 0, 4)
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error getting positions: ' . $e->getMessage());
+                }
+                
+                return [
+                    'message' => '💼 **Buscar por cargo**
+
+Escribe el nombre del cargo (ej: Gerente, Desarrollador, Analista)',
+                    'context' => ['step' => 'employee_search', 'search_type' => 'position'],
+                    'suggestions' => ['Gerente', 'Desarrollador', 'Analista', 'Menú principal']
+                ];
+
+            case 'list_departments':
+                try {
+                    $departments = TempEmployee::getAllDepartments();
+                    if ($departments && $departments->count() > 0) {
+                        $deptArray = $departments->toArray();
+                        return [
+                            'message' => '📋 **Departamentos Disponibles:**
+
+• ' . implode("\n• ", $deptArray) . '
+
+Haz clic en uno para ver sus empleados o escribe el nombre.',
+                            'context' => ['step' => 'employee_search', 'search_type' => 'department'],
+                            'suggestions' => array_slice($deptArray, 0, 4)
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error getting departments: ' . $e->getMessage());
+                }
+                
+                return [
+                    'message' => '❌ No se pudieron obtener los departamentos.',
+                    'context' => ['step' => 'employee_search'],
+                    'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                ];
+
+            case 'list_positions':
+                try {
+                    $positions = TempEmployee::getAllPositions();
+                    if ($positions && $positions->count() > 0) {
+                        $positionsArray = $positions->take(15)->toArray();
+                        return [
+                            'message' => '💼 **Cargos Disponibles:**
+
+• ' . implode("\n• ", $positionsArray) . '
+
+Haz clic en uno para ver quién tiene ese cargo o escribe el nombre.',
+                            'context' => ['step' => 'employee_search', 'search_type' => 'position'],
+                            'suggestions' => array_slice($positionsArray, 0, 4)
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error getting positions: ' . $e->getMessage());
+                }
+                
+                return [
+                    'message' => '❌ No se pudieron obtener los cargos.',
+                    'context' => ['step' => 'employee_search'],
+                    'suggestions' => ['Nueva búsqueda', 'Menú principal']
+                ];
+
+            case 'team':
+                return [
+                    'message' => '👥 **Buscar equipo de trabajo**
+
+Escribe el email del manager para ver su equipo:
+Ejemplo: "empleados de juan.perez@empresa.com"
+
+¿De quién quieres ver el equipo?',
+                    'context' => ['step' => 'employee_search', 'search_type' => 'team'],
+                    'suggestions' => ['juan.perez@empresa.com', 'maria.gonzalez@empresa.com', 'Menú principal']
+                ];
+
+            default:
+                return $this->handleInitialMessage('');
+        }
+    }
+
+    private function handleDocumentSearchCategory($category, $sessionId)
+    {
+        $categoryNames = [
+            'contexto_planificacion' => 'Contexto de Planificación',
+            'procedimientos_normativos' => 'Procedimientos Normativos',
+            'procedimientos_operativos' => 'Procedimientos Operativos',
+            'mejora_continua' => 'Mejora Continua',
+            'general' => 'General'
+        ];
+
+        $categoryName = $categoryNames[$category] ?? 'Categoría desconocida';
+
+        try {
+            $documents = CompanyDocument::active()->where('category', $category)->limit(15)->get();
+            
+            if ($documents->count() > 0) {
+                $response = "📂 **{$categoryName}** ({$documents->count()} documentos):\n\n";
+                
+                foreach ($documents as $doc) {
+                    $response .= "📄 **{$doc->title}**\n";
+                    if ($doc->description) {
+                        $response .= "   ℹ️ {$doc->description}\n";
+                    }
+                    if ($doc->external_url) {
+                        $response .= "   🔗 [Ver documento]({$doc->external_url})\n";
+                    }
+                    $response .= "\n";
+                }
+                
+                $response .= "¿Necesitas información específica de algún documento?";
+                
+                return [
+                    'message' => $response,
+                    'context' => ['step' => 'document_search', 'category' => $category],
+                    'suggestions' => ['Ver otro', 'Buscar específico', 'Ver categorías', 'Menú principal']
+                ];
+            } else {
+                return [
+                    'message' => "📂 **{$categoryName}**\n\n❌ No hay documentos disponibles en esta categoría.\n\n¿Quieres ver otra categoría?",
+                    'context' => ['step' => 'document_search'],
+                    'buttons' => $this->getDocumentSearchButtons('general'),
+                    'suggestions' => ['Ver categorías', 'Menú principal']
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error('Error getting documents by category: ' . $e->getMessage());
+            return [
+                'message' => "❌ Hubo un error al obtener los documentos de {$categoryName}.",
+                'context' => ['step' => 'document_search'],
+                'suggestions' => ['Nueva búsqueda', 'Ver categorías', 'Menú principal']
+            ];
+        }
+    }
+
+    private function handleDocumentSearchType($searchType, $sessionId)
+    {
+        switch ($searchType) {
+            case 'specific_search':
+                return [
+                    'message' => '🔍 **Búsqueda específica de documentos**
+
+Escribe palabras clave del documento que buscas:
+• Nombre del documento
+• Tema específico
+• Palabras que recuerdes
+
+¿Qué documento necesitas?',
+                    'context' => ['step' => 'document_search', 'search_type' => 'specific'],
+                    'suggestions' => ['Manual', 'Política', 'Procedimiento', 'Menú principal']
+                ];
+
+            default:
+                return $this->handleInitialMessage('');
+        }
+    }
+
     private function handleDocumentSearch($message, $context)
     {
         // Comandos especiales
@@ -1569,5 +1777,95 @@ Ayuda con computadoras, internet, correo y software
                 'suggestions' => ['Nueva búsqueda', 'Ver categorías', 'Menú principal']
             ];
         }
+    }
+
+    private function getEmployeeSearchButtons($category)
+    {
+        if ($category === 'general') {
+            return [
+                [
+                    'text' => '👤 Buscar por nombre',
+                    'action' => 'employee_search_type',
+                    'value' => 'name',
+                    'description' => 'Encuentra un empleado específico'
+                ],
+                [
+                    'text' => '🏢 Buscar por departamento',
+                    'action' => 'employee_search_type',
+                    'value' => 'department',
+                    'description' => 'Ver empleados de un área'
+                ],
+                [
+                    'text' => '💼 Buscar por cargo',
+                    'action' => 'employee_search_type',
+                    'value' => 'position',
+                    'description' => 'Encontrar personas por puesto'
+                ],
+                [
+                    'text' => '📋 Ver departamentos',
+                    'action' => 'employee_search_type',
+                    'value' => 'list_departments',
+                    'description' => 'Lista completa de departamentos'
+                ],
+                [
+                    'text' => '📊 Ver cargos',
+                    'action' => 'employee_search_type',
+                    'value' => 'list_positions',
+                    'description' => 'Lista completa de posiciones'
+                ],
+                [
+                    'text' => '👥 Buscar equipo',
+                    'action' => 'employee_search_type',
+                    'value' => 'team',
+                    'description' => 'Empleados de un manager'
+                ]
+            ];
+        }
+        return [];
+    }
+
+    private function getDocumentSearchButtons($category)
+    {
+        if ($category === 'general') {
+            return [
+                [
+                    'text' => '📊 Contexto de Planificación',
+                    'action' => 'document_search_category',
+                    'value' => 'contexto_planificacion',
+                    'description' => 'Documentos de planificación estratégica'
+                ],
+                [
+                    'text' => '📋 Procedimientos Normativos',
+                    'action' => 'document_search_category',
+                    'value' => 'procedimientos_normativos',
+                    'description' => 'Normas y políticas corporativas'
+                ],
+                [
+                    'text' => '⚙️ Procedimientos Operativos',
+                    'action' => 'document_search_category',
+                    'value' => 'procedimientos_operativos',
+                    'description' => 'Procesos y procedimientos operacionales'
+                ],
+                [
+                    'text' => '📈 Mejora Continua',
+                    'action' => 'document_search_category',
+                    'value' => 'mejora_continua',
+                    'description' => 'Documentos de calidad y mejora'
+                ],
+                [
+                    'text' => '📄 General',
+                    'action' => 'document_search_category',
+                    'value' => 'general',
+                    'description' => 'Documentos generales de la empresa'
+                ],
+                [
+                    'text' => '🔍 Buscar específico',
+                    'action' => 'document_search_type',
+                    'value' => 'specific_search',
+                    'description' => 'Buscar por palabra clave'
+                ]
+            ];
+        }
+        return [];
     }
 }
