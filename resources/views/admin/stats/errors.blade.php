@@ -1,84 +1,126 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+/* Animaciones y transiciones suaves */
+.stats-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+}
+
+.stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-link-active {
+    border-color: #DC2626;
+    color: #DC2626;
+}
+
+.nav-link {
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #DC2626;
+    border-color: #FBBF24;
+}
+</style>
+@endpush
+
 @section('content')
-<div class="px-4 pt-10">
-    <div class="sm:flex sm:items-center">
-        <div class="sm:flex-auto">
-            <div class="flex">
-                <a href="/" class="mr-2 flex items-center justify-center">
-                    <?xml version="1.0" encoding="utf-8"?>
-                    <svg width="22px" height="22px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="#000000" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/><path fill="#000000" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/></svg>
-                </a>
-                <h1 class="text-2xl font-semibold leading-6 text-gray-900">🚨 Monitoreo de Errores</h1>
+<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
+    <!-- Header mejorado con gradiente rojo-amarillo -->
+    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
+                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
+                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-3xl font-bold">🚨 Monitoreo de Errores</h1>
+                        <p class="text-orange-100 text-sm mt-1">Análisis detallado de errores y fallos del sistema con información completa de request y response</p>
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{{ route('admin.stats.export', ['type' => 'modules', 'format' => 'csv', 'start_date' => $startDate, 'end_date' => $endDate]) }}" 
+                       class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
+                        <span>📥 CSV</span>
+                    </a>
+                    <a href="{{ route('admin.stats.export', ['type' => 'modules', 'format' => 'excel', 'start_date' => $startDate, 'end_date' => $endDate]) }}" 
+                       class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
+                        <span>📊 Excel</span>
+                    </a>
+                </div>
             </div>
-            <p class="mt-2 text-sm text-gray-700">
-                Análisis detallado de errores y fallos del sistema con información completa de request y response.
-            </p>
-        </div>
-        <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none space-x-2">
-            <a href="{{ route('admin.stats.export', ['type' => 'modules', 'format' => 'csv', 'start_date' => $startDate, 'end_date' => $endDate]) }}" 
-               class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
-                📥 Exportar Errores CSV
-            </a>
-            <a href="{{ route('admin.stats.export', ['type' => 'modules', 'format' => 'excel', 'start_date' => $startDate, 'end_date' => $endDate]) }}" 
-               class="inline-flex items-center rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-orange-500">
-                📊 Exportar Errores Excel
-            </a>
-        </div>
-    </div>
-
-    <!-- Navegación -->
-    <div class="border-b border-gray-200 mt-6">
-        <div class="sm:flex sm:items-baseline">
-            <nav class="flex space-x-8">
-                <a href="{{ route('admin.stats.dashboard') }}" 
-                   class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    🏠 Dashboard
-                </a>
-                <a href="{{ route('admin.stats.users') }}" 
-                   class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    👥 Usuarios
-                </a>
-                <a href="{{ route('admin.stats.chats') }}" 
-                   class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    💬 Chats
-                </a>
-                <a href="{{ route('admin.stats.modules') }}" 
-                   class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                    📊 Módulos
-                </a>
-                <a href="{{ route('admin.stats.errors') }}" 
-                   class="border-b-2 border-red-500 py-4 px-1 text-sm font-medium text-red-600">
-                    🚨 Errores
-                </a>
-            </nav>
         </div>
     </div>
 
-    <!-- Panel de Filtros -->
-    <div class="bg-white rounded-lg shadow p-6 mb-8">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">🔍 Filtros</h3>
-        <form method="GET" action="{{ route('admin.stats.errors') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
-                <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Navegación de estadísticas -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
+            <div class="border-b border-gray-100">
+                <nav class="-mb-px flex space-x-8 px-6">
+                    <a href="{{ route('admin.stats.dashboard') }}" 
+                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
+                        📊 Dashboard
+                    </a>
+                    <a href="{{ route('admin.stats.users') }}" 
+                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
+                        👥 Usuarios
+                    </a>
+                    <a href="{{ route('admin.stats.chats') }}" 
+                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
+                        💬 Chats
+                    </a>
+                    <a href="{{ route('admin.stats.modules') }}" 
+                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
+                        📊 Módulos
+                    </a>
+                    <a href="{{ route('admin.stats.errors') }}" 
+                       class="nav-link-active border-b-2 py-4 px-1 text-sm font-medium">
+                        🚨 Errores
+                    </a>
+                </nav>
             </div>
-            <div>
-                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">Fecha Fin</label>
-                <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
-            </div>
-            <div>
-                <label for="module_type" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Módulo</label>
-                <select id="module_type" name="module_type" 
-                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
-                    <option value="">Todos los módulos</option>
-                    @foreach($availableModules as $module)
-                        <option value="{{ $module }}" {{ $moduleType == $module ? 'selected' : '' }}>
-                            {{ ucfirst($module) }}
-                        </option>
-                    @endforeach
+        </div>
+
+        <!-- Panel de Filtros -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8 border border-white/20">
+            <h3 class="text-lg font-semibold gradient-text mb-4">🔍 Filtros</h3>
+            <form method="GET" action="{{ route('admin.stats.errors') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ $startDate }}"
+                           class="w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                </div>
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">Fecha Fin</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ $endDate }}"
+                           class="w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                </div>
+                <div>
+                    <label for="module_type" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Módulo</label>
+                    <select id="module_type" name="module_type" 
+                            class="w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
+                        <option value="">Todos los módulos</option>
+                        @foreach($availableModules as $module)
+                            <option value="{{ $module }}" {{ $moduleType == $module ? 'selected' : '' }}>
+                                {{ ucfirst($module) }}
+                            </option>
+                        @endforeach
                 </select>
             </div>
             <div>
@@ -95,7 +137,7 @@
             </div>
             <div class="md:col-span-4">
                 <button type="submit" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 transition-all duration-200">
                     🔍 Filtrar Errores
                 </button>
                 <a href="{{ route('admin.stats.errors') }}" 
@@ -106,51 +148,51 @@
         </form>
     </div>
 
-    <!-- Estadísticas de errores -->
+    <!-- Estadísticas de errores con tema rojo-amarillo -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-red-500 bg-opacity-75">
-                    <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-red-100 to-red-200">
+                    <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                     </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Errores</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ number_format($errorStats['total_errors']) }}</dd>
+                        <dt class="text-sm font-medium text-gray-600 truncate">Total Errores</dt>
+                        <dd class="text-lg font-bold gradient-text">{{ number_format($errorStats['total_errors']) }}</dd>
                     </dl>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-orange-500">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-orange-500 bg-opacity-75">
-                    <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200">
+                    <svg class="h-8 w-8 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Errores Hoy</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ number_format($errorStats['errors_today']) }}</dd>
+                        <dt class="text-sm font-medium text-gray-600 truncate">Errores Hoy</dt>
+                        <dd class="text-lg font-bold gradient-text">{{ number_format($errorStats['errors_today']) }}</dd>
                     </dl>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-yellow-500 bg-opacity-75">
-                    <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-200">
+                    <svg class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 110 2h-1v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6H3a1 1 0 110-2h4z"/>
                     </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Error Más Común</dt>
-                        <dd class="text-lg font-medium text-gray-900">
+                        <dt class="text-sm font-medium text-gray-600 truncate">Error Más Común</dt>
+                        <dd class="text-lg font-bold gradient-text">
                             {{ $errorStats['most_common_error']->status_code ?? 'N/A' }}
                         </dd>
                     </dl>
@@ -158,27 +200,27 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-400">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-purple-500 bg-opacity-75">
-                    <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="p-3 rounded-xl bg-gradient-to-br from-red-100 to-red-200">
+                    <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                     </svg>
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Módulos Afectados</dt>
-                        <dd class="text-lg font-medium text-gray-900">{{ count($errorStats['errors_by_module']) }}</dd>
+                        <dt class="text-sm font-medium text-gray-600 truncate">Módulos Afectados</dt>
+                        <dd class="text-lg font-bold gradient-text">{{ count($errorStats['errors_by_module']) }}</dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Lista de errores -->
-    <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">
+    <!-- Lista de errores con tema rojo-amarillo -->
+    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-red-50 to-yellow-50 rounded-t-2xl">
+            <h3 class="text-lg font-semibold gradient-text">
                 📋 Lista de Errores 
                 <span class="text-sm text-gray-500">({{ $errors->total() }} total)</span>
             </h3>
@@ -187,19 +229,19 @@
         @if($errors->count() > 0)
         <div class="overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-gradient-to-r from-red-50 to-yellow-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Módulo</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Error</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Fecha/Hora</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Módulo</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Usuario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Error</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-gray-100">
                     @foreach($errors as $error)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-red-50/50 transition-colors duration-200">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $error->created_at->format('Y-m-d H:i:s') }}
                             <div class="text-xs text-gray-500">
@@ -207,7 +249,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                 {{ ucfirst($error->type) }}
                             </span>
                         </td>

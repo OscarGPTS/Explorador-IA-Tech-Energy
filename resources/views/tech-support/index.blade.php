@@ -19,99 +19,125 @@
     .solution-content .space-y-1 > * + * {
         margin-top: 0.25rem;
     }
+
+    /* Animaciones y transiciones suaves */
+    .support-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(0);
+    }
+
+    .support-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-    <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-4xl font-bold text-gray-800 flex items-center">
-                        <i class="fas fa-headset mr-3 text-blue-600"></i>
-                        Soporte Técnico
-                    </h1>
-                    <p class="text-gray-600 mt-2 text-lg">
-                        Resuelve tus problemas tecnológicos de forma rápida y sencilla
-                    </p>
+<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
+    <!-- Header mejorado con gradiente rojo-amarillo -->
+    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
+                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
+                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-4xl font-bold">🎧 Soporte Técnico</h1>
+                        <p class="text-orange-100 text-lg mt-2">
+                            Resuelve tus problemas tecnológicos de forma rápida y sencilla
+                        </p>
+                    </div>
                 </div>
-                <a href="{{ route('tech-support.dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center transition duration-200">
-                    <i class="fas fa-chart-line mr-2"></i>
-                    Ver Dashboard
+                <a href="{{ route('tech-support.dashboard') }}" 
+                   class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Ver Dashboard</span>
                 </a>
             </div>
         </div>
+    </div>
 
-        <!-- Estadísticas rápidas -->
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Estadísticas rápidas con tema rojo-amarillo -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
                 <div class="flex items-center">
-                    <div class="p-3 bg-blue-100 rounded-full">
-                        <i class="fas fa-comments text-blue-600 text-xl"></i>
+                    <div class="p-3 bg-gradient-to-br from-red-100 to-red-200 rounded-xl">
+                        <i class="fas fa-comments text-red-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <p class="text-gray-600 text-sm font-medium">Total Conversaciones</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ $stats['total_conversations'] ?? 0 }}</p>
+                        <p class="text-2xl font-bold gradient-text">{{ $stats['total_conversations'] ?? 0 }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-orange-500">
                 <div class="flex items-center">
-                    <div class="p-3 bg-green-100 rounded-full">
+                    <div class="p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl">
                         <i class="fas fa-check-circle text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <p class="text-gray-600 text-sm font-medium">Resueltos Hoy</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ $stats['resolved_today'] ?? 0 }}</p>
+                        <p class="text-2xl font-bold gradient-text">{{ $stats['resolved_today'] ?? 0 }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
                 <div class="flex items-center">
-                    <div class="p-3 bg-yellow-100 rounded-full">
+                    <div class="p-3 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl">
                         <i class="fas fa-level-up-alt text-yellow-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <p class="text-gray-600 text-sm font-medium">Escalados Hoy</p>
-                        <p class="text-2xl font-bold text-gray-800">{{ $stats['escalated_today'] ?? 0 }}</p>
+                        <p class="text-2xl font-bold gradient-text">{{ $stats['escalated_today'] ?? 0 }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
+            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-400">
                 <div class="flex items-center">
-                    <div class="p-3 bg-purple-100 rounded-full">
-                        <i class="fas fa-clock text-purple-600 text-xl"></i>
+                    <div class="p-3 bg-gradient-to-br from-red-100 to-red-200 rounded-xl">
+                        <i class="fas fa-clock text-red-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <p class="text-gray-600 text-sm font-medium">Promedio Respuesta</p>
-                        <p class="text-2xl font-bold text-gray-800">< 2 min</p>
+                        <p class="text-2xl font-bold gradient-text">< 2 min</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sección principal de soporte -->
+        <!-- Sección principal de soporte con tema rojo-amarillo -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Chat interactivo -->
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
+                <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-white/20">
+                    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 p-6">
                         <h2 class="text-2xl font-bold text-white flex items-center">
                             <i class="fas fa-robot mr-3"></i>
                             Asistente de Soporte Técnico
                         </h2>
-                        <p class="text-blue-100 mt-2">
+                        <p class="text-orange-100 mt-2">
                             Selecciona tu problema y te ayudo paso a paso de forma sencilla
                         </p>
                     </div>
                     
                     <!-- Área del chat -->
-                    <div id="tech-support-chat" class="h-96 overflow-y-auto p-6 bg-gray-50">
+                    <div id="tech-support-chat" class="h-96 overflow-y-auto p-6 bg-gradient-to-br from-red-50/50 to-yellow-50/50">
                         <div class="flex items-start mb-4">
                             <div class="bg-blue-100 p-3 rounded-full mr-3">
                                 <i class="fas fa-robot text-blue-600"></i>

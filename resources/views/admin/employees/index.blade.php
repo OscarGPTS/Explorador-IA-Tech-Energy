@@ -1,91 +1,120 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+/* Animaciones y transiciones suaves */
+.stats-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+}
+
+.stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>
+@endpush
+
 @section('title', 'Administración de Empleados')
 
 @section('content')
-<div class="">
-    <div class="container-fluid px-6 py-8">
-        <!-- Header moderno -->
-        <div class="mb-8">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                <div class="mb-4 lg:mb-0">
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
-                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-                            <i class="fas fa-users text-white text-xl"></i>
-                        </div>
-                        Administración de Empleados
-                    </h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2">Gestiona y organiza la información de todos los empleados</p>
+<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
+    <!-- Header mejorado con gradiente rojo-amarillo -->
+    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
+                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
+                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-3xl font-bold">👥 Administración de Empleados</h1>
+                        <p class="text-orange-100 text-sm mt-1">Gestiona y organiza la información de todos los empleados</p>
+                    </div>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex space-x-3">
                     <a href="{{ route('admin.employees.import') }}" 
-                       class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200">
-                        <i class="fas fa-upload mr-2"></i>Importar Empleados
+                       class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-upload"></i>
+                        <span>Importar</span>
                     </a>
                     <a href="{{ route('admin.employees.export', request()->query()) }}" 
-                       class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200">
-                        <i class="fas fa-download mr-2"></i>Exportar CSV
+                       class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-download"></i>
+                        <span>Exportar</span>
                     </a>
                 </div>
             </div>
         </div>
+    </div>
 
+    <div class="container mx-auto px-4 py-8">
         <!-- Estadísticas mejoradas -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
+            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total Empleados</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ number_format($totalEmployees) }}</p>
+                        <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Total Empleados</p>
+                        <p class="text-3xl font-bold gradient-text mt-2">{{ number_format($totalEmployees) }}</p>
                     </div>
-                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center">
                         <i class="fas fa-users text-white text-2xl"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
+            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-orange-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Con Acceso</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ number_format($withAccess) }}</p>
+                        <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Con Acceso</p>
+                        <p class="text-3xl font-bold gradient-text mt-2">{{ number_format($withAccess) }}</p>
                     </div>
-                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center">
                         <i class="fas fa-user-check text-white text-2xl"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
+            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Sin Acceso</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ number_format($withoutAccess) }}</p>
+                        <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Sin Acceso</p>
+                        <p class="text-3xl font-bold gradient-text mt-2">{{ number_format($withoutAccess) }}</p>
                     </div>
-                    <div class="w-16 h-16 bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center">
                         <i class="fas fa-user-times text-white text-2xl"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
+            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-400">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">Departamentos</p>
-                        <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ $departments->count() }}</p>
+                        <p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Departamentos</p>
+                        <p class="text-3xl font-bold gradient-text mt-2">{{ $departments->count() }}</p>
                     </div>
-                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                    <div class="w-16 h-16 bg-gradient-to-r from-red-400 to-red-500 rounded-2xl flex items-center justify-center">
                         <i class="fas fa-building text-white text-2xl"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filtros modernos -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl mb-8 border border-gray-100 dark:border-gray-700">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                    <i class="fas fa-filter text-blue-500 mr-3"></i>
+        <!-- Filtros modernos con tema rojo-amarillo -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-gray-100">
+            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-red-50 to-yellow-50 rounded-t-2xl">
+                <h3 class="text-lg font-semibold gradient-text flex items-center">
+                    <i class="fas fa-filter text-red-500 mr-3"></i>
                     Filtros de Búsqueda
                 </h3>
             </div>
@@ -93,21 +122,21 @@
                 <form method="GET" action="{{ route('admin.employees.index') }}" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                         <div>
-                            <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-search mr-1"></i>Búsqueda
+                            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-search mr-1 text-red-500"></i>Búsqueda
                             </label>
                             <input type="text" 
-                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200" 
                                    id="search" name="search" 
                                    value="{{ request('search') }}" 
                                    placeholder="Nombre, email, ID...">
                         </div>
                         
                         <div>
-                            <label for="department" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-building mr-1"></i>Departamento
+                            <label for="department" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-building mr-1 text-orange-500"></i>Departamento
                             </label>
-                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200" 
                                     id="department" name="department">
                                 <option value="">Todos los departamentos</option>
                                 @foreach($departments as $dept)
@@ -119,10 +148,10 @@
                         </div>
                         
                         <div>
-                            <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-toggle-on mr-1"></i>Estado
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-toggle-on mr-1 text-yellow-500"></i>Estado
                             </label>
-                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all duration-200" 
                                     id="status" name="status">
                                 <option value="">Todos</option>
                                 <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Activo</option>
@@ -132,10 +161,10 @@
                         </div>
                         
                         <div>
-                            <label for="access_filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-key mr-1"></i>Acceso
+                            <label for="access_filter" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-key mr-1 text-red-400"></i>Acceso
                             </label>
-                            <select class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-red-400 focus:border-red-400 transition-all duration-200" 
                                     id="access_filter" name="access_filter">
                                 <option value="">Todos</option>
                                 <option value="with_access" {{ request('access_filter') === 'with_access' ? 'selected' : '' }}>Con acceso</option>
@@ -145,7 +174,7 @@
                         
                         <div class="flex flex-col justify-end">
                             <button type="submit" 
-                                    class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200">
+                                    class="w-full px-6 py-3 bg-gradient-to-r from-red-500 to-yellow-500 text-white font-semibold rounded-lg shadow-lg hover:from-red-600 hover:to-yellow-600 transform hover:scale-105 transition-all duration-200">
                                 <i class="fas fa-search mr-2"></i>Filtrar
                             </button>
                         </div>
@@ -163,21 +192,21 @@
             </div>
         </div>
 
-        <!-- Tabla de empleados moderna -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <!-- Tabla de empleados moderna con tema rojo-amarillo -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100">
+            <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-red-50 to-yellow-50 rounded-t-2xl">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center mb-4 sm:mb-0">
-                        <i class="fas fa-table text-blue-500 mr-3"></i>
+                    <h3 class="text-lg font-semibold gradient-text flex items-center mb-4 sm:mb-0">
+                        <i class="fas fa-table text-red-500 mr-3"></i>
                         Lista de Empleados 
-                        <span class="ml-2 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
+                        <span class="ml-2 px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">
                             {{ $employees->total() }} resultados
                         </span>
                     </h3>
                     
                     <!-- Controles de selección múltiple -->
                     <div id="bulk-actions" class="hidden flex items-center space-x-3">
-                        <span id="selected-count" class="text-sm text-gray-600 dark:text-gray-400"></span>
+                        <span id="selected-count" class="text-sm text-gray-600"></span>
                         <button type="button" 
                                 id="bulk-delete-btn"
                                 class="inline-flex items-center px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors duration-200">
@@ -197,48 +226,48 @@
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
-                                <tr class="border-b border-gray-200 dark:border-gray-700">
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider w-12">
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider w-12">
                                         <input type="checkbox" 
                                                id="select-all" 
-                                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                               class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500">
                                     </th>
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">ID</th>
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Empleado</th>
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Contacto</th>
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Posición</th>
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Departamento</th>
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Acceso</th>
-                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Empleado</th>
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Contacto</th>
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Posición</th>
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Departamento</th>
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Acceso</th>
+                                    <th class="text-left py-4 px-4 text-sm font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody class="divide-y divide-gray-200">
                                 @foreach($employees as $employee)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                                    <tr class="hover:bg-red-50/50 transition-colors duration-200">
                                         <td class="py-4 px-4">
                                             <input type="checkbox" 
-                                                   class="employee-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" 
+                                                   class="employee-checkbox w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500" 
                                                    value="{{ $employee->id }}"
                                                    data-name="{{ $employee->full_name }}">
                                         </td>
                                         <td class="py-4 px-4">
-                                            <span class="text-sm font-mono text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                                            <span class="text-sm font-mono text-gray-600 bg-gray-100 px-2 py-1 rounded">
                                                 {{ $employee->employee_id }}
                                             </span>
                                         </td>
                                         <td class="py-4 px-4">
                                             <div class="flex items-center">
-                                                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-4 shadow-lg">
+                                                <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mr-4 shadow-lg">
                                                     <span class="text-white font-bold text-sm">
                                                         {{ strtoupper(substr($employee->first_name, 0, 1)) }}{{ strtoupper(substr($employee->last_name, 0, 1)) }}
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ $employee->full_name }}</div>
+                                                    <div class="text-sm font-semibold text-gray-900">{{ $employee->full_name }}</div>
                                                     @if($employee->phone)
-                                                        <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
-                                                            <i class="fas fa-phone mr-1"></i>{{ $employee->phone }}
+                                                        <div class="text-xs text-gray-500 flex items-center mt-1">
+                                                            <i class="fas fa-phone mr-1 text-red-400"></i>{{ $employee->phone }}
                                                             @if($employee->extension)
                                                                 <span class="ml-1">Ext. {{ $employee->extension }}</span>
                                                             @endif
@@ -248,18 +277,18 @@
                                             </div>
                                         </td>
                                         <td class="py-4 px-4">
-                                            <div class="text-sm text-gray-900 dark:text-white">{{ $employee->email }}</div>
+                                            <div class="text-sm text-gray-900">{{ $employee->email }}</div>
                                             @if($employee->location)
-                                                <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
-                                                    <i class="fas fa-map-marker-alt mr-1"></i>{{ $employee->location }}
+                                                <div class="text-xs text-gray-500 flex items-center mt-1">
+                                                    <i class="fas fa-map-marker-alt mr-1 text-orange-400"></i>{{ $employee->location }}
                                                 </div>
                                             @endif
                                         </td>
                                         <td class="py-4 px-4">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $employee->position }}</div>
+                                            <div class="text-sm font-medium text-gray-900">{{ $employee->position }}</div>
                                         </td>
                                         <td class="py-4 px-4">
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                 <i class="fas fa-building mr-1"></i>
                                                 {{ $employee->department }}
                                             </span>
@@ -267,37 +296,37 @@
                                         <td class="py-4 px-4">
                                             @switch($employee->status)
                                                 @case('active')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                         <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                                                         Activo
                                                     </span>
                                                     @break
                                                 @case('inactive')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                         <div class="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
                                                         Inactivo
                                                     </span>
                                                     @break
                                                 @case('on_leave')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                                                         <div class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></div>
                                                         En Licencia
                                                     </span>
                                                     @break
                                                 @default
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                                         {{ $employee->status }}
                                                     </span>
                                             @endswitch
                                         </td>
                                         <td class="py-4 px-4">
                                             @if($employee->hasSystemAccess())
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                     <i class="fas fa-check-circle mr-1"></i>
                                                     Sí
                                                 </span>
                                             @else
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                                     <i class="fas fa-times-circle mr-1"></i>
                                                     No
                                                 </span>
@@ -306,17 +335,17 @@
                                         <td class="py-4 px-4">
                                             <div class="flex items-center space-x-2">
                                                 <a href="{{ route('admin.employees.show', $employee) }}" 
-                                                   class="inline-flex items-center px-3 py-1 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                                                   class="inline-flex items-center px-3 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors duration-200"
                                                    title="Ver detalles">
                                                     <i class="fas fa-eye mr-1"></i>Ver
                                                 </a>
                                                 <a href="mailto:{{ $employee->email }}" 
-                                                   class="inline-flex items-center px-3 py-1 bg-green-500 text-white text-xs font-medium rounded-lg hover:bg-green-600 transition-colors duration-200"
+                                                   class="inline-flex items-center px-3 py-1 bg-orange-500 text-white text-xs font-medium rounded-lg hover:bg-orange-600 transition-colors duration-200"
                                                    title="Enviar email">
                                                     <i class="fas fa-envelope mr-1"></i>Email
                                                 </a>
                                                 <button type="button"
-                                                        class="delete-employee-btn inline-flex items-center px-3 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors duration-200"
+                                                        class="delete-employee-btn inline-flex items-center px-3 py-1 bg-yellow-500 text-white text-xs font-medium rounded-lg hover:bg-yellow-600 transition-colors duration-200"
                                                         title="Eliminar empleado"
                                                         data-employee-id="{{ $employee->id }}"
                                                         data-employee-name="{{ $employee->full_name }}">
@@ -330,9 +359,9 @@
                         </table>
                     </div>
 
-                    <!-- Paginación moderna -->
-                    <div class="flex flex-col sm:flex-row items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-0">
+                    <!-- Paginación moderna con tema rojo-amarillo -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                        <div class="text-sm text-gray-500 mb-4 sm:mb-0">
                             Mostrando {{ $employees->firstItem() }} a {{ $employees->lastItem() }} 
                             de {{ $employees->total() }} resultados
                         </div>
@@ -342,11 +371,11 @@
                     </div>
                 @else
                     <div class="text-center py-12">
-                        <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-users text-gray-400 text-3xl"></i>
+                        <div class="w-24 h-24 bg-gradient-to-r from-red-100 to-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-red-400 text-3xl"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No se encontraron empleados</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        <h3 class="text-lg font-semibold gradient-text mb-2">No se encontraron empleados</h3>
+                        <p class="text-gray-600 mb-6">
                             @if(request()->hasAny(['search', 'department', 'status', 'access_filter']))
                                 Intenta ajustar los filtros de búsqueda o elimina algunos criterios.
                             @else
@@ -354,7 +383,7 @@
                             @endif
                         </p>
                         <a href="{{ route('admin.employees.import') }}" 
-                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200">
+                           class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-yellow-500 text-white font-semibold rounded-lg shadow-lg hover:from-red-600 hover:to-yellow-600 transform hover:scale-105 transition-all duration-200">
                             <i class="fas fa-upload mr-2"></i>Importar Empleados
                         </a>
                     </div>
