@@ -1,4 +1,103 @@
 <nav class="fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+  
+  <!-- Estilos personalizados para el topbar -->
+  <style>
+    .app-dropdown {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(220, 38, 38, 0.1);
+      box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15);
+      right: 0 !important;
+      top: 65px !important;
+      left: auto !important;
+      transform-origin: top right;
+      margin-left: auto !important;
+      margin-right: 0 !important;
+    }
+
+    .app-card-topbar {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
+    }
+
+    .app-card-topbar:hover {
+      transform: translateY(-3px) scale(1.02);
+      background: linear-gradient(135deg, #FEF2F2 0%, #FFFBEB 100%);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.15);
+    }
+
+    .app-icon-container {
+      background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+      transition: all 0.3s ease;
+    }
+
+    .app-card-topbar:hover .app-icon-container {
+      background: linear-gradient(135deg, #B91C1C 0%, #F59E0B 100%);
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .app-title {
+      background: linear-gradient(135deg, #374151 0%, #1F2937 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 600;
+    }
+
+    .app-card-topbar:hover .app-title {
+      background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .dropdown-header {
+      background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+      color: white;
+    }
+
+    .coming-soon-card {
+      background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+      opacity: 0.7;
+    }
+
+    .coming-soon-card:hover {
+      background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+      transform: translateY(-2px);
+    }
+
+    .fade-in-dropdown {
+      animation: fadeInScale 0.3s ease-out forwards;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px) translateX(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0) translateX(0);
+      }
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .app-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
     <div class="flex items-center justify-between">
       <div class="flex items-center justify-start">
@@ -56,131 +155,196 @@
             <!-- Icon -->
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
           </button>
-          <!-- Dropdown menu -->
-          <div class="z-20 z-50 hidden max-w-sm my-4 overflow-hidden text-base list-none bg-white divide-y divide-gray-100 rounded shadow-lg dark:bg-gray-700 dark:divide-gray-600" id="apps-dropdown">
-            <div class="block px-4 py-2 text-base font-medium text-center text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                Mis aplicaciones
+          <!-- Dropdown menu modernizado -->
+          <div class="app-dropdown z-50 hidden max-w-md my-4 overflow-hidden text-base list-none rounded-2xl shadow-2xl fade-in-dropdown absolute right-0 left-auto" id="apps-dropdown" style="right: 0; left: auto; margin-left: auto; margin-right: 0;">
+            <!-- Header con gradiente -->
+            <div class="dropdown-header px-6 py-4 text-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
+              <div class="relative z-10">
+                <h3 class="text-lg font-bold text-white flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                  </svg>
+                  Mis Aplicaciones
+                </h3>
+                <p class="text-white/80 text-sm mt-1">Herramientas inteligentes</p>
+              </div>
             </div>
-            <div class="grid grid-cols-3 gap-4 p-4">
 
-              <a href="{{ route('chat.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400"  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M14.9536 14.9458L21 21M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+            <!-- Grid de aplicaciones -->
+            <div class="app-grid">
 
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Buscador Inteligente</div>
-              </a>
-
-
-              <a href="{{ route('recommendations.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    
-                  <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g id="Dribbble-Light-Preview" transform="translate(-219.000000, -760.000000)" fill="#000000">
-                      <g id="icons" transform="translate(56.000000, 160.000000)">
-                        <path d="M163,610.021159 L163,618.021159 C163,619.126159 163.93975,620.000159 165.1,620.000159 L167.199999,620.000159 L167.199999,608.000159 L165.1,608.000159 C163.93975,608.000159 163,608.916159 163,610.021159 M183.925446,611.355159 L182.100546,617.890159 C181.800246,619.131159 180.639996,620.000159 179.302297,620.000159 L169.299999,620.000159 L169.299999,608.021159 L171.104948,601.826159 C171.318098,600.509159 172.754498,599.625159 174.209798,600.157159 C175.080247,600.476159 175.599997,601.339159 175.599997,602.228159 L175.599997,607.021159 C175.599997,607.573159 176.070397,608.000159 176.649997,608.000159 L181.127196,608.000159 C182.974146,608.000159 184.340196,609.642159 183.925446,611.355159" id="like-[#1386]">
-
-                        </path>
-                      </g>
-                    </g>
-                  </g>
-                </svg>
-
-
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">
-                    Recomendaciones
+              <!-- Buscador Inteligente -->
+              <a href="{{ route('chat.index') }}" class="app-card-topbar block p-4 text-center rounded-xl">
+                <div class="app-icon-container w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                  </svg>
                 </div>
+                <div class="app-title text-xs font-semibold leading-tight">Buscador Inteligente</div>
               </a>
 
+              <!-- Recomendaciones -->
+              <a href="{{ route('recommendations.index') }}" class="app-card-topbar block p-4 text-center rounded-xl">
+                <div class="app-icon-container w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 00-3.75 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                  </svg>
+                </div>
+                <div class="app-title text-xs font-semibold leading-tight">Recomendaciones</div>
+              </a>
 
-              <a href="{{ route('news.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+              <!-- Noticias -->
+              <a href="{{ route('news.index') }}" class="app-card-topbar block p-4 text-center rounded-xl">
+                <div class="app-icon-container w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5M5.25 19.5a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v.75m.75 4.5v10.5M19.5 21h-15a2.25 2.25 0 01-2.25-2.25V9a2.25 2.25 0 012.25-2.25h15" />
+                  </svg>
+                </div>
+                <div class="app-title text-xs font-semibold leading-tight">Noticias</div>
+              </a>
 
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                  <g id="Product-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g id="ic_fluent_news_28_filled" fill="#212121" fill-rule="nonzero">
-                        <path d="M22,5.75 L22,20.5 C22,20.7761424 22.2238576,21 22.5,21 C22.7454599,21 22.9496084,20.8231248 22.9919443,20.5898756 L23,20.5 L23,7 L24.25,7 C25.1681734,7 25.9211923,7.70711027 25.9941988,8.60647279 L26,8.75 L26,20.75 C26,22.4830315 24.6435452,23.8992459 22.9344239,23.9948552 L22.75,24 L5.25,24 C3.51696854,24 2.10075407,22.6435452 2.00514479,20.9344239 L2,20.75 L2,5.75 C2,4.8318266 2.70711027,4.07880766 3.60647279,4.0058012 L3.75,4 L20.25,4 C21.1681734,4 21.9211923,4.70711027 21.9941988,5.60647279 L22,5.75 L22,20.5 L22,5.75 Z M9.74652744,13.0034726 L7.25,13.0034726 C6.3318266,13.0034726 5.57880766,13.7105828 5.5058012,14.6099454 L5.5,14.7534726 L5.5,17.25 C5.5,18.1681734 6.20711027,18.9211923 7.10647279,18.9941988 L7.25,19 L9.74652744,19 C10.6647008,19 11.4177198,18.2928897 11.4907262,17.3935272 L11.4965274,17.25 L11.4965274,14.7534726 C11.4965274,13.8352992 10.7894172,13.0822802 9.89005465,13.0092738 L9.74652744,13.0034726 Z M17.75,17.5 L14.25,17.5 L14.1482294,17.5068466 C13.7821539,17.556509 13.5,17.8703042 13.5,18.25 C13.5,18.6296958 13.7821539,18.943491 14.1482294,18.9931534 L14.25,19 L17.75,19 L17.8517706,18.9931534 C18.2178461,18.943491 18.5,18.6296958 18.5,18.25 C18.5,17.8703042 18.2178461,17.556509 17.8517706,17.5068466 L17.75,17.5 Z M7.25,14.5034726 L9.74652744,14.5034726 C9.86487417,14.5034726 9.96401426,14.585706 9.98992476,14.6961499 L9.99652744,14.7534726 L9.99652744,17.25 C9.99652744,17.3683467 9.91429402,17.4674868 9.80385014,17.4933973 L9.74652744,17.5 L7.25,17.5 C7.13165327,17.5 7.03251318,17.4177666 7.00660268,17.3073227 L7,17.25 L7,14.7534726 C7,14.6351258 7.08223341,14.5359857 7.19267729,14.5100752 L7.25,14.5034726 L9.74652744,14.5034726 L7.25,14.5034726 Z M17.75,13.0034726 L14.25,13.0034726 L14.1482294,13.0103192 C13.7821539,13.0599816 13.5,13.3737768 13.5,13.7534726 C13.5,14.1331683 13.7821539,14.4469635 14.1482294,14.4966259 L14.25,14.5034726 L17.75,14.5034726 L17.8517706,14.4966259 C18.2178461,14.4469635 18.5,14.1331683 18.5,13.7534726 C18.5,13.3737768 18.2178461,13.0599816 17.8517706,13.0103192 L17.75,13.0034726 Z M17.75,8.49665793 L6.25,8.49665793 L6.14822944,8.50350455 C5.78215388,8.55316697 5.5,8.86696217 5.5,9.24665793 C5.5,9.6263537 5.78215388,9.94014889 6.14822944,9.98981132 L6.25,9.99665793 L17.75,9.99665793 L17.8517706,9.98981132 C18.2178461,9.94014889 18.5,9.6263537 18.5,9.24665793 C18.5,8.86696217 18.2178461,8.55316697 17.8517706,8.50350455 L17.75,8.49665793 Z" id="🎨-Color">
+              <!-- Estadísticas -->
+              <a href="{{ route('admin.stats.dashboard') }}" class="app-card-topbar block p-4 text-center rounded-xl">
+                <div class="app-icon-container w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                  </svg>
+                </div>
+                <div class="app-title text-xs font-semibold leading-tight">Estadísticas</div>
+              </a>
 
-                        </path>
+              <!-- Empleados -->
+              <a href="{{ route('admin.employees.index') }}" class="app-card-topbar block p-4 text-center rounded-xl">
+                <div class="app-icon-container w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                  </svg>
+                </div>
+                <div class="app-title text-xs font-semibold leading-tight">Empleados</div>
+              </a>
+
+              <!-- Soporte Técnico -->
+              <a href="{{ route('tech-support.index') }}" class="app-card-topbar block p-4 text-center rounded-xl">
+                <div class="app-icon-container w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                          d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z" />
+                  </svg>
+                </div>
+                <div class="app-title text-xs font-semibold leading-tight">Soporte Técnico</div>
+              </a>
+
+              <!-- Tarjetas "Próximamente" -->
+              <div class="coming-soon-card app-card-topbar block p-4 text-center rounded-xl cursor-not-allowed">
+                <div class="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center bg-gray-300">
+                  <svg version="1.1" id="Uploaded to svgrepo.com" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                    width="32px" height="32px" viewBox="0 0 32 32" xml:space="preserve">
+
+                  <g>
+                    <g>
+                      <path class="open_een" d="M15.977,29.993c-3.45,0.001-6.706-1.236-9.307-3.563C3.702,23.775,2,19.971,2,15.992
+                        C2,8.75,7.647,2.621,14.857,2.039c0.422-0.038,0.849,0.111,1.161,0.398C16.329,2.724,16.5,3.114,16.5,3.536v11.171
+                        c0,0.433,0.353,0.785,0.786,0.785h4.5c0.276,0,0.5,0.224,0.5,0.5s-0.224,0.5-0.5,0.5h-4.5c-0.984,0-1.786-0.801-1.786-1.785V3.536
+                        c0-0.14-0.057-0.269-0.16-0.363c-0.108-0.101-0.249-0.148-0.402-0.138C8.244,3.576,3,9.268,3,15.992
+                        c0,3.694,1.581,7.228,4.336,9.692c2.793,2.499,6.408,3.646,10.162,3.224c5.899-0.658,10.696-5.41,11.405-11.299
+                        c0.764-6.345-3.1-12.266-9.186-14.078c-0.265-0.079-0.416-0.357-0.336-0.622c0.079-0.264,0.356-0.412,0.622-0.337
+                        c6.555,1.953,10.716,8.327,9.894,15.156c-0.764,6.345-5.932,11.465-12.287,12.174C17.062,29.963,16.517,29.993,15.977,29.993z"/>
+                    </g>
+                    <g>
+                      <path class="open_een" d="M15.977,29.993c-3.45,0.001-6.706-1.236-9.307-3.563C3.702,23.775,2,19.971,2,15.992
+                        C2,8.75,7.647,2.621,14.857,2.039c0.422-0.038,0.849,0.111,1.161,0.398C16.329,2.724,16.5,3.114,16.5,3.536v11.171
+                        c0,0.433,0.353,0.785,0.786,0.785h4.5c0.276,0,0.5,0.224,0.5,0.5s-0.224,0.5-0.5,0.5h-4.5c-0.984,0-1.786-0.801-1.786-1.785V3.536
+                        c0-0.14-0.057-0.269-0.16-0.363c-0.108-0.101-0.249-0.148-0.402-0.138C8.244,3.576,3,9.268,3,15.992
+                        c0,3.694,1.581,7.228,4.336,9.692c2.793,2.499,6.408,3.646,10.162,3.224c5.899-0.658,10.696-5.41,11.405-11.299
+                        c0.764-6.345-3.1-12.266-9.186-14.078c-0.265-0.079-0.416-0.357-0.336-0.622c0.079-0.264,0.356-0.412,0.622-0.337
+                        c6.555,1.953,10.716,8.327,9.894,15.156c-0.764,6.345-5.932,11.465-12.287,12.174C17.062,29.963,16.517,29.993,15.977,29.993z"/>
                     </g>
                   </g>
-                </svg>
+                  </svg>
+                </div>
+                <div class="text-xs font-medium text-gray-500 leading-tight">Próximamente</div>
+              </div>
 
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Noticias</div>
-              </a>
+              <div class="coming-soon-card app-card-topbar block p-4 text-center rounded-xl cursor-not-allowed">
+                <div class="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center bg-gray-300">
+                  <svg version="1.1" id="Uploaded to svgrepo.com" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                    width="32px" height="32px" viewBox="0 0 32 32" xml:space="preserve">
 
+                  <g>
+                    <g>
+                      <path class="open_een" d="M15.977,29.993c-3.45,0.001-6.706-1.236-9.307-3.563C3.702,23.775,2,19.971,2,15.992
+                        C2,8.75,7.647,2.621,14.857,2.039c0.422-0.038,0.849,0.111,1.161,0.398C16.329,2.724,16.5,3.114,16.5,3.536v11.171
+                        c0,0.433,0.353,0.785,0.786,0.785h4.5c0.276,0,0.5,0.224,0.5,0.5s-0.224,0.5-0.5,0.5h-4.5c-0.984,0-1.786-0.801-1.786-1.785V3.536
+                        c0-0.14-0.057-0.269-0.16-0.363c-0.108-0.101-0.249-0.148-0.402-0.138C8.244,3.576,3,9.268,3,15.992
+                        c0,3.694,1.581,7.228,4.336,9.692c2.793,2.499,6.408,3.646,10.162,3.224c5.899-0.658,10.696-5.41,11.405-11.299
+                        c0.764-6.345-3.1-12.266-9.186-14.078c-0.265-0.079-0.416-0.357-0.336-0.622c0.079-0.264,0.356-0.412,0.622-0.337
+                        c6.555,1.953,10.716,8.327,9.894,15.156c-0.764,6.345-5.932,11.465-12.287,12.174C17.062,29.963,16.517,29.993,15.977,29.993z"/>
+                    </g>
+                    <g>
+                      <path class="open_een" d="M15.977,29.993c-3.45,0.001-6.706-1.236-9.307-3.563C3.702,23.775,2,19.971,2,15.992
+                        C2,8.75,7.647,2.621,14.857,2.039c0.422-0.038,0.849,0.111,1.161,0.398C16.329,2.724,16.5,3.114,16.5,3.536v11.171
+                        c0,0.433,0.353,0.785,0.786,0.785h4.5c0.276,0,0.5,0.224,0.5,0.5s-0.224,0.5-0.5,0.5h-4.5c-0.984,0-1.786-0.801-1.786-1.785V3.536
+                        c0-0.14-0.057-0.269-0.16-0.363c-0.108-0.101-0.249-0.148-0.402-0.138C8.244,3.576,3,9.268,3,15.992
+                        c0,3.694,1.581,7.228,4.336,9.692c2.793,2.499,6.408,3.646,10.162,3.224c5.899-0.658,10.696-5.41,11.405-11.299
+                        c0.764-6.345-3.1-12.266-9.186-14.078c-0.265-0.079-0.416-0.357-0.336-0.622c0.079-0.264,0.356-0.412,0.622-0.337
+                        c6.555,1.953,10.716,8.327,9.894,15.156c-0.764,6.345-5.932,11.465-12.287,12.174C17.062,29.963,16.517,29.993,15.977,29.993z"/>
+                    </g>
+                  </g>
+                  </svg>
+                </div>
+                <div class="text-xs font-medium text-gray-500 leading-tight">Próximamente</div>
+              </div>
 
-              <a href="{{ route('admin.stats.dashboard') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V7C21 7.55228 20.5523 8 20 8H4C3.44772 8 3 7.55228 3 7V4Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M3 12C3 11.4477 3.44772 11 4 11H20C20.5523 11 21 11.4477 21 12V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V12Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M7 15L10 18L17 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Estadísticas</div>
-              </a>
+              <div class="coming-soon-card app-card-topbar block p-4 text-center rounded-xl cursor-not-allowed">
+                <div class="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center bg-gray-300">
+                  <svg version="1.1" id="Uploaded to svgrepo.com" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                    width="32px" height="32px" viewBox="0 0 32 32" xml:space="preserve">
 
-              <a href="{{ route('admin.employees.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Empleados</div>
-              </a>
+                  <g>
+                    <g>
+                      <path class="open_een" d="M15.977,29.993c-3.45,0.001-6.706-1.236-9.307-3.563C3.702,23.775,2,19.971,2,15.992
+                        C2,8.75,7.647,2.621,14.857,2.039c0.422-0.038,0.849,0.111,1.161,0.398C16.329,2.724,16.5,3.114,16.5,3.536v11.171
+                        c0,0.433,0.353,0.785,0.786,0.785h4.5c0.276,0,0.5,0.224,0.5,0.5s-0.224,0.5-0.5,0.5h-4.5c-0.984,0-1.786-0.801-1.786-1.785V3.536
+                        c0-0.14-0.057-0.269-0.16-0.363c-0.108-0.101-0.249-0.148-0.402-0.138C8.244,3.576,3,9.268,3,15.992
+                        c0,3.694,1.581,7.228,4.336,9.692c2.793,2.499,6.408,3.646,10.162,3.224c5.899-0.658,10.696-5.41,11.405-11.299
+                        c0.764-6.345-3.1-12.266-9.186-14.078c-0.265-0.079-0.416-0.357-0.336-0.622c0.079-0.264,0.356-0.412,0.622-0.337
+                        c6.555,1.953,10.716,8.327,9.894,15.156c-0.764,6.345-5.932,11.465-12.287,12.174C17.062,29.963,16.517,29.993,15.977,29.993z"/>
+                    </g>
+                    <g>
+                      <path class="open_een" d="M15.977,29.993c-3.45,0.001-6.706-1.236-9.307-3.563C3.702,23.775,2,19.971,2,15.992
+                        C2,8.75,7.647,2.621,14.857,2.039c0.422-0.038,0.849,0.111,1.161,0.398C16.329,2.724,16.5,3.114,16.5,3.536v11.171
+                        c0,0.433,0.353,0.785,0.786,0.785h4.5c0.276,0,0.5,0.224,0.5,0.5s-0.224,0.5-0.5,0.5h-4.5c-0.984,0-1.786-0.801-1.786-1.785V3.536
+                        c0-0.14-0.057-0.269-0.16-0.363c-0.108-0.101-0.249-0.148-0.402-0.138C8.244,3.576,3,9.268,3,15.992
+                        c0,3.694,1.581,7.228,4.336,9.692c2.793,2.499,6.408,3.646,10.162,3.224c5.899-0.658,10.696-5.41,11.405-11.299
+                        c0.764-6.345-3.1-12.266-9.186-14.078c-0.265-0.079-0.416-0.357-0.336-0.622c0.079-0.264,0.356-0.412,0.622-0.337
+                        c6.555,1.953,10.716,8.327,9.894,15.156c-0.764,6.345-5.932,11.465-12.287,12.174C17.062,29.963,16.517,29.993,15.977,29.993z"/>
+                    </g>
+                  </g>
+                  </svg>
+                </div>
+                <div class="text-xs font-medium text-gray-500 leading-tight">Próximamente</div>
+              </div>
 
-              <a href="{{ route('admin.tech-support.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                </svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Config. Soporte</div>
-              </a>
+            </div>
 
-              <a href="{{ route('tech-support.index') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M21 8C21 6.34315 19.6569 5 18 5H6C4.34315 5 3 6.34315 3 8V16C3 17.6569 4.34315 19 6 19H18C19.6569 19 21 17.6569 21 16V8Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M7 10H7.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M11 10H11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M15 10H15.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="M7 14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Soporte Técnico</div>
-              </a>
-
-
-
-
-              {{-- <a href="{{ route('agent.config.view') }}" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V21C3 22.1 3.9 23 5 23H19C20.1 23 21 22.1 21 21V9H21ZM19 21H5V3H13V9H19V21Z" fill="currentColor"/>
-                  <circle cx="9" cy="13" r="1.5" fill="currentColor"/>
-                  <circle cx="15" cy="13" r="1.5" fill="currentColor"/>
-                  <path d="M9 16.5C9 17.3284 9.67157 18 10.5 18H13.5C14.3284 18 15 16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Configurar IA</div>
-              </a> --}}
-
-              <a href="#" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="#000000" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-h</title><path d="M469.54,120.52h0a16,16,0,0,0-25.54-4L382.56,178a16.12,16.12,0,0,1-22.63,0L333.37,151.4a16,16,0,0,1,0-22.63l61.18-61.19a16,16,0,0,0-4.78-25.92h0C343.56,21,285.88,31.78,249.51,67.88c-30.9,30.68-40.11,78.62-25.25,131.53a15.89,15.89,0,0,1-4.49,16L53.29,367.46a64.17,64.17,0,1,0,90.6,90.64L297.57,291.25a15.9,15.9,0,0,1,15.77-4.57,179.3,179.3,0,0,0,46.22,6.37c33.4,0,62.71-10.81,83.85-31.64C482.56,222.84,488.53,157.42,469.54,120.52ZM99.48,447.15a32,32,0,1,1,28.34-28.35A32,32,0,0,1,99.48,447.15Z"/></svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Proximamente</div>
-              </a>
-              <a href="#" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="#000000" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-h</title><path d="M469.54,120.52h0a16,16,0,0,0-25.54-4L382.56,178a16.12,16.12,0,0,1-22.63,0L333.37,151.4a16,16,0,0,1,0-22.63l61.18-61.19a16,16,0,0,0-4.78-25.92h0C343.56,21,285.88,31.78,249.51,67.88c-30.9,30.68-40.11,78.62-25.25,131.53a15.89,15.89,0,0,1-4.49,16L53.29,367.46a64.17,64.17,0,1,0,90.6,90.64L297.57,291.25a15.9,15.9,0,0,1,15.77-4.57,179.3,179.3,0,0,0,46.22,6.37c33.4,0,62.71-10.81,83.85-31.64C482.56,222.84,488.53,157.42,469.54,120.52ZM99.48,447.15a32,32,0,1,1,28.34-28.35A32,32,0,0,1,99.48,447.15Z"/></svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Proximamente</div>
-              </a>
-              
-              <a href="#" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="#000000" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-h</title><path d="M469.54,120.52h0a16,16,0,0,0-25.54-4L382.56,178a16.12,16.12,0,0,1-22.63,0L333.37,151.4a16,16,0,0,1,0-22.63l61.18-61.19a16,16,0,0,0-4.78-25.92h0C343.56,21,285.88,31.78,249.51,67.88c-30.9,30.68-40.11,78.62-25.25,131.53a15.89,15.89,0,0,1-4.49,16L53.29,367.46a64.17,64.17,0,1,0,90.6,90.64L297.57,291.25a15.9,15.9,0,0,1,15.77-4.57,179.3,179.3,0,0,0,46.22,6.37c33.4,0,62.71-10.81,83.85-31.64C482.56,222.84,488.53,157.42,469.54,120.52ZM99.48,447.15a32,32,0,1,1,28.34-28.35A32,32,0,0,1,99.48,447.15Z"/></svg>
-                  <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Proximamente</div>
-              </a>
-              <a href="#" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="#000000" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-h</title><path d="M469.54,120.52h0a16,16,0,0,0-25.54-4L382.56,178a16.12,16.12,0,0,1-22.63,0L333.37,151.4a16,16,0,0,1,0-22.63l61.18-61.19a16,16,0,0,0-4.78-25.92h0C343.56,21,285.88,31.78,249.51,67.88c-30.9,30.68-40.11,78.62-25.25,131.53a15.89,15.89,0,0,1-4.49,16L53.29,367.46a64.17,64.17,0,1,0,90.6,90.64L297.57,291.25a15.9,15.9,0,0,1,15.77-4.57,179.3,179.3,0,0,0,46.22,6.37c33.4,0,62.71-10.81,83.85-31.64C482.56,222.84,488.53,157.42,469.54,120.52ZM99.48,447.15a32,32,0,1,1,28.34-28.35A32,32,0,0,1,99.48,447.15Z"/></svg>
-                <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Proximamente</div>
-              </a>
-
-              <a href="#" class="block p-4 text-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
-                <svg class="mx-auto mb-1 text-gray-500 w-7 h-7 dark:text-gray-400" fill="#000000" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><title>ionicons-v5-h</title><path d="M469.54,120.52h0a16,16,0,0,0-25.54-4L382.56,178a16.12,16.12,0,0,1-22.63,0L333.37,151.4a16,16,0,0,1,0-22.63l61.18-61.19a16,16,0,0,0-4.78-25.92h0C343.56,21,285.88,31.78,249.51,67.88c-30.9,30.68-40.11,78.62-25.25,131.53a15.89,15.89,0,0,1-4.49,16L53.29,367.46a64.17,64.17,0,1,0,90.6,90.64L297.57,291.25a15.9,15.9,0,0,1,15.77-4.57,179.3,179.3,0,0,0,46.22,6.37c33.4,0,62.71-10.81,83.85-31.64C482.56,222.84,488.53,157.42,469.54,120.52ZM99.48,447.15a32,32,0,1,1,28.34-28.35A32,32,0,0,1,99.48,447.15Z"/></svg>
-                  <div class="text-sm font-medium text-gray-900 dark:text-white break-words whitespace-normal">Proximamente</div>
-              </a>
+            <!-- Footer con acceso rápido -->
+            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+              <div class="flex items-center justify-center space-x-4 text-xs text-gray-600">
+                <span class="flex items-center">
+                  <svg class="w-3 h-3 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  Sistema activo
+                </span>
+                <span class="text-gray-400">•</span>
+                <span>6 aplicaciones</span>
+              </div>
             </div>
           </div>
 

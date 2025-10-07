@@ -5,7 +5,16 @@
     <div class="fixed top-16 z-10 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div class="flex justify-between items-center">
             <div class="flex-1">
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Chat con IA</h1>
+                <div class="flex">
+                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
+                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
+                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
+                        </svg>
+                    </a>
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Chat con IA</h1>
+                
+                </div>
                 
                 <!-- Indicador de agente actual -->
                 @if($currentAgentConfig)

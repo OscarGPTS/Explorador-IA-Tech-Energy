@@ -1,203 +1,485 @@
 @extends('layouts.app')
 
+@push('styles')
+<style>
+/* Animaciones y transiciones suaves */
+.recommendation-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+}
+
+.recommendation-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-image {
+    transition: transform 0.5s ease;
+}
+
+.recommendation-card:hover .recommendation-image {
+    transform: scale(1.05);
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.fade-in-delay-1 { animation-delay: 0.1s; }
+.fade-in-delay-2 { animation-delay: 0.2s; }
+.fade-in-delay-3 { animation-delay: 0.3s; }
+.fade-in-delay-4 { animation-delay: 0.4s; }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-button {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tab-button::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #DC2626, #FBBF24);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.tab-button.active::after,
+.tab-button:hover::after {
+    width: 100%;
+}
+
+.recommendation-badge {
+    background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.category-icon {
+    transition: transform 0.3s ease;
+}
+
+.tab-button:hover .category-icon {
+    transform: scale(1.1);
+}
+</style>
+@endpush
+
 @section('content')
-      
-<div class="px-4 pt-10">
-
-    <div class="flex justify-between items-center ml-4">
-        <p class="font-bold ml-2 text-lg flex"> 
-            <a href="/" class="mr-2 flex items-center justify-center">
-                <?xml version="1.0" encoding="utf-8"?>
-                <svg width="22px" height="22px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="#000000" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/><path fill="#000000" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/></svg>
-            </a>
-            Mis Recomendaciones
-        </p>
-
-        <div class="mr-4">
-            <button data-modal-target="top-right-modal" data-modal-toggle="top-right-modal" class="flex block w-full md:w-auto bg-[#FFDE72] hover:bg-[#FFD03A] focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-full text-sm px-5 py-2.5 text-center" type="button">
-                <p class="mr-4 text-base">
-                    Personalizar
-                </p> 
-                <?xml version="1.0" encoding="utf-8"?>
-                <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M14.2788 2.15224C13.9085 2 13.439 2 12.5 2C11.561 2 11.0915 2 10.7212 2.15224C10.2274 2.35523 9.83509 2.74458 9.63056 3.23463C9.53719 3.45834 9.50065 3.7185 9.48635 4.09799C9.46534 4.65568 9.17716 5.17189 8.69017 5.45093C8.20318 5.72996 7.60864 5.71954 7.11149 5.45876C6.77318 5.2813 6.52789 5.18262 6.28599 5.15102C5.75609 5.08178 5.22018 5.22429 4.79616 5.5472C4.47814 5.78938 4.24339 6.1929 3.7739 6.99993C3.30441 7.80697 3.06967 8.21048 3.01735 8.60491C2.94758 9.1308 3.09118 9.66266 3.41655 10.0835C3.56506 10.2756 3.77377 10.437 4.0977 10.639C4.57391 10.936 4.88032 11.4419 4.88029 12C4.88026 12.5581 4.57386 13.0639 4.0977 13.3608C3.77372 13.5629 3.56497 13.7244 3.41645 13.9165C3.09108 14.3373 2.94749 14.8691 3.01725 15.395C3.06957 15.7894 3.30432 16.193 3.7738 17C4.24329 17.807 4.47804 18.2106 4.79606 18.4527C5.22008 18.7756 5.75599 18.9181 6.28589 18.8489C6.52778 18.8173 6.77305 18.7186 7.11133 18.5412C7.60852 18.2804 8.2031 18.27 8.69012 18.549C9.17714 18.8281 9.46533 19.3443 9.48635 19.9021C9.50065 20.2815 9.53719 20.5417 9.63056 20.7654C9.83509 21.2554 10.2274 21.6448 10.7212 21.8478C11.0915 22 11.561 22 12.5 22C13.439 22 13.9085 22 14.2788 21.8478C14.7726 21.6448 15.1649 21.2554 15.3694 20.7654C15.4628 20.5417 15.4994 20.2815 15.5137 19.902C15.5347 19.3443 15.8228 18.8281 16.3098 18.549C16.7968 18.2699 17.3914 18.2804 17.8886 18.5412C18.2269 18.7186 18.4721 18.8172 18.714 18.8488C19.2439 18.9181 19.7798 18.7756 20.2038 18.4527C20.5219 18.2105 20.7566 17.807 21.2261 16.9999C21.6956 16.1929 21.9303 15.7894 21.9827 15.395C22.0524 14.8691 21.9088 14.3372 21.5835 13.9164C21.4349 13.7243 21.2262 13.5628 20.9022 13.3608C20.4261 13.0639 20.1197 12.558 20.1197 11.9999C20.1197 11.4418 20.4261 10.9361 20.9022 10.6392C21.2263 10.4371 21.435 10.2757 21.5836 10.0835C21.9089 9.66273 22.0525 9.13087 21.9828 8.60497C21.9304 8.21055 21.6957 7.80703 21.2262 7C20.7567 6.19297 20.522 5.78945 20.2039 5.54727C19.7799 5.22436 19.244 5.08185 18.7141 5.15109C18.4722 5.18269 18.2269 5.28136 17.8887 5.4588C17.3915 5.71959 16.7969 5.73002 16.3099 5.45096C15.8229 5.17191 15.5347 4.65566 15.5136 4.09794C15.4993 3.71848 15.4628 3.45833 15.3694 3.23463C15.1649 2.74458 14.7726 2.35523 14.2788 2.15224ZM12.5 15C14.1695 15 15.5228 13.6569 15.5228 12C15.5228 10.3431 14.1695 9 12.5 9C10.8305 9 9.47716 10.3431 9.47716 12C9.47716 13.6569 10.8305 15 12.5 15Z" fill="#1C274C"/>
-                </svg>
-            </button>
-
-        </div>
-    </div>
-
-
-    <div id="top-right-modal" data-modal-placement="top-right" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative w-full max-w-2xl max-h-full">
-            <!-- Modal content -->
-            <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
-                <!-- Modal header -->
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
-                    <h3 class="text-xl font-medium text-gray-900 dark:text-white">
-                        Personaliza tus recomendaciones
-                    </h3>
-                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="top-right-modal">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
+    <!-- Header mejorado con gradiente rojo-amarillo -->
+    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
+                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
+                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
                         </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
+                    </a>
+                    <div>
+                        <h1 class="text-3xl font-bold">💡 Mis Recomendaciones</h1>
+                        <p class="text-orange-100 text-sm mt-1">Descubre contenido personalizado para ti</p>
+                    </div>
                 </div>
-                <!-- Modal body -->
-                <div class="p-4 md:p-5 space-y-4">
-                    <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                        Selecciona las categorias que te interesen para mostrar en tus recomendaciones.
-                    </p>
 
-
-
-                    <form action="{{ route('recommendations.updatePreferences') }}" method="POST">
-                        @csrf
-                        @method('POST') 
-
-                        @foreach ($recommendations as $id => $name)
-                            <div class="flex items-center mb-4">
-                                <input 
-                                    id="checkbox-{{ $id }}" 
-                                    type="checkbox" 
-                                    name="recommendations[]" 
-                                    value="{{ $id }}" 
-                                    class="w-4 h-4 accent-yellow-400 bg-gray-100 border-gray-300 rounded focus:ring-yellow-500 focus:ring-2"
-                                    @if(in_array($id, $userRecommendationsIds)) checked @endif
-                                >
-                                <label for="checkbox-{{ $id }}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{ $name }}</label>
-                            </div>
-                        @endforeach
-                        <div class="flex">
-                            <button type="submit" class="block w-full md:w-auto bg-[#FFDE72] hover:bg-[#FFD03A] focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-full text-sm px-5 py-2.5 text-center">
-                                Guardar
-                            </button>
-
-                            <button data-modal-hide="top-right-modal" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-[#FFD03A] hover:bg-yellow-100 hover:text-yellow-700 focus:z-10 focus:ring-4 focus:ring-yellow-100 ">
-                                Cancelar
-                            </button>
-                        </div>
-                        
-
-                    </form>
-
-                 
-                </div>
-              
+                <button data-modal-target="top-right-modal" data-modal-toggle="top-right-modal" 
+                    class="flex items-center space-x-3 bg-white/20 hover:bg-white/30 
+                           backdrop-filter backdrop-blur-sm border border-white/30
+                           font-medium rounded-full text-sm px-6 py-3 text-white
+                           transition-all duration-300 transform hover:scale-105" 
+                    type="button">
+                    <span class="text-base">Personalizar</span>
+                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M14.2788 2.15224C13.9085 2 13.439 2 12.5 2C11.561 2 11.0915 2 10.7212 2.15224C10.2274 2.35523 9.83509 2.74458 9.63056 3.23463C9.53719 3.45834 9.50065 3.7185 9.48635 4.09799C9.46534 4.65568 9.17716 5.17189 8.69017 5.45093C8.20318 5.72996 7.60864 5.71954 7.11149 5.45876C6.77318 5.2813 6.52789 5.18262 6.28599 5.15102C5.75609 5.08178 5.22018 5.22429 4.79616 5.5472C4.47814 5.78938 4.24339 6.1929 3.7739 6.99993C3.30441 7.80697 3.06967 8.21048 3.01735 8.60491C2.94758 9.1308 3.09118 9.66266 3.41655 10.0835C3.56506 10.2756 3.77377 10.437 4.0977 10.639C4.57391 10.936 4.88032 11.4419 4.88029 12C4.88026 12.5581 4.57386 13.0639 4.0977 13.3608C3.77372 13.5629 3.56497 13.7244 3.41645 13.9165C3.09108 14.3373 2.94749 14.8691 3.01725 15.395C3.06957 15.7894 3.30432 16.193 3.7738 17C4.24329 17.807 4.47804 18.2106 4.79606 18.4527C5.22008 18.7756 5.75599 18.9181 6.28589 18.8489C6.52778 18.8173 6.77305 18.7186 7.11133 18.5412C7.60852 18.2804 8.2031 18.27 8.69012 18.549C9.17714 18.8281 9.46533 19.3443 9.48635 19.9021C9.50065 20.2815 9.53719 20.5417 9.63056 20.7654C9.83509 21.2554 10.2274 21.6448 10.7212 21.8478C11.0915 22 11.561 22 12.5 22C13.439 22 13.9085 22 14.2788 21.8478C14.7726 21.6448 15.1649 21.2554 15.3694 20.7654C15.4628 20.5417 15.4994 20.2815 15.5137 19.902C15.5347 19.3443 15.8228 18.8281 16.3098 18.549C16.7968 18.2699 17.3914 18.2804 17.8886 18.5412C18.2269 18.7186 18.4721 18.8172 18.714 18.8488C19.2439 18.9181 19.7798 18.7756 20.2038 18.4527C20.5219 18.2105 20.7566 17.807 21.2261 16.9999C21.6956 16.1929 21.9303 15.7894 21.9827 15.395C22.0524 14.8691 21.9088 14.3372 21.5835 13.9164C21.4349 13.7243 21.2262 13.5628 20.9022 13.3608C20.4261 13.0639 20.1197 12.558 20.1197 11.9999C20.1197 11.4418 20.4261 10.9361 20.9022 10.6392C21.2263 10.4371 21.435 10.2757 21.5836 10.0835C21.9089 9.66273 22.0525 9.13087 21.9828 8.60497C21.9304 8.21055 21.6957 7.80703 21.2262 7C20.7567 6.19297 20.522 5.78945 20.2039 5.54727C19.7799 5.22436 19.244 5.08185 18.7141 5.15109C18.4722 5.18269 18.2269 5.28136 17.8887 5.4588C17.3915 5.71959 16.7969 5.73002 16.3099 5.45096C15.8229 5.17191 15.5347 4.65566 15.5136 4.09794C15.4993 3.71848 15.4628 3.45833 15.3694 3.23463C15.1649 2.74458 14.7726 2.35523 14.2788 2.15224ZM12.5 15C14.1695 15 15.5228 13.6569 15.5228 12C15.5228 10.3431 14.1695 9 12.5 9C10.8305 9 9.47716 10.3431 9.47716 12C9.47716 13.6569 10.8305 15 12.5 15Z" fill="currentColor"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
-     
 
-    <div class="p-4 mt-4 -4 border-b border-gray-200">
-        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
-        
-            @foreach ($recommendationData as $recommendation) 
-                <li class="me-2" role="presentation">
-                    <button 
-                        class="inline-block p-4 border-b-2 rounded-t-lg 
-                       border-transparent text-gray-500 hover:text-red-600 hover:border-red-600 
-                       aria-selected:border-red-600 aria-selected:text-red-600" 
-                        id="tab-{{ $recommendation->id }}" 
-                        data-tabs-target="#content-{{ $recommendation->id }}" 
-                        type="button" 
-                        role="tab" 
-                        aria-controls="content-{{ $recommendation->id }}" 
-                        aria-selected="false">
-                        {{ $recommendation->category }}
 
-                        ( {{ count($recommendation->recommendations) }} )
+    <!-- Modal de personalización mejorado -->
+    <div id="top-right-modal" data-modal-placement="center" tabindex="-1" 
+        class="fixed inset-0 z-50 hidden w-full h-full bg-black/50 backdrop-blur-sm">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl glass-effect transform transition-all duration-300">
+                <!-- Header del modal -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-100">
+                    <div>
+                        <h3 class="text-2xl font-bold gradient-text">✨ Personaliza tus recomendaciones</h3>
+                        <p class="text-gray-500 text-sm mt-1">Selecciona las categorías que más te interesen</p>
+                    </div>
+                    <button type="button" class="p-2 text-gray-400 bg-gray-100 hover:bg-gray-200 
+                                               rounded-full transition-all duration-300 transform hover:scale-110" 
+                            data-modal-hide="top-right-modal">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
                     </button>
-                </li>
-            @endforeach
+                </div>
 
-        </ul>
+                <!-- Cuerpo del modal -->
+                <div class="p-6">
+                    <form action="{{ route('recommendations.updatePreferences') }}" method="POST" class="space-y-4">
+                        @csrf
+                        @method('POST')
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @foreach ($recommendations as $id => $name)
+                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-100 
+                                             hover:border-red-200 hover:bg-red-50 cursor-pointer
+                                             transition-all duration-300 group">
+                                    <input type="checkbox" name="recommendations[]" value="{{ $id }}" 
+                                        class="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded 
+                                               focus:ring-red-500 focus:ring-2 transition-all duration-300"
+                                        @if(in_array($id, $userRecommendationsIds)) checked @endif>
+                                    <span class="ml-3 text-sm font-medium text-gray-900 group-hover:text-red-700 
+                                                transition-colors duration-300">{{ $name }}</span>
+                                    <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <span class="text-red-500">💡</span>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-100">
+                            <button data-modal-hide="top-right-modal" type="button" 
+                                class="px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 
+                                       rounded-full hover:bg-gray-200 transition-all duration-300
+                                       transform hover:scale-105">
+                                Cancelar
+                            </button>
+                            <button type="submit" 
+                                class="px-8 py-3 text-sm font-medium text-white bg-gradient-to-r 
+                                       from-red-500 to-yellow-500 rounded-full hover:from-red-600 
+                                       hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 
+                                       shadow-lg hover:shadow-xl">
+                                💾 Guardar Preferencias
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Sección de pestañas modernizada -->
+    <div class="container mx-auto px-4 py-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-1">
+            <ul class="flex flex-wrap gap-2" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+                @foreach ($recommendationData as $index => $recommendation) 
+                    <li role="presentation">
+                        <button class="tab-button px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300
+                                     text-gray-600 hover:text-red-600 hover:bg-red-50
+                                     {{ $index === 0 ? 'active text-red-600 border-red-500' : 'border-transparent' }}" 
+                            id="tab-{{ $recommendation->id }}" 
+                            data-tab="content-{{ $recommendation->id }}"
+                            data-tabs-target="#content-{{ $recommendation->id }}" 
+                            type="button" role="tab" aria-controls="content-{{ $recommendation->id }}" 
+                            aria-selected="{{ $index === 0 ? 'true' : 'false' }}">
+                            <span class="flex items-center space-x-2">
+                                <span class="category-icon">💡</span>
+                                <span>{{ $recommendation->category }}</span>
+                                @if(count($recommendation->recommendations) > 0)
+                                    <span class="recommendation-badge px-2 py-1 text-xs rounded-full text-white font-semibold">
+                                        {{ count($recommendation->recommendations) }}
+                                    </span>
+                                @endif
+                            </span>
+                        </button>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
     </div>
 
-    <div id="default-tab-content">
-        @foreach ($recommendationData as $recommendation) 
-            <div 
-                class="hidden p-4 rounded-lg" 
-                id="content-{{ $recommendation->id }}" 
-                role="tabpanel" 
-                aria-labelledby="tab-{{ $recommendation->id }}">
+    <!-- Contenido de las pestañas con grid mejorado -->
+    <div class="container mx-auto px-4 pb-12">
+        <div id="default-tab-content">
+            @foreach ($recommendationData as $index => $recommendation) 
+                <div class="{{ $index === 0 ? '' : 'hidden' }} transition-all duration-500" 
+                     id="content-{{ $recommendation->id }}" role="tabpanel" aria-labelledby="tab-{{ $recommendation->id }}">
+                    
+                    @if(count($recommendation->recommendations) > 0)
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            @foreach ($recommendation->recommendations as $itemIndex => $rec)
+                                <article class="recommendation-card bg-white rounded-2xl shadow-lg overflow-hidden 
+                                              border border-gray-100 hover:border-red-200 
+                                              fade-in fade-in-delay-{{ ($itemIndex % 4) + 1 }}">
+                                    <!-- Imagen con overlay -->
+                                    <div class="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                                        @if($rec->image_url)
+                                            <img class="recommendation-image w-full h-full object-cover" 
+                                                 src="{{ $rec->image_url }}" 
+                                                 alt="{{ $rec->title }}"
+                                                 loading="lazy">
+                                        @else
+                                            <div class="flex items-center justify-center h-full bg-gradient-to-br from-red-100 to-yellow-100">
+                                                <svg class="w-16 h-16 text-red-300" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                        @endif
+                                        
+                                        <!-- Overlay con gradiente -->
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                                        
+                                        <!-- Badge de categoría -->
+                                        <div class="absolute top-3 left-3">
+                                            <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-semibold 
+                                                       text-gray-700 rounded-full border border-white/20">
+                                                💡 {{ $recommendation->category }}
+                                            </span>
+                                        </div>
+                                    </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    @foreach ($recommendation->recommendations as $rec)
-                        <div class="flex flex-col h-full p-4 border rounded-lg bg-white">
-                            @if ($rec->image_url)
-                                <img class="w-full object-cover rounded-md" src="{{ $rec->image_url }}" alt="" style="height: 180px;">
-                            @endif
-                            <h4 class="font-semibold text-gray-800 dark:text-gray-100">{{ $rec->title }}</h4>
-                            <p class="text-sm text-gray-500 dark:text-gray-300 line-clamp-3 overflow-hidden" style="height: 80px;">
-                                {{ $rec->description }}
-                            </p>
-
-                            <div class="mt-auto flex justify-end">
-                                <button 
-                                    data-modal-target="modal-{{ $rec->id }}" 
-                                    data-modal-toggle="modal-{{ $rec->id }}" 
-                                    class="block text-gray-800 bg-[#FFDE72] hover:bg-[#FFD03A] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center flex" 
-                                    type="button">
-                                    Mas detalles
-                                </button>
-                            </div>
-                            
-                            
-                            <div id="modal-{{ $rec->id }}" tabindex="-1" aria-hidden="true" 
-                                class="hidden fixed inset-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full">
-                                
-                                <div class="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/80" data-modal-hide="modal-{{ $rec->id }}"></div>
-
-                                <div class="relative w-full max-w-2xl max-h-full mx-auto mt-20">
-                                    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                                        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                                            <h3 class="text-xl font-semibold text-gray-900">
-                                                {{ $rec->title }}
-                                            </h3>
-                                            
-
-                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="modal-{{ $rec->id }}">
-                                                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
-                                                <span class="sr-only">Close modal</span>
-
+                                    <!-- Contenido de la card -->
+                                    <div class="p-6 flex flex-col h-40">
+                                        <h4 class="font-bold text-gray-900 text-lg mb-3 line-clamp-2 leading-tight">
+                                            {{ $rec->title }}
+                                        </h4>
+                                        <p class="text-gray-600 text-sm line-clamp-3 flex-grow mb-4 leading-relaxed">
+                                            {{ $rec->description }}
+                                        </p>
+                                        
+                                        <!-- Botón mejorado -->
+                                        <div class="mt-auto">
+                                            <button data-modal-target="modal-{{ $rec->id }}" data-modal-toggle="modal-{{ $rec->id }}" 
+                                                class="w-full bg-gradient-to-r from-red-500 to-yellow-500 
+                                                       hover:from-red-600 hover:to-yellow-600 text-white 
+                                                       font-semibold py-3 px-4 rounded-xl transition-all duration-300 
+                                                       transform hover:scale-105 shadow-md hover:shadow-lg
+                                                       flex items-center justify-center space-x-2">
+                                                <span>Ver Más</span>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                          d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                                </svg>
                                             </button>
                                         </div>
-                                        <div class="p-4 md:p-5 space-y-4">
-
-                                            @if ($rec->image_url)
-                                                <img class="w-full object-cover rounded-md" src="{{ $rec->image_url }}" alt="" style="max-height: 300px;">
-                                                
-                                            @endif
-                                            <p class="text-gray-700"> {{ $rec->description }} </p>
-                                            <p class="w-full ">  Fuente: <a class="text-blue-500 hover:underline" href="{{ $rec->external_link }}" target="_blank">{{ $rec->external_link !=null? $rec->external_link : ''   }}</a>   </p> 
-
-
-
-                                            <p class="text-base leading-relaxed text-gray-700 dark:text-gray-400">
-                                                {{ $rec->content }}
-
-                                                <br>
-                                            </p>
-
+                                    </div>
+                                </article>
+                            
+                                <!-- Modal de detalles mejorado -->
+                                <div id="modal-{{ $rec->id }}" tabindex="-1" aria-hidden="true" 
+                                    class="hidden fixed inset-0 z-50 w-full h-full bg-black/50 backdrop-blur-sm">
+                                    <div class="flex items-center justify-center min-h-screen px-4 py-8">
+                                        <div class="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl shadow-2xl 
+                                                   glass-effect transform transition-all duration-300 overflow-hidden">
                                             
+                                            <!-- Header del modal -->
+                                            <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 p-6 z-10">
+                                                <div class="flex items-start justify-between">
+                                                    <div class="flex-1 pr-4">
+                                                        <h3 class="text-2xl font-bold text-gray-900 leading-tight">
+                                                            {{ $rec->title }}
+                                                        </h3>
+                                                        <div class="flex items-center space-x-4 mt-3">
+                                                            <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                                                                💡 {{ $recommendation->category }}
+                                                            </span>
+                                                            <span class="text-gray-500 text-sm">
+                                                                🕒 {{ $rec->created_at->diffForHumans() }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" 
+                                                        class="p-2 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 
+                                                               rounded-full transition-all duration-300 transform hover:scale-110 flex-shrink-0" 
+                                                        data-modal-hide="modal-{{ $rec->id }}">
+                                                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Contenido del modal con scroll -->
+                                            <div class="overflow-y-auto max-h-[calc(90vh-140px)] p-6 space-y-6">
+                                                <!-- Imagen principal -->
+                                                @if ($rec->image_url)
+                                                    <div class="relative rounded-2xl overflow-hidden shadow-lg">
+                                                        <img class="w-full max-h-96 object-cover" 
+                                                             src="{{ $rec->image_url }}" 
+                                                             alt="{{ $rec->title }}">
+                                                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                                                    </div>
+                                                @endif
+                                                
+                                                <!-- Descripción -->
+                                                <div class="prose prose-lg max-w-none">
+                                                    <p class="text-gray-700 leading-relaxed text-lg">
+                                                        {{ $rec->description }}
+                                                    </p>
+                                                </div>
+                                                
+                                                <!-- Contenido completo -->
+                                                <div class="prose prose-lg max-w-none">
+                                                    <div class="p-6 bg-gray-50 rounded-2xl border-l-4 border-green-500">
+                                                        <p class="text-gray-800 leading-relaxed">
+                                                            {{ $rec->content }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Enlace externo -->
+                                                @if($rec->external_link)
+                                                    <div class="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-blue-50 
+                                                               rounded-2xl border border-green-200">
+                                                        <div class="flex items-center space-x-3">
+                                                            <div class="p-2 bg-green-100 rounded-full">
+                                                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-sm font-medium text-gray-900">Ver contenido completo</p>
+                                                                <p class="text-xs text-gray-500">Fuente externa</p>
+                                                            </div>
+                                                        </div>
+                                                        <a href="{{ $rec->external_link }}" target="_blank" 
+                                                           class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold 
+                                                                  rounded-full transition-all duration-300 transform hover:scale-105 
+                                                                  shadow-md hover:shadow-lg flex items-center space-x-2">
+                                                            <span>Ir al sitio</span>
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-
+                            @endforeach
                         </div>
-                    @endforeach
+                    @else
+                        <!-- Estado vacío mejorado -->
+                        <div class="flex flex-col items-center justify-center py-20 text-center">
+                            <div class="p-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-6">
+                                <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
+                                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay recomendaciones disponibles</h3>
+                            <p class="text-gray-500 max-w-md">
+                                Aún no tenemos recomendaciones en esta categoría. Revisa más tarde o explora otras secciones.
+                            </p>
+                            <button class="mt-4 px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full 
+                                         transition-all duration-300 transform hover:scale-105" 
+                                    onclick="window.location.reload()">
+                                Actualizar
+                            </button>
+                        </div>
+                    @endif
                 </div>
-
-            </div>
-        @endforeach
+            @endforeach
+        </div>
     </div>
-
-
 </div>
 
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Seleccionar todos los botones de tab
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('[role="tabpanel"]');
+    
+    // Función para cambiar de tab
+    function switchTab(targetTab) {
+        // Remover clase active de todos los botones
+        tabButtons.forEach(button => {
+            button.classList.remove('active');
+            button.classList.remove('text-red-600', 'border-red-500');
+            button.classList.add('text-gray-600', 'border-transparent');
+            button.setAttribute('aria-selected', 'false');
+        });
+        
+        // Ocultar todos los contenidos
+        tabContents.forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Activar el botón clickeado
+        const activeButton = document.querySelector(`[data-tab="${targetTab}"]`);
+        if (activeButton) {
+            activeButton.classList.add('active');
+            activeButton.classList.remove('text-gray-600', 'border-transparent');
+            activeButton.classList.add('text-red-600', 'border-red-500');
+            activeButton.setAttribute('aria-selected', 'true');
+        }
+        
+        // Mostrar el contenido correspondiente
+        const activeContent = document.getElementById(targetTab);
+        if (activeContent) {
+            activeContent.classList.remove('hidden');
+        }
+    }
+    
+    // Agregar event listeners a todos los botones
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetTab = this.getAttribute('data-tab');
+            switchTab(targetTab);
+        });
+    });
+    
+    // Inicializar el primer tab como activo
+    if (tabButtons.length > 0) {
+        const firstTab = tabButtons[0].getAttribute('data-tab');
+        switchTab(firstTab);
+    }
+});
+</script>
 @endsection
