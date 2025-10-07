@@ -433,6 +433,12 @@ Ayuda con computadoras, internet, correo y software
     public function handleTechSupport($query)
     {
         $query = strtolower($query);
+        
+        // Comandos especiales - verificar menú principal
+        if (str_contains($query, 'menú') || str_contains($query, 'inicio') || str_contains($query, 'menu')) {
+            return $this->handleInitialMessage('');
+        }
+        
         $sessionId = Str::uuid();
         
         // Categorías principales de soporte técnico
