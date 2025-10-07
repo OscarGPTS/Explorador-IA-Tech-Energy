@@ -281,10 +281,11 @@
 
                                     <!-- Contenido de la card -->
                                     <div class="p-6 flex flex-col h-40">
-                                        <h4 class="font-bold text-gray-900 text-lg mb-3 line-clamp-2 leading-tight">
+                                        <h4 class="font-bold text-gray-900 text-lg mb-3 truncate ">
                                             {{ $rec->title }}
                                         </h4>
-                                        <p class="text-gray-600 text-sm line-clamp-3 flex-grow mb-4 leading-relaxed">
+
+                                        <p class="text-gray-600 text-sm flex-grow mb-4 truncate ">
                                             {{ $rec->description }}
                                         </p>
                                         

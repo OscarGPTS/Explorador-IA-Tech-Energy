@@ -1,75 +1,235 @@
 <!-- filepath: c:\xampp\htdocs\Explorador-IA\resources\views\livewire\chat\chat-index.blade.php -->
 <div>
-    <div class="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
-    <!-- Header -->
-    <div class="fixed top-16 z-10 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div class="flex justify-between items-center">
-            <div class="flex-1">
-                <div class="flex">
-                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
-                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
-                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
+    <!-- Estilos personalizados para el chat -->
+    <style>
+        .chat-header {
+            background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-title {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .agent-indicator {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .agent-indicator:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-button {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .chat-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .clear-chat-button {
+            background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+            transition: all 0.3s ease;
+        }
+
+        .clear-chat-button:hover {
+            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+            transition: all 0.3s ease;
+        }
+
+        .send-button:hover {
+            background: linear-gradient(135deg, #B91C1C 0%, #F59E0B 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.25);
+        }
+
+        .send-button:disabled {
+            background: #D1D5DB !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .fade-in-header {
+            animation: fadeInDown 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estilos para mensajes del chat */
+        .message-user {
+            background: #DC2626;
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.15);
+            border: none;
+        }
+
+        .message-agent {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            color: #374151;
+        }
+
+        .message-user .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .message-agent .message-time {
+            color: rgba(55, 65, 81, 0.6);
+        }
+
+        .message-container {
+            animation: slideIn 0.3s ease-out;
+            transition: all 0.2s ease;
+        }
+
+        .message-container:hover {
+            transform: translateY(-2px);
+        }
+
+        .message-user-container:hover .message-user {
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.25);
+        }
+
+        .message-agent-container:hover .message-agent {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sender-label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        .sender-label-user {
+            color: #DC2626;
+        }
+
+        .sender-label-agent {
+            color: #6B7280;
+        }
+    </style>
+
+    <div class="flex flex-col bg-white dark:bg-gray-900 top-0 left-0 right-0 bottom-0 mt-2">
+    
+    <!-- Header con degradado moderno -->
+    <div style="background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);" class="border-b border-gray-200 dark:border-gray-700 px-4 py-2 shadow-xl">
+        <div class="flex justify-between items-center mb-1">
+            <div class="flex flex-1 items-center space-x-4">
+                
+                <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-all border border-white/30">
+                        <svg width="20px" height="20px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="white" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
+                            <path fill="white" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
                         </svg>
                     </a>
-                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">Chat con IA</h1>
-                
-                </div>
-                
-                <!-- Indicador de agente actual -->
-                @if($currentAgentConfig)
-                <div class="flex items-center mt-2 space-x-3">
-                    <div class="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full">
-                        <span class="text-2xl">{{ $currentAgentConfig['agent_role']['icon'] ?? '🤖' }}</span>
-                        <div class="flex flex-col">
-                            <span class="text-sm font-medium text-blue-900 dark:text-blue-100">
-                                {{ $currentAgentConfig['name'] }}
-                            </span>
-                            @if($currentAgentConfig['is_user_setting'] && $currentAgentConfig['custom_prompt'])
-                            <span class="text-xs text-blue-600 dark:text-blue-300">Personalizado</span>
-                            @endif
-                        </div>
+
+                <div class="flex items-center space-x-3">
+                    
+                    <div>
+                        <h1 class="text-3xl font-bold text-white flex items-center">
+                            <svg class="w-6 h-6 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
+                                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                            </svg>
+                            Buscador Inteligente
+                        </h1>
+                        <p class="text-white/90 text-xs">Encuentra información corporativa al instante con IA</p>
                     </div>
-                    
-                    <!-- Botón para cambiar agente -->
-                    <button 
-                        wire:click="toggleAgentSelector"
-                        class="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                        title="Cambiar agente"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                        </svg>
-                        <span>Cambiar</span>
-                    </button>
-                    
-                    <!-- Botón para configurar -->
-                    {{-- <a 
-                        href="{{ route('agent.config.view') }}" 
-                        class="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                        title="Configurar agentes"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span>Configurar</span>
-                    </a> --}}
                 </div>
-                @endif
             </div>
             
+            <!-- Botón limpiar chat -->
             <button 
                 wire:click="clearChat" 
-                class="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                class="send-button px-4 py-2 text-white rounded-full font-medium shadow-lg text-sm"
                 onclick="return confirm('¿Estás seguro de que quieres limpiar el chat?')"
             >
-                <div class="flex">
+                <div class="flex items-center">
                    <svg fill="#FFFFFF"  width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/></svg>
-                   <p class="text-white ml-2">Limpiar Chat </p> 
+                   <span class="ml-2">Limpiar</span> 
                 </div>
             </button>
         </div>
+        <br>
+        <!-- Indicador de agente actual -->
+        @if($currentAgentConfig)
+        <div class="flex items-center space-x-3 pb-1">
+            <div class="flex items-center space-x-2 px-3 py-1 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-lg transition-all duration-300 hover:bg-white/30">
+                <div class="text-sm">{{ $currentAgentConfig['agent_role']['icon'] ?? '🤖' }}</div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold text-white">
+                        {{ $currentAgentConfig['name'] }}
+                    </span>
+                    @if($currentAgentConfig['is_user_setting'] && $currentAgentConfig['custom_prompt'])
+                    <span class="text-xl text-white/80">Personalizado</span>
+                    @endif
+                </div>
+            </div>
+            
+            <!-- Botón para cambiar agente -->
+            <button 
+                wire:click="toggleAgentSelector"
+                class="flex items-center space-x-2 px-3 py-1 text-white hover:text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium border border-white/30 shadow-lg text-sm transition-all"
+                title="Cambiar agente"
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+                <span>Cambiar</span>
+            </button>
+        </div>
+        @endif
         
         <!-- Selector de agente -->
         @if($showAgentSelector)
@@ -128,17 +288,27 @@
     </div>
 
     <!-- Messages Container -->
-    <div class="flex-1 overflow-y-auto p-6 space-y-4 mt-20" id="messages-container">
+    <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-white dark:bg-gray-800" id="messages-container">
         @forelse($messages as $msg)
             <div class="flex {{ $msg['emisor_id'] == auth()->id() ? 'justify-end' : 'justify-start' }}">
-                <div class="max-w-xs lg:max-w-md">
+                <div class="max-w-xs lg:max-w-md {{ $msg['emisor_id'] == auth()->id() ? 'message-user-container' : 'message-agent-container' }}">
                     <!-- Nombre del emisor -->
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 {{ $msg['emisor_id'] == auth()->id() ? 'text-right' : 'text-left' }}">
-                        {{ $msg['emisor_id'] == auth()->id() ? 'Tú' : 'Agente GPT' }}
+                    <div class="sender-label {{ $msg['emisor_id'] == auth()->id() ? 'text-right sender-label-user' : 'text-left sender-label-agent' }}">
+                        @if($msg['emisor_id'] == auth()->id())
+                            <div class="flex items-center justify-end space-x-2">
+                                <span>Tú</span>
+                                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                            </div>
+                        @else
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <span>Agente GPT</span>
+                            </div>
+                        @endif
                     </div>
                     
                     <!-- Mensaje -->
-                    <div class="px-4 py-3 rounded-lg {{ $msg['emisor_id'] == auth()->id() ? 'bg-[#FFECB0] text-black' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700' }}">
+                    <div class="message-container px-5 py-4 rounded-2xl {{ $msg['emisor_id'] == auth()->id() ? 'message-user' : 'message-agent' }}">
                         <!-- Imágenes del mensaje -->
                         @if(!empty($msg['files']) && count($msg['files']) > 0)
                             <div class="mb-3">
@@ -216,10 +386,10 @@
 
                         <!-- Texto del mensaje -->
                         @if($msg['message'])
-                            <p class="text-sm whitespace-pre-wrap">{{ $msg['message'] }}</p>
+                            <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ $msg['message'] }}</p>
                         @endif
                         
-                        <p class="text-xs mt-2 opacity-70">
+                        <p class="text-xs mt-3 message-time font-medium">
                             {{ \Carbon\Carbon::parse($msg['created_at'])->format('H:i') }}
                         </p>
                     </div>
@@ -239,14 +409,17 @@
 
         @if($isLoading)
             <div class="flex justify-start">
-                <div class="max-w-xs lg:max-w-md">
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        Agente GPT
-                    </div>
-                    <div class="px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div class="max-w-xs lg:max-w-md message-agent-container">
+                    <div class="sender-label text-left sender-label-agent">
                         <div class="flex items-center space-x-2">
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">IA está escribiendo...</p>
+                            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                            <span>Agente GPT</span>
+                        </div>
+                    </div>
+                    <div class="message-container px-5 py-4 rounded-2xl message-agent">
+                        <div class="flex items-center space-x-3">
+                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-500"></div>
+                            <p class="text-sm">IA está escribiendo...</p>
                         </div>
                     </div>
                 </div>
@@ -427,14 +600,14 @@
                 <button 
                     type="submit" 
                     id="sumbitInputBtn"
-                    class="px-6 py-2 bg-[#FFDE72] hover:bg-[#FFD03A] disabled:bg-stone-200 rounded-full disabled:cursor-not-allowed text-black font-medium transition-colors flex items-center justify-center min-w-[120px]"
+                    class="send-button px-6 py-2 rounded-full text-white font-medium flex items-center justify-center min-w-[120px] shadow-lg"
                     wire:loading.attr="disabled"
                     wire:target="sendMessage,images"
                 >
                     <div wire:loading.remove wire:target="sendMessage,images" class="flex items-center">
                         Enviar
                         <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="ml-2">
-                            <path d="M11.5003 12H5.41872M5.24634 12.7972L4.24158 15.7986C3.69128 17.4424 3.41613 18.2643 3.61359 18.7704C3.78506 19.21 4.15335 19.5432 4.6078 19.6701C5.13111 19.8161 5.92151 19.4604 7.50231 18.7491L17.6367 14.1886C19.1797 13.4942 19.9512 13.1471 20.1896 12.6648C20.3968 12.2458 20.3968 11.7541 20.1896 11.3351C19.9512 10.8529 19.1797 10.5057 17.6367 9.81135L7.48483 5.24303C5.90879 4.53382 5.12078 4.17921 4.59799 4.32468C4.14397 4.45101 3.77572 4.78336 3.60365 5.22209C3.40551 5.72728 3.67772 6.54741 4.22215 8.18767L5.24829 11.2793C5.34179 11.561 5.38855 11.7019 5.407 11.8459C5.42338 11.9738 5.42321 12.1032 5.40651 12.231C5.38768 12.375 5.34057 12.5157 5.24634 12.7972Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M11.5003 12H5.41872M5.24634 12.7972L4.24158 15.7986C3.69128 17.4424 3.41613 18.2643 3.61359 18.7704C3.78506 19.21 4.15335 19.5432 4.6078 19.6701C5.13111 19.8161 5.92151 19.4604 7.50231 18.7491L17.6367 14.1886C19.1797 13.4942 19.9512 13.1471 20.1896 12.6648C20.3968 12.2458 20.3968 11.7541 20.1896 11.3351C19.9512 10.8529 19.1797 10.5057 17.6367 9.81135L7.48483 5.24303C5.90879 4.53382 5.12078 4.17921 4.59799 4.32468C4.14397 4.45101 3.77572 4.78336 3.60365 5.22209C3.40551 5.72728 3.67772 6.54741 4.22215 8.18767L5.24829 11.2793C5.34179 11.561 5.38855 11.7019 5.407 11.8459C5.42338 11.9738 5.42321 12.1032 5.40651 12.231C5.38768 12.375 5.34057 12.5157 5.24634 12.7972Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
                     <div wire:loading wire:target="sendMessage" class="flex items-center">
