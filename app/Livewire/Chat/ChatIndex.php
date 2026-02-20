@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Chatgroup;
+use App\Models\ChatGroup;
 use App\Models\Chat;
 use App\Models\File;
 use App\Models\AgentRole;
