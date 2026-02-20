@@ -58,13 +58,13 @@
         <!-- Sugerencias rápidas -->
         <div id="chat-suggestions" class="px-4 py-2 border-t border-gray-200 dark:border-gray-600">
             <div class="flex flex-wrap gap-1">
-                <button onclick="sendQuickMessage('Buscar empleado')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+                <button onclick="showEmployeeSearch()" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 px-3 py-1.5 rounded-full transition-all duration-200 border border-blue-200 hover:border-blue-300 font-medium">
                     👤 Empleado
                 </button>
-                <button onclick="sendQuickMessage('Soporte técnico')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
-                    � Soporte
+                <button onclick="showTechSupport()" class="text-xs bg-orange-100 hover:bg-orange-200 text-orange-700 hover:text-orange-800 px-3 py-1.5 rounded-full transition-all duration-200 border border-orange-200 hover:border-orange-300 font-medium">
+                    🔧 Soporte
                 </button>
-                <button onclick="sendQuickMessage('Encontrar documento')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+                <button onclick="showDocumentSearch()" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 hover:text-green-800 px-3 py-1.5 rounded-full transition-all duration-200 border border-green-200 hover:border-green-300 font-medium">
                     📄 Documentos
                 </button>
             </div>
@@ -422,13 +422,13 @@ function showCorporateMainMenu() {
     // Asegurar que las sugerencias contengan los 3 tags originales
     const suggestionsInner = suggestionsContainer.querySelector('.flex');
     suggestionsInner.innerHTML = `
-        <button onclick="sendQuickMessage('Buscar empleado')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+        <button onclick="showEmployeeSearch()" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 px-3 py-1.5 rounded-full transition-all duration-200 border border-blue-200 hover:border-blue-300 font-medium">
             👤 Empleado
         </button>
-        <button onclick="sendQuickMessage('Soporte técnico')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+        <button onclick="showTechSupport()" class="text-xs bg-orange-100 hover:bg-orange-200 text-orange-700 hover:text-orange-800 px-3 py-1.5 rounded-full transition-all duration-200 border border-orange-200 hover:border-orange-300 font-medium">
             🔧 Soporte
         </button>
-        <button onclick="sendQuickMessage('Encontrar documento')" class="text-xs bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full hover:bg-gray-300 dark:hover:bg-gray-500">
+        <button onclick="showDocumentSearch()" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 hover:text-green-800 px-3 py-1.5 rounded-full transition-all duration-200 border border-green-200 hover:border-green-300 font-medium">
             📄 Documentos
         </button>
     `;
@@ -437,6 +437,355 @@ function showCorporateMainMenu() {
     setTimeout(() => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }, 100);
+}
+
+// Funciones interactivas para los tags de sugerencias
+function showEmployeeSearch() {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Agregar mensaje del bot
+    addMessageToChat(
+        '👤 **Búsqueda de Empleados**\n\n¿Qué información necesitas encontrar?', 
+        'bot'
+    );
+    
+    // Mostrar opciones de búsqueda de empleados
+    setTimeout(() => {
+        displayEmployeeSearchOptions();
+    }, 300);
+}
+
+function showTechSupport() {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Agregar mensaje del bot
+    addMessageToChat(
+        '🔧 **Soporte Técnico**\n\n¿Qué tipo de problema técnico tienes? Selecciona la categoría que mejor describa tu situación:', 
+        'bot'
+    );
+    
+    // Mostrar categorías de soporte técnico
+    setTimeout(() => {
+        displayTechSupportCategories();
+    }, 300);
+}
+
+function showDocumentSearch() {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Agregar mensaje del bot
+    addMessageToChat(
+        '📄 **Documentos Corporativos**\n\n¿Qué tipo de documento estás buscando?', 
+        'bot'
+    );
+    
+    // Mostrar categorías de documentos
+    setTimeout(() => {
+        displayDocumentCategories();
+    }, 300);
+}
+
+function displayEmployeeSearchOptions() {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    // Limpiar opciones anteriores si existen
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) {
+        existingOptions.remove();
+    }
+    
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'grid grid-cols-1 gap-3 mt-4 mb-4';
+    optionsDiv.id = 'current-options';
+    
+    const employeeOptions = [
+        {
+            id: 'search_by_name',
+            title: '🔍 Buscar por Nombre',
+            description: 'Encuentra un empleado específico por su nombre'
+        },
+        {
+            id: 'search_by_department',
+            title: '🏢 Buscar por Departamento',
+            description: 'Ver empleados de un departamento específico'
+        },
+        {
+            id: 'show_all_employees',
+            title: '👥 Ver Directorio Completo',
+            description: 'Mostrar todos los empleados registrados'
+        }
+    ];
+    
+    employeeOptions.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 rounded-lg text-left transition duration-200 shadow-sm';
+        button.innerHTML = `
+            <div class="font-semibold text-gray-800">${option.title}</div>
+            <div class="text-sm text-gray-600 mt-1">${option.description}</div>
+        `;
+        button.onclick = () => handleEmployeeOption(option.id);
+        optionsDiv.appendChild(button);
+    });
+    
+    chatMessages.appendChild(optionsDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function displayTechSupportCategories() {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) {
+        existingOptions.remove();
+    }
+    
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'grid grid-cols-1 gap-3 mt-4 mb-4';
+    optionsDiv.id = 'current-options';
+    
+    const supportCategories = [
+        {
+            id: 'internet_problems',
+            title: '🌐 Problemas de Internet',
+            description: 'WiFi, conexión lenta, páginas que no cargan',
+            icon: '🌐',
+            color: 'blue'
+        },
+        {
+            id: 'computer_problems',
+            title: '💻 Problemas de Computadora',
+            description: 'Lentitud, errores, programas que no funcionan',
+            icon: '💻',
+            color: 'green'
+        },
+        {
+            id: 'email_problems',
+            title: '📧 Problemas de Correo',
+            description: 'No puedo enviar/recibir emails, configuración',
+            icon: '📧',
+            color: 'yellow'
+        },
+        {
+            id: 'printer_problems',
+            title: '🖨️ Problemas de Impresora',
+            description: 'No imprime, atascos, calidad de impresión',
+            icon: '🖨️',
+            color: 'purple'
+        },
+        {
+            id: 'software_problems',
+            title: '⚙️ Problemas de Software',
+            description: 'Programas específicos, instalaciones, actualizaciones',
+            icon: '⚙️',
+            color: 'red'
+        },
+        {
+            id: 'other_problems',
+            title: '❓ Otro Problema',
+            description: 'Mi problema no está en las categorías anteriores',
+            icon: '❓',
+            color: 'gray'
+        }
+    ];
+    
+    supportCategories.forEach(category => {
+        const button = document.createElement('button');
+        button.className = `p-4 bg-${category.color}-50 hover:bg-${category.color}-100 border border-${category.color}-200 hover:border-${category.color}-300 rounded-lg text-left transition duration-200`;
+        button.innerHTML = `
+            <div class="flex items-center">
+                <span class="text-2xl mr-3">${category.icon}</span>
+                <div>
+                    <div class="font-semibold text-gray-800">${category.title}</div>
+                    <div class="text-sm text-gray-600">${category.description}</div>
+                </div>
+            </div>
+        `;
+        button.onclick = () => {
+            console.log('Tech support category clicked:', category.id);
+            addMessageToChat('user', `Seleccioné: ${category.title}`);
+            handleTechSupportCategory(category.id);
+        };
+        optionsDiv.appendChild(button);
+    });
+    
+    chatMessages.appendChild(optionsDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function displayDocumentCategories() {
+    const chatMessages = document.getElementById('chat-messages');
+    
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) {
+        existingOptions.remove();
+    }
+    
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'grid grid-cols-1 gap-3 mt-4 mb-4';
+    optionsDiv.id = 'current-options';
+    
+    const documentCategories = [
+        {
+            id: 'policies',
+            title: '📋 Políticas y Normas',
+            description: 'Políticas corporativas, normas de conducta, reglamentos',
+            icon: '📋'
+        },
+        {
+            id: 'procedures',
+            title: '⚙️ Procedimientos Operativos',
+            description: 'Manuales de procesos, procedimientos de trabajo',
+            icon: '⚙️'
+        },
+        {
+            id: 'planning',
+            title: '📅 Contexto y Planificación',
+            description: 'Planes estratégicos, contexto organizacional',
+            icon: '📅'
+        },
+        {
+            id: 'improvement',
+            title: '📈 Mejora Continua',
+            description: 'Documentos de mejora, optimización de procesos',
+            icon: '📈'
+        },
+        {
+            id: 'general',
+            title: '📁 Documentos Generales',
+            description: 'Otros documentos corporativos importantes',
+            icon: '📁'
+        }
+    ];
+    
+    documentCategories.forEach(category => {
+        const button = document.createElement('button');
+        button.className = 'p-4 bg-green-50 hover:bg-green-100 border border-green-200 hover:border-green-300 rounded-lg text-left transition duration-200 shadow-sm';
+        button.innerHTML = `
+            <div class="flex items-center">
+                <span class="text-2xl mr-3">${category.icon}</span>
+                <div>
+                    <div class="font-semibold text-gray-800">${category.title}</div>
+                    <div class="text-sm text-gray-600">${category.description}</div>
+                </div>
+            </div>
+        `;
+        button.onclick = () => {
+            console.log('Document category clicked:', category.id);
+            addMessageToChat('user', `Seleccioné: ${category.title}`);
+            handleDocumentCategory(category.id);
+        };
+        optionsDiv.appendChild(button);
+    });
+    
+    chatMessages.appendChild(optionsDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Funciones auxiliares para manejar las selecciones
+function handleEmployeeOption(optionId) {
+    console.log('Employee option clicked:', optionId);
+    switch(optionId) {
+        case 'search_by_name':
+            addMessageToChat('user', 'Buscar empleado por nombre');
+            showEmployeeNameSearch();
+            break;
+        case 'search_by_department':
+            addMessageToChat('user', 'Buscar por departamento');
+            showEmployeeDepartmentSearch();
+            break;
+        case 'show_all_employees':
+            addMessageToChat('user', 'Ver directorio completo');
+            showAllEmployeesFromChat();
+            break;
+    }
+}
+
+function showEmployeeNameSearch() {
+    console.log('showEmployeeNameSearch called');
+    
+    // Limpiar opciones anteriores
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) {
+        existingOptions.remove();
+    }
+    
+    addMessageToChat('bot', '🔍 **Búsqueda por Nombre**\n\nEscribe el nombre del empleado que buscas y te ayudo a encontrarlo:');
+    
+    // Aquí podrías agregar un input específico o redirigir a la funcionalidad de búsqueda
+    setTimeout(() => {
+        addMessageToChat('bot', '💡 **Consejo:** También puedes usar el buscador de empleados en la página principal para una búsqueda más detallada.');
+    }, 1000);
+}
+
+function showEmployeeDepartmentSearch() {
+    console.log('showEmployeeDepartmentSearch called');
+    
+    // Limpiar opciones anteriores
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) {
+        existingOptions.remove();
+    }
+    
+    addMessageToChat('bot', '🏢 **Búsqueda por Departamento**\n\n¿De qué departamento necesitas ver los empleados?');
+    
+    setTimeout(() => {
+        addMessageToChat('bot', '💡 **Departamentos disponibles:** IT, Recursos Humanos, Administración, Ventas, Producción, y más. También puedes usar el buscador en la página principal.');
+    }, 1000);
+}
+
+function showAllEmployeesFromChat() {
+    console.log('showAllEmployeesFromChat called');
+    
+    // Limpiar opciones anteriores
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) {
+        existingOptions.remove();
+    }
+    
+    addMessageToChat('bot', '👥 **Directorio Completo**\n\nPara ver el directorio completo con toda la información de contacto, te recomiendo usar el buscador de empleados en la página principal donde puedes ver todos los detalles, filtrar por departamento y contactar directamente.');
+}
+
+function handleTechSupportCategory(categoryId) {
+    // Redirigir a la página de soporte técnico con la categoría seleccionada
+    const currentPage = window.location.pathname;
+    
+    if (currentPage.includes('tech-support')) {
+        // Si ya estamos en la página de soporte técnico, recargar con la categoría
+        addMessageToChat('bot', '🔧 **Redirigiendo al Asistente de Soporte Técnico...**\n\nTe llevaré al sistema especializado donde puedo ayudarte paso a paso con tu problema.');
+        
+        setTimeout(() => {
+            // Reiniciar el chat de soporte técnico si existe
+            if (typeof restartChat === 'function') {
+                restartChat();
+            }
+        }, 2000);
+    } else {
+        // Si estamos en otra página, redirigir a soporte técnico
+        addMessageToChat('bot', '🔧 **Redirigiendo a Soporte Técnico...**\n\nTe llevaré a la página especializada donde nuestro asistente técnico te ayudará paso a paso.');
+        
+        setTimeout(() => {
+            window.location.href = '/tech-support';
+        }, 2000);
+    }
+}
+
+function handleDocumentCategory(categoryId) {
+    const categoryMap = {
+        'policies': 'procedimientos_normativos',
+        'procedures': 'procedimientos_operativos', 
+        'planning': 'contexto_planificacion',
+        'improvement': 'mejora_continua',
+        'general': 'general'
+    };
+    
+    const actualCategory = categoryMap[categoryId] || 'general';
+    
+    addMessageToChat('bot', `📄 **Buscando documentos...**\n\nTe mostraré los documentos disponibles en esta categoría. Para una búsqueda más detallada, puedes usar el buscador de documentos en la página principal.`);
+    
+    // Simular búsqueda y mostrar algunos resultados
+    setTimeout(() => {
+        addMessageToChat('bot', '💡 **Consejo:** En la página principal encontrarás el buscador de documentos corporativos donde puedes filtrar por categorías y buscar documentos específicos con más opciones.');
+    }, 1500);
 }
 
 // Opcional: Auto-abrir chat en ciertas páginas

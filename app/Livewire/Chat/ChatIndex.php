@@ -70,7 +70,7 @@ class ChatIndex extends Component
         }
 
         // Crear o recuperar el chatgroup del usuario
-        $this->chatgroup = Chatgroup::firstOrCreate([
+        $this->chatgroup = ChatGroup::firstOrCreate([
             'user_id' => Auth::id(),
         ], [
             'name' => 'Chat con IA - ' . Auth::user()->name
