@@ -69,7 +69,7 @@ class User extends Authenticatable
 
     public function chatgroups()
     {
-        return $this->hasMany(Chatgroup::class);
+        return $this->hasMany(ChatGroup::class);
     }
 
     public function sentChats()

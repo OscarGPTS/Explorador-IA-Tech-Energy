@@ -31,7 +31,7 @@ class ChatConfiguration extends Model
      */
     public function chatGroup()
     {
-        return $this->belongsTo(Chatgroup::class, 'chat_group_id');
+        return $this->belongsTo(ChatGroup::class, 'chat_group_id');
     }
 
     /**

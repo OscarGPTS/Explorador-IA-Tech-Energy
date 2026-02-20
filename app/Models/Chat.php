@@ -35,7 +35,7 @@ class Chat extends Model
 
     public function chatgroup()
     {
-        return $this->belongsTo(Chatgroup::class, 'chatgroup_id');
+        return $this->belongsTo(ChatGroup::class, 'chatgroup_id');
     }
 
     public function files()
