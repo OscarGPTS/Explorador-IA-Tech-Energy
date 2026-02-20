@@ -155,7 +155,7 @@ class ChatIndex extends Component
                 $systemDefault = AgentRole::where('is_default', true)->first();
                 $this->currentAgentConfig = [
                     'id' => null,
-                    'name' => $systemDefault->name,
+                    'name' => $systemDefault?->name ?? 'Asistente IA',
                     'agent_role' => $systemDefault,
                     'custom_prompt' => null,
                     'temperature' => 0.7,
