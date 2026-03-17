@@ -10,6 +10,7 @@ use App\Http\Controllers\RecommendationsController;
 use App\Http\Controllers\AgentConfigurationController;
 use App\Http\Controllers\CorporateInfoController;
 use App\Http\Controllers\TechSupportController;
+use App\Http\Controllers\DocumentBotController;
 use App\Http\Controllers\Admin\TechSupportManagementController;
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -66,6 +67,30 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [TechSupportController::class, 'index'])->name('index');
         Route::get('/dashboard', [TechSupportController::class, 'dashboard'])->name('dashboard');
         Route::post('/interact', [TechSupportController::class, 'handleInteraction'])->name('interact');
+    });
+
+    // Rutas para buscador de documentos corporativos
+    Route::prefix('document-bot')->name('document-bot.')->group(function () {
+        // Vista principal
+        Route::get('/', [DocumentBotController::class, 'index'])->name('index');
+        
+        // Health check
+        Route::get('/health', [DocumentBotController::class, 'healthCheck'])->name('health');
+        
+        // Bot Simple
+        Route::post('/query', [DocumentBotController::class, 'query'])->name('query');
+        Route::post('/analyze-document', [DocumentBotController::class, 'analyzeDocument'])->name('analyze-document');
+        Route::get('/documents', [DocumentBotController::class, 'listDocuments'])->name('documents');
+        Route::get('/recent-documents', [DocumentBotController::class, 'recentDocuments'])->name('recent-documents');
+        
+        // Bot Avanzado
+        Route::post('/quick-query', [DocumentBotController::class, 'quickQuery'])->name('quick-query');
+        Route::post('/deep-reasoning', [DocumentBotController::class, 'deepReasoning'])->name('deep-reasoning');
+        Route::post('/semantic-search', [DocumentBotController::class, 'semanticSearch'])->name('semantic-search');
+        Route::get('/stats', [DocumentBotController::class, 'stats'])->name('stats');
+        
+        // Administración (solo admin)
+        Route::post('/reindex', [DocumentBotController::class, 'reindex'])->name('reindex')->middleware('role:admin');
     });
 
     // Panel de Estadísticas Administrativas
