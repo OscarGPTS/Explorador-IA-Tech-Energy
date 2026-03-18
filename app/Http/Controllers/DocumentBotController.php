@@ -229,6 +229,72 @@ class DocumentBotController extends Controller
     }
 
     /**
+     * Health check del bot simple
+     */
+    public function simpleHealthCheck(): JsonResponse
+    {
+        $result = $this->documentBotService->simpleHealthCheck();
+
+        return response()->json($result);
+    }
+
+    /**
+     * Health check del bot avanzado
+     */
+    public function advancedHealthCheck(): JsonResponse
+    {
+        $result = $this->documentBotService->advancedHealthCheck();
+
+        return response()->json($result);
+    }
+
+    /**
+     * Listar todos los documentos (bot avanzado)
+     */
+    public function advancedListDocuments(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'limite' => 'nullable|integer|min:1|max:100'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $limite = $request->input('limite', 100);
+        $result = $this->documentBotService->advancedListDocuments($limite);
+
+        return response()->json($result);
+    }
+
+    /**
+     * Listar documentos recientes (bot avanzado)
+     */
+    public function advancedRecentDocuments(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'limite' => 'nullable|integer|min:1|max:50'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $limite = $request->input('limite', 10);
+        $result = $this->documentBotService->advancedRecentDocuments($limite);
+
+        return response()->json($result);
+    }
+
+    /**
      * Reindexar documentos (operación administrativa)
      */
     public function reindex(): JsonResponse

@@ -74,22 +74,39 @@ Route::middleware('auth')->group(function () {
         // Vista principal
         Route::get('/', [DocumentBotController::class, 'index'])->name('index');
         
-        // Health check
+        // Health check general (combina ambos bots)
         Route::get('/health', [DocumentBotController::class, 'healthCheck'])->name('health');
         
-        // Bot Simple
+        // === Bot Simple (Ollama - Local) ===
+        Route::prefix('simple')->name('simple.')->group(function () {
+            Route::get('/health', [DocumentBotController::class, 'simpleHealthCheck'])->name('health');
+            Route::post('/query', [DocumentBotController::class, 'query'])->name('query');
+            Route::post('/analyze-document', [DocumentBotController::class, 'analyzeDocument'])->name('analyze-document');
+            Route::get('/documents', [DocumentBotController::class, 'listDocuments'])->name('documents');
+            Route::get('/recent-documents', [DocumentBotController::class, 'recentDocuments'])->name('recent-documents');
+        });
+        
+        // === Bot Avanzado (OpenAI - Cloud) ===
+        Route::prefix('advanced')->name('advanced.')->group(function () {
+            Route::get('/health', [DocumentBotController::class, 'advancedHealthCheck'])->name('health');
+            Route::post('/quick-query', [DocumentBotController::class, 'quickQuery'])->name('quick-query');
+            Route::post('/deep-reasoning', [DocumentBotController::class, 'deepReasoning'])->name('deep-reasoning');
+            Route::post('/semantic-search', [DocumentBotController::class, 'semanticSearch'])->name('semantic-search');
+            Route::get('/stats', [DocumentBotController::class, 'stats'])->name('stats');
+            Route::get('/documents', [DocumentBotController::class, 'advancedListDocuments'])->name('documents');
+            Route::get('/recent-documents', [DocumentBotController::class, 'advancedRecentDocuments'])->name('recent-documents');
+            Route::post('/reindex', [DocumentBotController::class, 'reindex'])->name('reindex')->middleware('role:admin');
+        });
+        
+        // Rutas de compatibilidad (legacy - apuntan al bot simple)
         Route::post('/query', [DocumentBotController::class, 'query'])->name('query');
         Route::post('/analyze-document', [DocumentBotController::class, 'analyzeDocument'])->name('analyze-document');
         Route::get('/documents', [DocumentBotController::class, 'listDocuments'])->name('documents');
         Route::get('/recent-documents', [DocumentBotController::class, 'recentDocuments'])->name('recent-documents');
-        
-        // Bot Avanzado
         Route::post('/quick-query', [DocumentBotController::class, 'quickQuery'])->name('quick-query');
         Route::post('/deep-reasoning', [DocumentBotController::class, 'deepReasoning'])->name('deep-reasoning');
         Route::post('/semantic-search', [DocumentBotController::class, 'semanticSearch'])->name('semantic-search');
         Route::get('/stats', [DocumentBotController::class, 'stats'])->name('stats');
-        
-        // Administración (solo admin)
         Route::post('/reindex', [DocumentBotController::class, 'reindex'])->name('reindex')->middleware('role:admin');
     });
 

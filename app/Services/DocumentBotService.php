@@ -395,6 +395,76 @@ class DocumentBotService
     }
 
     /**
+     * Listar todos los documentos desde bot avanzado
+     */
+    public function advancedListDocuments(int $limite = 100): array
+    {
+        try {
+            $response = Http::timeout($this->timeout)
+                ->get("{$this->baseUrl}/api/v1/bot-avanzado/documents", [
+                    'limite' => $limite
+                ]);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'Error al listar documentos',
+                'status' => $response->status()
+            ];
+        } catch (Exception $e) {
+            Log::error('Error al listar documentos (bot avanzado)', [
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Listar documentos recientes desde bot avanzado
+     */
+    public function advancedRecentDocuments(int $limite = 10): array
+    {
+        try {
+            $response = Http::timeout($this->timeout)
+                ->get("{$this->baseUrl}/api/v1/bot-avanzado/recent-documents", [
+                    'limite' => $limite
+                ]);
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $response->json()
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'Error al obtener documentos recientes',
+                'status' => $response->status()
+            ];
+        } catch (Exception $e) {
+            Log::error('Error al obtener documentos recientes (bot avanzado)', [
+                'error' => $e->getMessage()
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Reindexar documentos (operación administrativa)
      */
     public function reindex(): array

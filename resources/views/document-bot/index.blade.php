@@ -73,40 +73,66 @@
 
             <!-- Panel central - Consultas -->
             <div class="lg:col-span-2">
-                <!-- Tipo de consulta -->
+                <!-- Opciones de búsqueda -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        <i class="fas fa-brain text-indigo-500 mr-2"></i>
-                        Tipo de Consulta
-                    </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button class="query-type-btn active" data-type="simple">
-                            <div class="p-4 border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
-                                <i class="fas fa-bolt text-2xl text-blue-500 mb-2"></i>
-                                <h3 class="font-semibold text-gray-900 dark:text-white">Simple</h3>
-                                <p class="text-xs text-gray-600 dark:text-gray-400">Consulta rápida básica</p>
-                            </div>
-                        </button>
-                        <button class="query-type-btn" data-type="quick">
-                            <div class="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                <i class="fas fa-rocket text-2xl text-green-500 mb-2"></i>
-                                <h3 class="font-semibold text-gray-900 dark:text-white">Rápida</h3>
-                                <p class="text-xs text-gray-600 dark:text-gray-400">Con IA - 3 chunks</p>
-                            </div>
-                        </button>
-                        <button class="query-type-btn" data-type="deep">
-                            <div class="p-4 border-2 border-gray-300 dark:border-gray-600 rounded-lg text-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                <i class="fas fa-microscope text-2xl text-purple-500 mb-2"></i>
-                                <h3 class="font-semibold text-gray-900 dark:text-white">Profunda</h3>
-                                <p class="text-xs text-gray-600 dark:text-gray-400">Análisis detallado - hasta 20 chunks</p>
-                            </div>
-                        </button>
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                <i class="fas fa-brain text-indigo-500 mr-2"></i>
+                                Consulta de Documentos
+                            </h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" id="query-mode-description">
+                                Modelo local (Ollama)
+                            </p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="use-external-api" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            </label>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <i class="fas fa-cloud text-blue-500 mr-1"></i>
+                                Usar modelo externo (API)
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Checkbox secundario para razonamiento profundo -->
+                    <div id="deep-reasoning-container" class="hidden pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center space-x-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="deep-reasoning" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 dark:peer-focus:ring-purple-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                            </label>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <i class="fas fa-microscope text-purple-500 mr-1"></i>
+                                Usar razonamiento profundo
+                            </span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                                (análisis más detallado con hasta 20 chunks)
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Formulario de consulta -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                     <form id="query-form">
+                        <!-- Indicador de documento seleccionado -->
+                        <div id="selected-doc-banner" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hidden">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-alt text-blue-500 mr-2"></i>
+                                    <span class="text-sm font-medium text-blue-800 dark:text-blue-300">
+                                        Documento: <span id="selected-doc-name"></span>
+                                    </span>
+                                </div>
+                                <button type="button" id="clear-doc" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Tu pregunta
@@ -114,15 +140,6 @@
                             <textarea id="question-input" rows="4" required
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                 placeholder="¿Qué quieres saber de los documentos?"></textarea>
-                        </div>
-
-                        <!-- Opciones avanzadas (solo para consultas avanzadas) -->
-                        <div id="advanced-options" class="mb-4 hidden">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Número de chunks (k)
-                            </label>
-                            <input type="number" id="chunks-input" min="1" max="20" value="10"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                         </div>
 
                         <button type="submit" id="submit-btn" 
@@ -208,12 +225,6 @@
         background-color: #E5E7EB;
         color: #4B5563;
     }
-    .query-type-btn.active > div {
-        border-width: 2px;
-    }
-    .query-type-btn:not(.active) > div {
-        border-width: 2px;
-    }
     .document-item {
         cursor: pointer;
         transition: all 0.2s ease;
@@ -230,13 +241,93 @@
 
 @push('scripts')
 <script>
-    let currentQueryType = 'simple';
     let selectedDocumentId = null;
+    let selectedDocumentName = '';
+    let useExternalAPI = false;
+    let useDeepReasoning = false;
 
     // Cargar documentos al inicio
     document.addEventListener('DOMContentLoaded', function() {
         loadDocuments('all');
+        setupExternalAPIToggle();
+        setupDeepReasoningToggle();
+        setupClearDocumentButton();
     });
+
+    // Setup external API toggle
+    function setupExternalAPIToggle() {
+        const checkbox = document.getElementById('use-external-api');
+        const deepReasoningContainer = document.getElementById('deep-reasoning-container');
+        
+        checkbox.addEventListener('change', function() {
+            useExternalAPI = this.checked;
+            
+            // Mostrar/ocultar el checkbox de razonamiento profundo
+            if (useExternalAPI) {
+                deepReasoningContainer.classList.remove('hidden');
+            } else {
+                deepReasoningContainer.classList.add('hidden');
+                // Resetear razonamiento profundo cuando se desactiva API externa
+                document.getElementById('deep-reasoning').checked = false;
+                useDeepReasoning = false;
+            }
+            
+            updateQueryModeDescription();
+        });
+    }
+
+    // Setup deep reasoning toggle
+    function setupDeepReasoningToggle() {
+        const checkbox = document.getElementById('deep-reasoning');
+        checkbox.addEventListener('change', function() {
+            useDeepReasoning = this.checked;
+            updateQueryModeDescription();
+        });
+    }
+
+    // Setup clear document button
+    function setupClearDocumentButton() {
+        document.getElementById('clear-doc').addEventListener('click', function() {
+            selectedDocumentId = null;
+            selectedDocumentName = '';
+            document.getElementById('selected-doc-banner').classList.add('hidden');
+            
+            // Limpiar selección visual en documentos
+            document.querySelectorAll('.document-item').forEach(item => {
+                item.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'border-2', 'border-blue-500');
+            });
+            
+            updateQueryModeDescription();
+        });
+    }
+
+    function updateQueryModeDescription() {
+        const description = document.getElementById('query-mode-description');
+        
+        if (!useExternalAPI) {
+            // Modelo local (Ollama)
+            if (selectedDocumentId) {
+                description.textContent = '📄 Análisis de documento (Ollama - Local)';
+            } else {
+                description.textContent = '💬 Consulta general (Ollama - Local)';
+            }
+        } else {
+            // API externa (OpenAI)
+            if (useDeepReasoning) {
+                description.textContent = '🔍 Razonamiento profundo (OpenAI - hasta 20 chunks)';
+            } else {
+                description.textContent = '🚀 Consulta rápida (OpenAI - hasta 3 chunks)';
+            }
+        }
+    }
+
+    function showSelectedDocument(id, name) {
+        selectedDocumentId = id;
+        selectedDocumentName = name;
+        document.getElementById('selected-doc-name').textContent = name;
+        document.getElementById('selected-doc-banner').classList.remove('hidden');
+        updateQueryModeDescription();
+    }
 
     // Tabs de documentos
     document.getElementById('tab-all').addEventListener('click', function() {
@@ -261,8 +352,8 @@
 
         try {
             const endpoint = type === 'recent' 
-                ? '{{ route("document-bot.recent-documents") }}'
-                : '{{ route("document-bot.documents") }}';
+                ? '{{ route("document-bot.simple.recent-documents") }}'
+                : '{{ route("document-bot.simple.documents") }}';
             
             const response = await fetch(endpoint);
             const result = await response.json();
@@ -287,7 +378,8 @@
 
         container.innerHTML = documents.map(doc => `
             <div class="document-item p-3 rounded-lg border border-gray-200 dark:border-gray-700" 
-                 onclick="selectDocument(${doc.id}, '${doc.title}')">
+                 data-doc-id="${doc.id}" data-doc-name="${doc.title.replace(/'/g, "\\'")}"
+                 onclick="selectDocument(${doc.id}, '${doc.title.replace(/'/g, "\\'")}')">
                 <div class="flex items-start">
                     <i class="fas fa-file-pdf text-red-500 mt-1 mr-2"></i>
                     <div class="flex-1 min-w-0">
@@ -300,38 +392,20 @@
     }
 
     function selectDocument(id, title) {
-        selectedDocumentId = id;
-        document.getElementById('question-input').value = `Analiza el documento: ${title}`;
-    }
-
-    // Selección de tipo de consulta
-    document.querySelectorAll('.query-type-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.query-type-btn').forEach(b => {
-                b.classList.remove('active');
-                b.querySelector('div').classList.remove('border-blue-500', 'border-green-500', 'border-purple-500', 'bg-blue-50', 'bg-green-50', 'bg-purple-50');
-                b.querySelector('div').classList.add('border-gray-300');
-            });
-            
-            this.classList.add('active');
-            const type = this.dataset.type;
-            currentQueryType = type;
-            
-            const div = this.querySelector('div');
-            div.classList.remove('border-gray-300');
-            
-            if (type === 'simple') {
-                div.classList.add('border-blue-500', 'bg-blue-50');
-                document.getElementById('advanced-options').classList.add('hidden');
-            } else if (type === 'quick') {
-                div.classList.add('border-green-500', 'bg-green-50');
-                document.getElementById('advanced-options').classList.add('hidden');
-            } else {
-                div.classList.add('border-purple-500', 'bg-purple-50');
-                document.getElementById('advanced-options').classList.remove('hidden');
-            }
+        // Limpiar selección anterior
+        document.querySelectorAll('.document-item').forEach(item => {
+            item.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'border-2', 'border-blue-500');
         });
-    });
+        
+        // Marcar el documento seleccionado
+        const selectedItem = document.querySelector(`[data-doc-id="${id}"]`);
+        if (selectedItem) {
+            selectedItem.classList.add('bg-blue-100', 'dark:bg-blue-900', 'border-2', 'border-blue-500');
+        }
+        
+        // Mostrar banner y actualizar descripción
+        showSelectedDocument(id, title);
+    }
 
     // Form submission
     document.getElementById('query-form').addEventListener('submit', async function(e) {
@@ -347,16 +421,32 @@
         try {
             let endpoint, payload;
             
-            if (currentQueryType === 'simple') {
-                endpoint = '{{ route("document-bot.query") }}';
-                payload = { pregunta: question };
-            } else if (currentQueryType === 'quick') {
-                endpoint = '{{ route("document-bot.quick-query") }}';
-                payload = { pregunta: question };
+            // Lógica simplificada basada en API externa y razonamiento profundo
+            if (!useExternalAPI) {
+                // Modelo LOCAL (Ollama)
+                if (selectedDocumentId) {
+                    // Análisis de documento específico
+                    endpoint = '{{ route("document-bot.simple.analyze-document") }}';
+                    payload = { 
+                        documento_id: selectedDocumentId,
+                        pregunta: question 
+                    };
+                } else {
+                    // Consulta general
+                    endpoint = '{{ route("document-bot.simple.query") }}';
+                    payload = { pregunta: question };
+                }
             } else {
-                endpoint = '{{ route("document-bot.deep-reasoning") }}';
-                const k = document.getElementById('chunks-input').value;
-                payload = { pregunta: question, k: parseInt(k) };
+                // API EXTERNA (OpenAI)
+                if (useDeepReasoning) {
+                    // Razonamiento profundo (hasta 20 chunks)
+                    endpoint = '{{ route("document-bot.advanced.deep-reasoning") }}';
+                    payload = { pregunta: question, k: 20 };
+                } else {
+                    // Consulta rápida (hasta 3 chunks)
+                    endpoint = '{{ route("document-bot.advanced.quick-query") }}';
+                    payload = { pregunta: question };
+                }
             }
 
             const response = await fetch(endpoint, {
@@ -375,7 +465,7 @@
             if (result.success && result.data) {
                 displayResults(result.data);
             } else {
-                showError(result.error || 'Error en la consulta');
+                showError(result.error || result.message || 'Error en la consulta');
             }
         } catch (error) {
             hideLoading();
@@ -384,7 +474,7 @@
         }
     });
 
-    // Búsqueda semántica
+    // Búsqueda semántica (solo disponible en bot avanzado)
     document.getElementById('semantic-search-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         
@@ -395,7 +485,8 @@
         resultsContainer.innerHTML = '<div class="flex items-center justify-center py-4"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div></div>';
 
         try {
-            const response = await fetch('{{ route("document-bot.semantic-search") }}', {
+            // La búsqueda semántica solo está disponible en bot avanzado
+            const response = await fetch('{{ route("document-bot.advanced.semantic-search") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -445,13 +536,15 @@
         content.innerHTML = `<p class="text-gray-900 dark:text-white whitespace-pre-wrap">${data.respuesta}</p>`;
         timeSpan.textContent = data.tiempo_respuesta ? `${data.tiempo_respuesta.toFixed(2)}s` : '';
         
-        // Mostrar estadísticas si existen
+        // Mostrar estadísticas si existen (solo bot avanzado)
         if (data.estadisticas) {
             const statsDiv = document.getElementById('response-stats');
             document.getElementById('tokens-in').textContent = data.estadisticas.tokens_entrada || '-';
             document.getElementById('tokens-out').textContent = data.estadisticas.tokens_salida || '-';
             document.getElementById('cost').textContent = data.estadisticas.costo_usd ? `$${data.estadisticas.costo_usd.toFixed(6)}` : '-';
             statsDiv.classList.remove('hidden');
+        } else {
+            document.getElementById('response-stats').classList.add('hidden');
         }
         
         container.classList.remove('hidden');
@@ -483,32 +576,50 @@
         document.getElementById('error-message').classList.add('hidden');
     }
 
-    // Health check
+    // Health check según bot seleccionado
     document.getElementById('btn-health').addEventListener('click', async function() {
         try {
-            const response = await fetch('{{ route("document-bot.health") }}');
+            const endpoint = useExternalAPI 
+                ? '{{ route("document-bot.advanced.health") }}'
+                : '{{ route("document-bot.simple.health") }}';
+                
+            const response = await fetch(endpoint);
             const result = await response.json();
             
-            let message = '🟢 Sistema Operativo\n\n';
-            if (result.simple_bot && result.simple_bot.data) {
-                message += `Bot Simple: ${result.simple_bot.data.status}\n`;
-                message += `Documentos: ${result.simple_bot.data.total_documentos}\n`;
+            if (result.success && result.data) {
+                const data = result.data;
+                let message = useExternalAPI 
+                    ? '🔵 API Externa (OpenAI)\n\n'
+                    : '🟢 Modelo Local (Ollama)\n\n';
+                    
+                message += `Estado: ${data.status}\n`;
+                message += `IA Disponible: ${data.ia_disponible ? 'Sí' : 'No'}\n`;
+                message += `ChromaDB: ${data.chromadb_disponible ? 'Sí' : 'No'}\n`;
+                message += `Paperless: ${data.paperless_conectado ? 'Sí' : 'No'}\n`;
+                message += `Total Documentos: ${data.total_documentos}\n`;
+                
+                if (useExternalAPI && data.total_vectores) {
+                    message += `Total Vectores: ${data.total_vectores}\n`;
+                }
+                
+                alert(message);
+            } else {
+                alert('❌ Error al verificar estado del sistema\n\n' + (result.error || 'Error desconocido'));
             }
-            if (result.advanced_bot && result.advanced_bot.data) {
-                message += `\nBot Avanzado: ${result.advanced_bot.data.status}\n`;
-                message += `Vectores: ${result.advanced_bot.data.total_vectores}\n`;
-            }
-            
-            alert(message);
         } catch (error) {
-            alert('Error al verificar estado del sistema');
+            alert('❌ Error de conexión\n\n' + error.message);
         }
     });
 
-    // Stats
+    // Stats (solo API externa)
     document.getElementById('btn-stats').addEventListener('click', async function() {
+        if (!useExternalAPI) {
+            alert('ℹ️ Estadísticas\n\nLas estadísticas detalladas solo están disponibles cuando se usa la API externa (OpenAI).\n\nActiva el checkbox "Usar modelo externo" para ver más información.');
+            return;
+        }
+        
         try {
-            const response = await fetch('{{ route("document-bot.stats") }}');
+            const response = await fetch('{{ route("document-bot.advanced.stats") }}');
             const result = await response.json();
             
             if (result.success && result.data) {
@@ -520,9 +631,11 @@
                 message += `Modelo Razonamiento: ${result.data.modelo_razonamiento}\n`;
                 
                 alert(message);
+            } else {
+                alert('Error al obtener estadísticas');
             }
         } catch (error) {
-            alert('Error al obtener estadísticas');
+            alert('Error de conexión: ' + error.message);
         }
     });
 </script>
