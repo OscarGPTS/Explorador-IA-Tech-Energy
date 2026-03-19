@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EmployeeAdminController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\GoogleController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\CorporateInfoController;
 use App\Http\Controllers\TechSupportController;
 use App\Http\Controllers\DocumentBotController;
 use App\Http\Controllers\Admin\TechSupportManagementController;
+use App\Http\Controllers\AdminStatsController;
 
 Route::get('/', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -112,26 +114,26 @@ Route::middleware('auth')->group(function () {
 
     // Panel de Estadísticas Administrativas
     Route::prefix('admin/stats')->name('admin.stats.')->middleware(['auth'])->group(function () {
-        Route::get('/dashboard', [App\Http\Controllers\AdminStatsController::class, 'dashboard'])->name('dashboard');
-        Route::get('/users', [App\Http\Controllers\AdminStatsController::class, 'users'])->name('users');
-        Route::get('/chats', [App\Http\Controllers\AdminStatsController::class, 'chats'])->name('chats');
-        Route::get('/modules', [App\Http\Controllers\AdminStatsController::class, 'modules'])->name('modules');
-        Route::get('/errors', [App\Http\Controllers\AdminStatsController::class, 'errors'])->name('errors');
-        Route::get('/export', [App\Http\Controllers\AdminStatsController::class, 'export'])->name('export');
+        Route::get('/dashboard', [AdminStatsController::class, 'dashboard'])->name('dashboard');
+        Route::get('/users', [AdminStatsController::class, 'users'])->name('users');
+        Route::get('/chats', [AdminStatsController::class, 'chats'])->name('chats');
+        Route::get('/modules', [AdminStatsController::class, 'modules'])->name('modules');
+        Route::get('/errors', [AdminStatsController::class, 'errors'])->name('errors');
+        Route::get('/export', [AdminStatsController::class, 'export'])->name('export');
     });
 
     // Administración de Empleados
     Route::prefix('admin/employees')->name('admin.employees.')->middleware(['auth'])->group(function () {
-        Route::get('/', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'index'])->name('index');
-        Route::get('/import', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'import'])->name('import');
-        Route::post('/import', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'processImport'])->name('process-import');
-        Route::get('/template', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'downloadTemplate'])->name('template');
-        Route::get('/export', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'export'])->name('export');
+        Route::get('/', [EmployeeAdminController::class, 'index'])->name('index');
+        Route::get('/import', [EmployeeAdminController::class, 'import'])->name('import');
+        Route::post('/import', [EmployeeAdminController::class, 'processImport'])->name('process-import');
+        Route::get('/template', [EmployeeAdminController::class, 'downloadTemplate'])->name('template');
+        Route::get('/export', [EmployeeAdminController::class, 'export'])->name('export');
         // Rutas específicas ANTES de las rutas con parámetros
-        Route::delete('/bulk/delete', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'bulkDelete'])->name('bulk-delete');
+        Route::delete('/bulk/delete', [EmployeeAdminController::class, 'bulkDelete'])->name('bulk-delete');
         // Rutas con parámetros AL FINAL
-        Route::delete('/{employee}', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'destroy'])->name('destroy');
-        Route::get('/{employee}', [App\Http\Controllers\Admin\EmployeeAdminController::class, 'show'])->name('show');
+        Route::delete('/{employee}', [EmployeeAdminController::class, 'destroy'])->name('destroy');
+        Route::get('/{employee}', [EmployeeAdminController::class, 'show'])->name('show');
     });
 
     // Rutas para gestión de soporte técnico

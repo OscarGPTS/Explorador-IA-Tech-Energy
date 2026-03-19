@@ -163,25 +163,6 @@
                         <div id="response-content" class="prose dark:prose-invert max-w-none">
                             <!-- Respuesta aquí -->
                         </div>
-                        
-                        <!-- Estadísticas (opcional) -->
-                        <div id="response-stats" class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hidden">
-                            <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Estadísticas</h3>
-                            <div class="grid grid-cols-3 gap-4 text-sm">
-                                <div>
-                                    <span class="text-gray-600 dark:text-gray-400">Tokens entrada:</span>
-                                    <span id="tokens-in" class="font-semibold text-gray-900 dark:text-white ml-1"></span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600 dark:text-gray-400">Tokens salida:</span>
-                                    <span id="tokens-out" class="font-semibold text-gray-900 dark:text-white ml-1"></span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600 dark:text-gray-400">Costo:</span>
-                                    <span id="cost" class="font-semibold text-gray-900 dark:text-white ml-1"></span>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -376,19 +357,77 @@
             return;
         }
 
-        container.innerHTML = documents.map(doc => `
-            <div class="document-item p-3 rounded-lg border border-gray-200 dark:border-gray-700" 
-                 data-doc-id="${doc.id}" data-doc-name="${doc.title.replace(/'/g, "\\'")}"
-                 onclick="selectDocument(${doc.id}, '${doc.title.replace(/'/g, "\\'")}')">
-                <div class="flex items-start">
-                    <i class="fas fa-file-pdf text-red-500 mt-1 mr-2"></i>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white truncate">${doc.title}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">ID: ${doc.id} • ${doc.created}</p>
+        container.innerHTML = documents.map(doc => {
+            const previewUrl = doc.preview_url || null;
+            const downloadUrl = doc.download_url || null;
+            
+            return `
+                <div class="document-item p-3 rounded-lg border border-gray-200 dark:border-gray-700" 
+                     data-doc-id="${doc.id}" data-doc-name="${doc.title.replace(/'/g, "\\'")}">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start flex-1 min-w-0 cursor-pointer" 
+                             onclick="selectDocument(${doc.id}, '${doc.title.replace(/'/g, "\\'")}')"> 
+                            <i class="fas fa-file-pdf text-red-500 mt-1 mr-2"></i>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">${doc.title}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1 ml-2">
+                            ${previewUrl ? `
+                                <button onclick="previewDocument('${previewUrl}', '${doc.title.replace(/'/g, "\\'")}, event')" 
+                                        class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors" 
+                                        title="Previsualizar">
+                                    <i class="fas fa-eye text-sm"></i>
+                                </button>
+                            ` : ''}
+                            ${downloadUrl ? `
+                                <button onclick="downloadDocument('${downloadUrl}', '${doc.title.replace(/'/g, "\\'")}, event')" 
+                                        class="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors" 
+                                        title="Descargar">
+                                    <i class="fas fa-download text-sm"></i>
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
+    }
+
+    // Previsualizar documento en nueva pestaña
+    function previewDocument(url, title, event) {
+        if (event) event.stopPropagation(); // Prevenir selección del documento
+        
+        if (!url) {
+            alert('⚠️ URL de previsualización no disponible');
+            return;
+        }
+        
+        // Abrir en nueva pestaña con seguridad
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!newWindow) {
+            alert('⚠️ No se pudo abrir la previsualización. Verifica que los pop-ups estén permitidos.');
+        }
+    }
+
+    // Descargar documento
+    function downloadDocument(url, title, event) {
+        if (event) event.stopPropagation(); // Prevenir selección del documento
+        
+        if (!url) {
+            alert('⚠️ URL de descarga no disponible');
+            return;
+        }
+        
+        // Crear enlace temporal para forzar descarga
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.download = title;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     function selectDocument(id, title) {
@@ -515,17 +554,38 @@
             return;
         }
 
-        container.innerHTML = results.map(r => `
-            <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-2">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <p class="text-xs font-semibold text-gray-900 dark:text-white">${r.title}</p>
-                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${r.preview.substring(0, 100)}...</p>
+        container.innerHTML = results.map(r => {
+            const previewUrl = r.preview_url || null;
+            const downloadUrl = r.download_url || null;
+            
+            return `
+                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg mb-2">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-semibold text-gray-900 dark:text-white">${r.title}</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">${r.preview ? r.preview.substring(0, 100) + '...' : ''}</p>
+                        </div>
+                        <div class="flex items-center space-x-2 ml-2">
+                            ${r.score ? `<span class="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded whitespace-nowrap">${(r.score * 100).toFixed(0)}%</span>` : ''}
+                            ${previewUrl ? `
+                                <button onclick="previewDocument('${previewUrl}', '${r.title.replace(/'/g, "\\\\'")}, event')" 
+                                        class="p-1 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors" 
+                                        title="Previsualizar">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </button>
+                            ` : ''}
+                            ${downloadUrl ? `
+                                <button onclick="downloadDocument('${downloadUrl}', '${r.title.replace(/'/g, "\\\\'")}, event')" 
+                                        class="p-1 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition-colors" 
+                                        title="Descargar">
+                                    <i class="fas fa-download text-xs"></i>
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
-                    ${r.score ? `<span class="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">${(r.score * 100).toFixed(0)}%</span>` : ''}
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function displayResults(data) {
@@ -535,17 +595,6 @@
         
         content.innerHTML = `<p class="text-gray-900 dark:text-white whitespace-pre-wrap">${data.respuesta}</p>`;
         timeSpan.textContent = data.tiempo_respuesta ? `${data.tiempo_respuesta.toFixed(2)}s` : '';
-        
-        // Mostrar estadísticas si existen (solo bot avanzado)
-        if (data.estadisticas) {
-            const statsDiv = document.getElementById('response-stats');
-            document.getElementById('tokens-in').textContent = data.estadisticas.tokens_entrada || '-';
-            document.getElementById('tokens-out').textContent = data.estadisticas.tokens_salida || '-';
-            document.getElementById('cost').textContent = data.estadisticas.costo_usd ? `$${data.estadisticas.costo_usd.toFixed(6)}` : '-';
-            statsDiv.classList.remove('hidden');
-        } else {
-            document.getElementById('response-stats').classList.add('hidden');
-        }
         
         container.classList.remove('hidden');
         container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
