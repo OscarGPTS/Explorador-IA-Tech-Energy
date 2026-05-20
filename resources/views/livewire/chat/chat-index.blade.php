@@ -1,699 +1,836 @@
-<!-- filepath: c:\xampp\htdocs\Explorador-IA\resources\views\livewire\chat\chat-index.blade.php -->
 <div>
-    <!-- Estilos personalizados para el chat -->
     <style>
-        .chat-header {
-            background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
+        :root {
+            --eia-black: #0F1419;
+            --eia-graphite: #1F2937;
+            --eia-slate: #475569;
+            --eia-mute: #64748B;
+            --eia-border: #E5E7EB;
+            --eia-surface: #FFFFFF;
+            --eia-bg: #F8FAFC;
+            --eia-red: #B91C1C;
+            --eia-gold: #D97706;
+            --eia-gold-soft: #FBBF24;
+        }
+
+        .chat-shell {
+            background: var(--eia-bg);
+            min-height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .chat-hero {
+            background:
+                radial-gradient(900px 240px at 92% -40%, rgba(217, 119, 6, 0.18), transparent 60%),
+                radial-gradient(700px 220px at 5% 130%, rgba(185, 28, 28, 0.22), transparent 60%),
+                linear-gradient(180deg, #0F1419 0%, #1A1F26 100%);
+            color: #F8FAFC;
+            border-bottom: 1px solid var(--eia-graphite);
+            position: relative;
+            padding: 18px 28px;
+        }
+        .chat-hero::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--eia-red) 0%, var(--eia-gold) 100%);
+            opacity: 0.85;
+        }
+        .chat-back {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.04);
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #E2E8F0;
+            transition: all .2s ease;
+        }
+        .chat-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--eia-gold);
+            color: #FFFFFF;
+        }
+        .chat-eyebrow {
+            font-size: 10px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--eia-gold-soft);
+            font-weight: 600;
+        }
+        .chat-clear-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.06);
+            color: #FFFFFF;
+            border-radius: 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            transition: all .2s ease;
+        }
+        .chat-clear-btn:hover {
+            background: rgba(185, 28, 28, 0.18);
+            border-color: var(--eia-red);
+        }
+
+        /* Indicador de agente */
+        .agent-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            font-size: 12px;
+            color: #FFFFFF;
+        }
+        .agent-chip .icon { font-size: 14px; }
+        .agent-chip strong { font-weight: 700; }
+
+        .agent-change-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.04);
+            color: #FFFFFF;
+            border-radius: 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            transition: all .2s ease;
+        }
+        .agent-change-btn:hover {
+            background: rgba(217, 119, 6, 0.15);
+            border-color: var(--eia-gold);
+        }
+
+        /* Selector de agente */
+        .agent-selector {
+            background: var(--eia-surface);
+            border: 1px solid var(--eia-border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-top: 16px;
+        }
+        .agent-selector h3 {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--eia-black);
+        }
+        .agent-selector h4 {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--eia-mute);
+        }
+        .agent-tile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px solid var(--eia-border);
+            border-radius: 10px;
+            background: #FFFFFF;
+            color: var(--eia-black);
+            transition: all .2s ease;
+            text-align: left;
+            cursor: pointer;
             position: relative;
             overflow: hidden;
         }
-
-        .chat-title {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .agent-tile::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--eia-black);
+            opacity: 0;
+            transition: opacity .2s ease;
         }
-
-        .agent-indicator {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .agent-tile:hover {
+            background: #F8FAFC;
+            border-color: #94A3B8;
         }
-
-        .agent-indicator:hover {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        .agent-tile:hover::before { opacity: 1; }
+        .agent-tile.active {
+            background: #FFFBEB;
+            border-color: var(--eia-gold);
         }
-
-        .chat-button {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
+        .agent-tile.active::before {
+            opacity: 1;
+            background: var(--eia-gold);
         }
-
-        .chat-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        .agent-tile.user-config:hover::before { background: var(--eia-red); }
+        .agent-tile.user-config.active {
+            background: #FEF2F2;
+            border-color: var(--eia-red);
         }
+        .agent-tile.user-config.active::before { background: var(--eia-red); }
 
-        .back-button {
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Messages container */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px;
+            background: #FFFFFF;
         }
+        .messages-area::-webkit-scrollbar { width: 8px; }
+        .messages-area::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        .messages-area::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-        .back-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1) rotate(-5deg);
+        /* Sender label */
+        .sender-label {
+            font-weight: 700;
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+        .sender-label-user { color: var(--eia-red); justify-content: flex-end; }
+        .sender-label-agent { color: var(--eia-mute); }
+        .sender-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .sender-dot.user { background: var(--eia-red); }
+        .sender-dot.agent { background: var(--eia-gold); }
 
-        .clear-chat-button {
-            background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
-            transition: all 0.3s ease;
-        }
-
-        .clear-chat-button:hover {
-            background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
-        }
-
-        .send-button {
-            background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-            transition: all 0.3s ease;
-        }
-
-        .send-button:hover {
-            background: linear-gradient(135deg, #B91C1C 0%, #F59E0B 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.25);
-        }
-
-        .send-button:disabled {
-            background: #D1D5DB !important;
-            transform: none !important;
-            box-shadow: none !important;
-        }
-
-        .fade-in-header {
-            animation: fadeInDown 0.8s ease-out forwards;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Estilos para mensajes del chat */
-        .message-user {
-            background: #DC2626;
-            color: white;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.15);
-            border: none;
-        }
-
-        .message-agent {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            color: #374151;
-        }
-
-        .message-user .message-time {
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .message-agent .message-time {
-            color: rgba(55, 65, 81, 0.6);
-        }
-
+        /* Message bubbles */
         .message-container {
+            padding: 14px 18px;
+            border-radius: 14px;
             animation: slideIn 0.3s ease-out;
-            transition: all 0.2s ease;
+            transition: box-shadow .2s ease;
         }
-
-        .message-container:hover {
-            transform: translateY(-2px);
+        .message-user {
+            background: var(--eia-black);
+            color: #FFFFFF;
+            border: 1px solid var(--eia-black);
         }
-
+        .message-agent {
+            background: #FFFFFF;
+            color: var(--eia-black);
+            border: 1px solid var(--eia-border);
+            box-shadow: 0 1px 2px rgba(15, 20, 25, 0.04);
+        }
         .message-user-container:hover .message-user {
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.25);
+            box-shadow: 0 14px 28px -16px rgba(15, 20, 25, 0.5);
         }
-
         .message-agent-container:hover .message-agent {
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 14px 28px -16px rgba(15, 20, 25, 0.18);
+            border-color: #94A3B8;
         }
+        .message-time {
+            font-size: 10px;
+            margin-top: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            letter-spacing: 0.05em;
+            opacity: 0.7;
+        }
+        .message-user .message-time { color: #FBBF24; }
+        .message-agent .message-time { color: var(--eia-mute); }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .sender-label {
+        /* Empty state */
+        .chat-empty {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--eia-mute);
+        }
+        .chat-empty-icon {
+            width: 68px; height: 68px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            color: var(--eia-gold-soft);
+            border: 1px solid var(--eia-graphite);
+        }
+
+        /* Loading indicator */
+        .chat-spinner {
+            width: 18px; height: 18px;
+            border: 2px solid #E2E8F0;
+            border-top-color: var(--eia-black);
+            border-right-color: var(--eia-gold);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Input area */
+        .input-area {
+            background: var(--eia-surface);
+            border-top: 1px solid var(--eia-border);
+            padding: 18px 28px;
+        }
+        .file-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border: 1px solid var(--eia-border);
+            border-radius: 10px;
+            background: #F8FAFC;
+            color: var(--eia-slate);
+            font-size: 12.5px;
             font-weight: 600;
-            font-size: 0.75rem;
-            margin-bottom: 0.5rem;
-            opacity: 0.8;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        .file-upload-label:hover {
+            background: #FFFFFF;
+            border-color: var(--eia-black);
+            color: var(--eia-black);
+        }
+        .chat-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--eia-border);
+            border-radius: 12px;
+            background: #FFFFFF;
+            color: var(--eia-black);
+            font-size: 14px;
+            outline: none;
+            transition: all .2s ease;
+        }
+        .chat-input:focus {
+            border-color: var(--eia-black);
+            box-shadow: 0 0 0 3px rgba(15, 20, 25, 0.08);
+        }
+        .chat-input.has-error {
+            border-color: var(--eia-red);
+        }
+        .chat-input.has-error:focus {
+            box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.15);
+        }
+        .chat-input::placeholder { color: #94A3B8; }
+
+        .send-button {
+            background: var(--eia-black);
+            color: #FFFFFF;
+            border: 1px solid var(--eia-black);
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all .2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+        .send-button:hover {
+            background: #1F2937;
+            border-color: var(--eia-gold);
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
+        }
+        .send-button:disabled {
+            background: #CBD5E1 !important;
+            border-color: #CBD5E1 !important;
+            box-shadow: none !important;
+            color: #94A3B8 !important;
+            cursor: not-allowed;
         }
 
-        .sender-label-user {
-            color: #DC2626;
+        /* Preview thumbnails */
+        .preview-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--eia-mute);
+        }
+        .preview-thumb {
+            position: relative;
+            width: 84px;
+        }
+        .preview-thumb img {
+            width: 84px;
+            height: 84px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid var(--eia-border);
+        }
+        .preview-remove {
+            position: absolute;
+            top: -6px; right: -6px;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--eia-black);
+            color: #FFFFFF;
+            border: 2px solid #FFFFFF;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background .2s ease;
+        }
+        .preview-remove:hover { background: var(--eia-red); }
+
+        .preview-doc {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #FAFAFB;
+            border: 1px solid var(--eia-border);
+        }
+        .preview-doc-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            background: #FFFFFF;
+            border: 1px solid var(--eia-border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .sender-label-agent {
-            color: #6B7280;
+        /* Document attached in message */
+        .msg-doc {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .message-agent .msg-doc {
+            background: #F8FAFC;
+            border: 1px solid var(--eia-border);
+        }
+
+        .clear-link {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--eia-red);
+            cursor: pointer;
+            transition: color .2s ease;
+        }
+        .clear-link:hover { color: #7F1D1D; }
+
+        /* Image modal */
+        .image-modal {
+            background: rgba(15, 20, 25, 0.85);
+            backdrop-filter: blur(8px);
+        }
+        .image-modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(4px);
+            transition: all .2s ease;
+        }
+        .image-modal-close:hover {
+            background: var(--eia-red);
+            border-color: var(--eia-red);
         }
     </style>
 
-    <div class="flex flex-col bg-white dark:bg-gray-900 top-0 left-0 right-0 bottom-0 mt-2">
-    
-    <!-- Header con degradado moderno -->
-    <div style="background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);" class="border-b border-gray-200 dark:border-gray-700 px-4 py-2 shadow-xl">
-        <div class="flex justify-between items-center mb-1">
-            <div class="flex flex-1 items-center space-x-4">
-                
-                <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-all border border-white/30">
-                        <svg width="20px" height="20px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="white" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
-                            <path fill="white" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
+    <div class="chat-shell">
+
+        {{-- HEADER --}}
+        <header class="chat-hero">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3 flex-1">
+                    <a href="/" class="chat-back" aria-label="Volver al inicio">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/>
                         </svg>
                     </a>
-
-                <div class="flex items-center space-x-3">
-                    
                     <div>
-                        <h1 class="text-3xl font-bold text-white flex items-center">
-                            <svg class="w-6 h-6 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" 
-                                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-                            </svg>
-                            Buscador Inteligente
-                        </h1>
-                        <p class="text-white/90 text-xs">Encuentra información corporativa al instante con IA</p>
+                        <span class="chat-eyebrow">Asistente IA · Corporativo</span>
+                        <h1 class="text-xl sm:text-2xl font-semibold tracking-tight mt-1">Buscador Inteligente</h1>
+                        <p class="text-xs text-slate-300 mt-0.5">Información corporativa al instante con inteligencia artificial</p>
                     </div>
                 </div>
+
+                <button
+                    wire:click="clearChat"
+                    class="chat-clear-btn"
+                    onclick="return confirm('¿Estás seguro de que quieres limpiar el chat?')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Limpiar
+                </button>
             </div>
-            
-            <!-- Botón limpiar chat -->
-            <button 
-                wire:click="clearChat" 
-                class="send-button px-4 py-2 text-white rounded-full font-medium shadow-lg text-sm"
-                onclick="return confirm('¿Estás seguro de que quieres limpiar el chat?')"
-            >
-                <div class="flex items-center">
-                   <svg fill="#FFFFFF"  width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"/></svg>
-                   <span class="ml-2">Limpiar</span> 
+
+            {{-- Indicador de agente actual --}}
+            @if($currentAgentConfig)
+            <div class="flex items-center gap-3 mt-4 flex-wrap">
+                <div class="agent-chip">
+                    <span class="icon">{{ $currentAgentConfig['agent_role']['icon'] ?? '🤖' }}</span>
+                    <div class="flex flex-col leading-tight">
+                        <strong>{{ $currentAgentConfig['name'] }}</strong>
+                        @if($currentAgentConfig['is_user_setting'] && $currentAgentConfig['custom_prompt'])
+                        <span class="text-[10px] uppercase tracking-widest" style="color: var(--eia-gold-soft);">Personalizado</span>
+                        @endif
+                    </div>
                 </div>
-            </button>
-        </div>
-        <br>
-        <!-- Indicador de agente actual -->
-        @if($currentAgentConfig)
-        <div class="flex items-center space-x-3 pb-1">
-            <div class="flex items-center space-x-2 px-3 py-1 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-lg transition-all duration-300 hover:bg-white/30">
-                <div class="text-sm">{{ $currentAgentConfig['agent_role']['icon'] ?? '🤖' }}</div>
-                <div class="flex flex-col">
-                    <span class="text-xs font-bold text-white">
-                        {{ $currentAgentConfig['name'] }}
-                    </span>
-                    @if($currentAgentConfig['is_user_setting'] && $currentAgentConfig['custom_prompt'])
-                    <span class="text-xl text-white/80">Personalizado</span>
-                    @endif
-                </div>
-            </div>
-            
-            <!-- Botón para cambiar agente -->
-            <button 
-                wire:click="toggleAgentSelector"
-                class="flex items-center space-x-2 px-3 py-1 text-white hover:text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg font-medium border border-white/30 shadow-lg text-sm transition-all"
-                title="Cambiar agente"
-            >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                </svg>
-                <span>Cambiar</span>
-            </button>
-        </div>
-        @endif
-        
-        <!-- Selector de agente -->
-        @if($showAgentSelector)
-        <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-            <h3 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Seleccionar Agente</h3>
-            
-            <!-- Roles del sistema -->
-            <div class="mb-4">
-                <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Roles Predefinidos</h4>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                    @foreach($availableAgentRoles as $role)
-                    <button 
-                        wire:click="changeAgent('role', {{ $role['id'] }})"
-                        class="flex items-center space-x-2 p-2 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors {{ $currentAgentConfig && !$currentAgentConfig['is_user_setting'] && $currentAgentConfig['agent_role']['id'] == $role['id'] ? 'bg-blue-100 dark:bg-blue-900/40 border-blue-300 dark:border-blue-500' : '' }}"
-                    >
-                        <span class="text-lg">{{ $role['icon'] }}</span>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $role['name'] }}</div>
-                        </div>
-                    </button>
-                    @endforeach
-                </div>
-            </div>
-            
-            <!-- Configuraciones personalizadas del usuario -->
-            @if(count($userAgentSettings) > 0)
-            <div>
-                <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Mis Configuraciones</h4>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
-                    @foreach($userAgentSettings as $setting)
-                    <button 
-                        wire:click="changeAgent('setting', {{ $setting['id'] }})"
-                        class="flex items-center space-x-2 p-2 text-left hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors {{ $currentAgentConfig && $currentAgentConfig['is_user_setting'] && $currentAgentConfig['id'] == $setting['id'] ? 'bg-green-100 dark:bg-green-900/40 border-green-300 dark:border-green-500' : '' }}"
-                    >
-                        <span class="text-lg">{{ $setting['agent_role']['icon'] }}</span>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $setting['name'] }}</div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ $setting['agent_role']['name'] }}</div>
-                        </div>
-                    </button>
-                    @endforeach
-                </div>
+
+                <button
+                    wire:click="toggleAgentSelector"
+                    class="agent-change-btn"
+                    title="Cambiar agente">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                    </svg>
+                    Cambiar
+                </button>
             </div>
             @endif
-            
-            <div class="mt-3 flex justify-end">
-                <button 
-                    wire:click="toggleAgentSelector"
-                    class="px-3 py-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                >
-                    Cerrar
-                </button>
+        </header>
+
+        {{-- Selector de agente --}}
+        @if($showAgentSelector)
+        <div class="px-7 pt-4">
+            <div class="agent-selector">
+                <h3 class="mb-4">Seleccionar agente</h3>
+
+                <div class="mb-5">
+                    <h4 class="mb-3">Roles predefinidos</h4>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                        @foreach($availableAgentRoles as $role)
+                        <button
+                            wire:click="changeAgent('role', {{ $role['id'] }})"
+                            class="agent-tile {{ $currentAgentConfig && !$currentAgentConfig['is_user_setting'] && $currentAgentConfig['agent_role']['id'] == $role['id'] ? 'active' : '' }}">
+                            <span class="text-lg flex-shrink-0">{{ $role['icon'] }}</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-semibold truncate">{{ $role['name'] }}</div>
+                            </div>
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
+
+                @if(count($userAgentSettings) > 0)
+                <div>
+                    <h4 class="mb-3">Mis configuraciones</h4>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                        @foreach($userAgentSettings as $setting)
+                        <button
+                            wire:click="changeAgent('setting', {{ $setting['id'] }})"
+                            class="agent-tile user-config {{ $currentAgentConfig && $currentAgentConfig['is_user_setting'] && $currentAgentConfig['id'] == $setting['id'] ? 'active' : '' }}">
+                            <span class="text-lg flex-shrink-0">{{ $setting['agent_role']['icon'] }}</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-semibold truncate">{{ $setting['name'] }}</div>
+                                <div class="text-xs text-slate-500 truncate">{{ $setting['agent_role']['name'] }}</div>
+                            </div>
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                <div class="mt-4 flex justify-end">
+                    <button
+                        wire:click="toggleAgentSelector"
+                        class="text-xs font-semibold text-slate-600 hover:text-slate-900 uppercase tracking-widest">
+                        Cerrar
+                    </button>
+                </div>
             </div>
         </div>
         @endif
-    </div>
 
-    <!-- Messages Container -->
-    <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-white dark:bg-gray-800" id="messages-container">
-        @forelse($messages as $msg)
-            <div class="flex {{ $msg['emisor_id'] == auth()->id() ? 'justify-end' : 'justify-start' }}">
-                <div class="max-w-xs lg:max-w-md {{ $msg['emisor_id'] == auth()->id() ? 'message-user-container' : 'message-agent-container' }}">
-                    <!-- Nombre del emisor -->
-                    <div class="sender-label {{ $msg['emisor_id'] == auth()->id() ? 'text-right sender-label-user' : 'text-left sender-label-agent' }}">
-                        @if($msg['emisor_id'] == auth()->id())
-                            <div class="flex items-center justify-end space-x-2">
+        {{-- Messages --}}
+        <div class="messages-area" id="messages-container">
+            @forelse($messages as $msg)
+                <div class="flex {{ $msg['emisor_id'] == auth()->id() ? 'justify-end' : 'justify-start' }} mb-5">
+                    <div class="max-w-xs lg:max-w-md {{ $msg['emisor_id'] == auth()->id() ? 'message-user-container' : 'message-agent-container' }}">
+                        <div class="sender-label {{ $msg['emisor_id'] == auth()->id() ? 'sender-label-user' : 'sender-label-agent' }}">
+                            @if($msg['emisor_id'] == auth()->id())
                                 <span>Tú</span>
-                                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                            </div>
-                        @else
-                            <div class="flex items-center space-x-2">
-                                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                <span>Agente GPT</span>
-                            </div>
-                        @endif
-                    </div>
-                    
-                    <!-- Mensaje -->
-                    <div class="message-container px-5 py-4 rounded-2xl {{ $msg['emisor_id'] == auth()->id() ? 'message-user' : 'message-agent' }}">
-                        <!-- Imágenes del mensaje -->
-                        @if(!empty($msg['files']) && count($msg['files']) > 0)
-                            <div class="mb-3">
-                                <div class="grid grid-cols-2 gap-2">
-                                    @foreach($msg['files'] as $file)
-                                        @if($file['is_image'])
-                                            <div class="relative group">
-                                                <img 
-                                                    src="{{ $file['url'] }}" 
-                                                    alt="{{ $file['name'] }}" 
-                                                    class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                                                    onclick="openImageModal('{{ $file['url'] }}', '{{ $file['name'] }}')"
-                                                >
-                                                <div class="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 rounded">
-                                                    {{ $file['size'] }}
+                                <span class="sender-dot user"></span>
+                            @else
+                                <span class="sender-dot agent"></span>
+                                <span>Agente IA</span>
+                            @endif
+                        </div>
+
+                        <div class="message-container {{ $msg['emisor_id'] == auth()->id() ? 'message-user' : 'message-agent' }}">
+                            {{-- Archivos --}}
+                            @if(!empty($msg['files']) && count($msg['files']) > 0)
+                                <div class="mb-3">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        @foreach($msg['files'] as $file)
+                                            @if($file['is_image'])
+                                                <div class="relative group">
+                                                    <img
+                                                        src="{{ $file['url'] }}"
+                                                        alt="{{ $file['name'] }}"
+                                                        class="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                                        onclick="openImageModal('{{ $file['url'] }}', '{{ $file['name'] }}')">
+                                                    <div class="absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 rounded font-mono" style="background: rgba(15, 20, 25, 0.7); color: #FFFFFF;">
+                                                        {{ $file['size'] }}
+                                                    </div>
+                                                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" style="background: rgba(15, 20, 25, 0.3);">
+                                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+                                                        </svg>
+                                                    </div>
                                                 </div>
-                                                <!-- Indicador de click para expandir -->
-                                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-20 rounded-lg">
-                                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-                                                    </svg>
+                                            @else
+                                                <div class="msg-doc col-span-2">
+                                                    @php $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)); @endphp
+                                                    <div class="flex-shrink-0 mr-3">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color: {{ $msg['emisor_id'] == auth()->id() ? 'var(--eia-gold-soft)' : 'var(--eia-red)' }};">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="text-sm font-medium truncate {{ $msg['emisor_id'] == auth()->id() ? 'text-white' : 'text-slate-900' }}">{{ $file['name'] }}</div>
+                                                        <div class="text-[11px] font-mono {{ $msg['emisor_id'] == auth()->id() ? 'text-slate-300' : 'text-slate-500' }}">{{ $file['size'] }} · {{ strtoupper($extension) }}</div>
+                                                    </div>
+                                                    <a href="{{ $file['url'] }}" download="{{ $file['name'] }}" class="flex-shrink-0 ml-2 transition-colors {{ $msg['emisor_id'] == auth()->id() ? 'text-slate-300 hover:text-white' : 'text-slate-400 hover:text-slate-900' }}">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                        </svg>
+                                                    </a>
                                                 </div>
-                                            </div>
-                                        @else
-                                            <!-- Documentos no-imagen -->
-                                            <div class="flex items-center p-3 bg-[#F9BE00] text-black rounded-lg">
-                                                <!-- Icono según extensión del archivo -->
-                                                <div class="flex-shrink-0 mr-3">
-                                                    @php
-                                                        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-                                                    @endphp
-                                                    
-                                                    @if($extension === 'pdf')
-                                                        <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                                        </svg>
-                                                    @elseif(in_array($extension, ['doc', 'docx']))
-                                                        <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                                        </svg>
-                                                    @elseif(in_array($extension, ['xls', 'xlsx']))
-                                                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                                        </svg>
-                                                    @elseif(in_array($extension, ['ppt', 'pptx']))
-                                                        <svg class="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                                        </svg>
-                                                    @elseif($extension === 'txt')
-                                                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                        </svg>
-                                                    @else
-                                                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                        </svg>
-                                                    @endif
-                                                </div>
-                                                <div class="min-w-0 flex-1">
-                                                    <div class="text-sm font-medium {{ $msg['emisor_id'] == auth()->id() ? 'text-white' : 'text-gray-900 dark:text-white' }} truncate">{{ $file['name'] }}</div>
-                                                    <div class="text-xs {{ $msg['emisor_id'] == auth()->id() ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400' }}">{{ $file['size'] }} • {{ strtoupper($extension) }}</div>
-                                                </div>
-                                                <!-- Botón de descarga -->
-                                                <a href="{{ $file['url'] }}" download="{{ $file['name'] }}" class="flex-shrink-0 ml-2 {{ $msg['emisor_id'] == auth()->id() ? 'text-white hover:text-blue-100' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200' }} transition-colors">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                        @endif
-                                    @endforeach
+                                            @endif
+                                        @endforeach
+                                    </div>
                                 </div>
-                            </div>
-                        @endif
+                            @endif
 
-                        <!-- Texto del mensaje -->
-                        @if($msg['message'])
-                            <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ $msg['message'] }}</p>
-                        @endif
-                        
-                        <p class="text-xs mt-3 message-time font-medium">
-                            {{ \Carbon\Carbon::parse($msg['created_at'])->format('H:i') }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        @empty
-            <div class="text-center text-gray-500 dark:text-gray-400 py-8">
-                <div class="mx-auto w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                    </svg>
-                </div>
-                <p class="text-lg font-medium mb-2">¡Inicia una conversación!</p>
-                <p>Envía tu primer mensaje o una imagen para comenzar a chatear con la IA.</p>
-            </div>
-        @endforelse
+                            @if($msg['message'])
+                                <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ $msg['message'] }}</p>
+                            @endif
 
-        @if($isLoading)
-            <div class="flex justify-start">
-                <div class="max-w-xs lg:max-w-md message-agent-container">
-                    <div class="sender-label text-left sender-label-agent">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                            <span>Agente GPT</span>
-                        </div>
-                    </div>
-                    <div class="message-container px-5 py-4 rounded-2xl message-agent">
-                        <div class="flex items-center space-x-3">
-                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-500"></div>
-                            <p class="text-sm">IA está escribiendo...</p>
+                            <p class="message-time">{{ \Carbon\Carbon::parse($msg['created_at'])->format('H:i') }}</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        @endif
-    </div>
-
-    <!-- Message Input -->
-    <div class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
-        <!-- Preview de imágenes -->
-        @if(!empty($previewImages))
-            <div class="mb-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Imágenes seleccionadas:</span>
-                    <button 
-                        type="button" 
-                        wire:click="clearImages" 
-                        class="text-xs text-red-500 hover:text-red-700"
-                    >
-                        Limpiar todo
-                    </button>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                    @foreach($previewImages as $index => $preview)
-                        <div class="relative">
-                            <img 
-                                src="{{ $preview['url'] }}" 
-                                alt="{{ $preview['name'] }}" 
-                                class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
-                            >
-                            <button 
-                                type="button" 
-                                wire:click="removeImage({{ $index }})"
-                                class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
-                            >
-                                ×
-                            </button>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-20 truncate">
-                                {{ $preview['name'] }}
-                            </div>
-                            <div class="text-xs text-gray-400 dark:text-gray-500">
-                                {{ $preview['size'] }}
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        <!-- Documentos seleccionados -->
-        @if(!empty($previewDocuments))
-            <div class="mb-4">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Documentos seleccionados:</span>
-                    <button 
-                        type="button" 
-                        wire:click="clearDocuments" 
-                        class="text-xs text-red-500 hover:text-red-700"
-                    >
-                        Limpiar todo
-                    </button>
-                </div>
-                <div class="space-y-2">
-                    @foreach($previewDocuments as $index => $preview)
-                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
-                            <div class="flex items-center space-x-3">
-                                <!-- Icono según tipo de archivo -->
-                                <div class="flex-shrink-0">
-                                    @if(in_array(strtolower($preview['type']), ['pdf']))
-                                        <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                        </svg>
-                                    @elseif(in_array(strtolower($preview['type']), ['doc', 'docx']))
-                                        <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                        </svg>
-                                    @elseif(in_array(strtolower($preview['type']), ['xls', 'xlsx']))
-                                        <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                        </svg>
-                                    @elseif(in_array(strtolower($preview['type']), ['ppt', 'pptx']))
-                                        <svg class="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                        </svg>
-                                    @else
-                                        <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M4 18h12V6l-4-4H4v16zm-2 1V4c0-1.1.9-2 2-2h8l4 4v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2z"/>
-                                        </svg>
-                                    @endif
-                                </div>
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ $preview['name'] }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $preview['size'] }} • {{ strtoupper($preview['type']) }}</p>
-                                </div>
-                            </div>
-                            <button 
-                                type="button" 
-                                wire:click="removeDocument({{ $index }})" 
-                                class="flex-shrink-0 text-red-500 hover:text-red-700 transition-colors"
-                            >
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        <form wire:submit.prevent="sendMessage" class="space-y-3">
-            <!-- Área de subida de archivos -->
-            <div class="flex items-center space-x-2">
-                <input 
-                    type="file" 
-                    wire:model="images" 
-                    multiple 
-                    accept="image/*"
-                    class="hidden"
-                    id="image-upload"
-                >
-                <label 
-                    for="image-upload" 
-                    class="flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    Agregar imágenes
-                </label>
-                
-                <!-- Nuevo selector de documentos -->
-                <input 
-                    type="file" 
-                    wire:model="documents" 
-                    multiple 
-                    accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.rtf,.csv"
-                    class="hidden"
-                    id="document-upload"
-                >
-                <label 
-                    for="document-upload" 
-                    class="flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Agregar documentos
-                </label>
-                
-                <!-- Indicadores de carga -->
-                <div wire:loading wire:target="images" class="text-xs text-blue-500">
-                    Procesando imágenes...
-                </div>
-                <div wire:loading wire:target="documents" class="text-xs text-blue-500">
-                    Procesando documentos...
-                </div>
-            </div>
-
-            <!-- Input de mensaje y botón de enviar -->
-            <div class="flex space-x-4">
-                <div class="flex-1">
-                    <input 
-                        id="messageInput"
-                        type="text" 
-                        wire:model="message"
-                        placeholder="Escribe tu mensaje o selecciona imágenes/documentos..."
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 {{ $errorMessage ? 'border-red-500 focus:ring-red-500' : '' }}"
-                        maxlength="1000"
-                        wire:keydown.enter="sendMessage"
-                    >
-                    
-                    <!-- Mensaje de error -->
-                    @if($errorMessage)
-                        <p class="text-red-500 text-xs mt-1">{{ $errorMessage }}</p>
-                    @endif
-                </div>
-                <button 
-                    type="submit" 
-                    id="sumbitInputBtn"
-                    class="send-button px-6 py-2 rounded-full text-white font-medium flex items-center justify-center min-w-[120px] shadow-lg"
-                    wire:loading.attr="disabled"
-                    wire:target="sendMessage,images"
-                >
-                    <div wire:loading.remove wire:target="sendMessage,images" class="flex items-center">
-                        Enviar
-                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="ml-2">
-                            <path d="M11.5003 12H5.41872M5.24634 12.7972L4.24158 15.7986C3.69128 17.4424 3.41613 18.2643 3.61359 18.7704C3.78506 19.21 4.15335 19.5432 4.6078 19.6701C5.13111 19.8161 5.92151 19.4604 7.50231 18.7491L17.6367 14.1886C19.1797 13.4942 19.9512 13.1471 20.1896 12.6648C20.3968 12.2458 20.3968 11.7541 20.1896 11.3351C19.9512 10.8529 19.1797 10.5057 17.6367 9.81135L7.48483 5.24303C5.90879 4.53382 5.12078 4.17921 4.59799 4.32468C4.14397 4.45101 3.77572 4.78336 3.60365 5.22209C3.40551 5.72728 3.67772 6.54741 4.22215 8.18767L5.24829 11.2793C5.34179 11.561 5.38855 11.7019 5.407 11.8459C5.42338 11.9738 5.42321 12.1032 5.40651 12.231C5.38768 12.375 5.34057 12.5157 5.24634 12.7972Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            @empty
+                <div class="chat-empty">
+                    <div class="chat-empty-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091z"/>
                         </svg>
                     </div>
-                    <div wire:loading wire:target="sendMessage" class="flex items-center">
-                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Enviando...
+                    <p class="text-base font-semibold text-slate-900 mb-1">Inicia una conversación</p>
+                    <p class="text-sm text-slate-500">Envía tu primer mensaje o adjunta un archivo para comenzar a chatear con la IA.</p>
+                </div>
+            @endforelse
+
+            @if($isLoading)
+                <div class="flex justify-start mb-5">
+                    <div class="max-w-xs lg:max-w-md message-agent-container">
+                        <div class="sender-label sender-label-agent">
+                            <span class="sender-dot agent"></span>
+                            <span>Agente IA</span>
+                        </div>
+                        <div class="message-container message-agent">
+                            <div class="flex items-center gap-3">
+                                <div class="chat-spinner"></div>
+                                <p class="text-sm text-slate-700">El asistente está pensando…</p>
+                            </div>
+                        </div>
                     </div>
-                    <div wire:loading wire:target="images" class="flex items-center">
-                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Subiendo...
+                </div>
+            @endif
+        </div>
+
+        {{-- Input area --}}
+        <div class="input-area">
+            {{-- Preview imágenes --}}
+            @if(!empty($previewImages))
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="preview-section-title">Imágenes seleccionadas ({{ count($previewImages) }})</span>
+                        <button type="button" wire:click="clearImages" class="clear-link">Limpiar todo</button>
                     </div>
-                </button>
-            </div>
-        </form>
-        
-        <div class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-            <div class="flex items-center justify-between">
+                    <div class="flex flex-wrap gap-3">
+                        @foreach($previewImages as $index => $preview)
+                            <div class="preview-thumb">
+                                <img src="{{ $preview['url'] }}" alt="{{ $preview['name'] }}">
+                                <button type="button" wire:click="removeImage({{ $index }})" class="preview-remove" aria-label="Quitar imagen">×</button>
+                                <div class="text-[10px] text-slate-500 mt-1 truncate" style="max-width:84px;">{{ $preview['name'] }}</div>
+                                <div class="text-[10px] text-slate-400 font-mono">{{ $preview['size'] }}</div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- Preview documentos --}}
+            @if(!empty($previewDocuments))
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="preview-section-title">Documentos seleccionados ({{ count($previewDocuments) }})</span>
+                        <button type="button" wire:click="clearDocuments" class="clear-link">Limpiar todo</button>
+                    </div>
+                    <div class="space-y-2">
+                        @foreach($previewDocuments as $index => $preview)
+                            <div class="preview-doc">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="preview-doc-icon">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: var(--eia-slate);">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-medium text-slate-900 truncate">{{ $preview['name'] }}</p>
+                                        <p class="text-[11px] text-slate-500 font-mono">{{ $preview['size'] }} · {{ strtoupper($preview['type']) }}</p>
+                                    </div>
+                                </div>
+                                <button type="button" wire:click="removeDocument({{ $index }})" class="text-slate-400 hover:text-red-600 transition-colors" aria-label="Quitar documento">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <form wire:submit.prevent="sendMessage" class="space-y-3">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <input type="file" wire:model="images" multiple accept="image/*" class="hidden" id="image-upload">
+                    <label for="image-upload" class="file-upload-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        Adjuntar imágenes
+                    </label>
+
+                    <input type="file" wire:model="documents" multiple accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.rtf,.csv" class="hidden" id="document-upload">
+                    <label for="document-upload" class="file-upload-label">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Adjuntar documentos
+                    </label>
+
+                    <div wire:loading wire:target="images" class="text-xs font-medium" style="color: var(--eia-gold);">Procesando imágenes…</div>
+                    <div wire:loading wire:target="documents" class="text-xs font-medium" style="color: var(--eia-gold);">Procesando documentos…</div>
+                </div>
+
+                <div class="flex gap-3">
+                    <div class="flex-1">
+                        <input
+                            id="messageInput"
+                            type="text"
+                            wire:model="message"
+                            placeholder="Escribe tu mensaje o adjunta imágenes / documentos…"
+                            class="chat-input {{ $errorMessage ? 'has-error' : '' }}"
+                            maxlength="1000"
+                            wire:keydown.enter="sendMessage">
+
+                        @if($errorMessage)
+                            <p class="text-xs mt-1.5" style="color: var(--eia-red);">{{ $errorMessage }}</p>
+                        @endif
+                    </div>
+                    <button
+                        type="submit"
+                        id="sumbitInputBtn"
+                        class="send-button"
+                        wire:loading.attr="disabled"
+                        wire:target="sendMessage,images">
+                        <div wire:loading.remove wire:target="sendMessage,images" class="flex items-center gap-2">
+                            <span>Enviar</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                        <div wire:loading wire:target="sendMessage" class="flex items-center gap-2">
+                            <div class="chat-spinner" style="border-color: rgba(255,255,255,0.3); border-top-color: #FFFFFF; border-right-color: var(--eia-gold-soft); width:14px; height:14px;"></div>
+                            Enviando…
+                        </div>
+                        <div wire:loading wire:target="images" class="flex items-center gap-2">
+                            <div class="chat-spinner" style="border-color: rgba(255,255,255,0.3); border-top-color: #FFFFFF; border-right-color: var(--eia-gold-soft); width:14px; height:14px;"></div>
+                            Subiendo…
+                        </div>
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-xs text-slate-500 mt-3 flex items-center justify-between flex-wrap gap-2">
                 <div>
                     @if(strlen($message) > 0)
-                        Caracteres: {{ strlen($message) }}/1000 • 
+                        <span class="font-mono">{{ strlen($message) }}/1000</span> ·
                     @endif
                     @if(!empty($previewImages))
-                        {{ count($previewImages) }} imagen(es) seleccionada(s) • 
+                        {{ count($previewImages) }} imagen{{ count($previewImages) === 1 ? '' : 'es' }} ·
                     @endif
                     @if(!empty($previewDocuments))
-                        {{ count($previewDocuments) }} documento(s) seleccionado(s) • 
+                        {{ count($previewDocuments) }} documento{{ count($previewDocuments) === 1 ? '' : 's' }} ·
                     @endif
-                    Presiona Enter para enviar
+                    <span>Presiona Enter para enviar</span>
                 </div>
-                <div class="text-right">
-                    <div>Imágenes: JPG, PNG, GIF, WebP (máx. 2MB c/u, 5 archivos)</div>
-                    <div>Documentos: PDF, DOC, TXT, XLS, PPT (máx. 10MB c/u, 5 archivos)</div>
-                    <div class="text-xs text-gray-400 mt-1">Límite total: 8 archivos por mensaje</div>
+                <div class="text-right text-[11px] text-slate-400">
+                    <div>Imágenes: JPG, PNG, GIF, WebP · máx. 2MB · 5 archivos</div>
+                    <div>Documentos: PDF, DOC, TXT, XLS, PPT · máx. 10MB · 5 archivos</div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
 
-    <!-- Modal para ver imágenes en tamaño completo -->
-    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
-    <div class="relative max-w-4xl max-h-full">
-        <img id="modalImage" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
-        <button 
-            onclick="closeImageModal()" 
-            class="absolute top-4 right-4 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-75 transition-colors"
-        >
-            ×
-        </button>
-        <div id="modalImageName" class="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg text-sm"></div>
+    {{-- Modal de imagen --}}
+    <div id="imageModal" class="image-modal fixed inset-0 z-50 hidden items-center justify-center p-4" style="display: none;">
+        <div class="relative max-w-5xl max-h-full">
+            <img id="modalImage" src="" alt="" class="max-w-full max-h-[90vh] object-contain rounded-xl" style="border: 1px solid rgba(255,255,255,0.15);">
+            <button
+                onclick="closeImageModal()"
+                class="image-modal-close absolute top-4 right-4 rounded-full w-10 h-10 flex items-center justify-center"
+                aria-label="Cerrar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <div id="modalImageName" class="absolute bottom-4 left-4 px-3 py-2 rounded-lg text-xs font-medium" style="background: rgba(15, 20, 25, 0.75); color: #FFFFFF; border: 1px solid rgba(255,255,255,0.12);"></div>
+        </div>
     </div>
-</div>
 
 @script
 <script>
-    // Auto-scroll to bottom when new messages arrive
+    // Auto-scroll
     document.addEventListener('livewire:updated', () => {
         setTimeout(() => {
             const container = document.getElementById('messages-container');
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
+            if (container) container.scrollTop = container.scrollHeight;
         }, 100);
     });
 
-    // Focus en el input después de enviar mensaje
     $wire.on('chatCleared', () => {
         setTimeout(() => {
             const input = document.querySelector('input[wire\\:model\\.live="message"]');
-            if (input) {
-                input.focus();
-            }
+            if (input) input.focus();
         }, 100);
     });
 
-    // Funciones para el modal de imágenes
     window.openImageModal = function(imageUrl, imageName) {
         const modal = document.getElementById('imageModal');
         const modalImage = document.getElementById('modalImage');
         const modalImageName = document.getElementById('modalImageName');
-        
         modalImage.src = imageUrl;
         modalImage.alt = imageName;
         modalImageName.textContent = imageName;
         modal.classList.remove('hidden');
-        
-        // Cerrar con Escape
+        modal.style.display = 'flex';
+
         const handleEscape = function(e) {
             if (e.key === 'Escape') {
                 closeImageModal();
@@ -706,39 +843,32 @@
     window.closeImageModal = function() {
         const modal = document.getElementById('imageModal');
         modal.classList.add('hidden');
+        modal.style.display = 'none';
     };
 
-    // Cerrar modal al hacer click fuera de la imagen
     document.getElementById('imageModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeImageModal();
-        }
+        if (e.target === this) closeImageModal();
     });
 
-    // Limpiar y enfocar input después de enviar mensaje
     Livewire.on('messageSent', () => {
+        const input = document.getElementById('messageInput');
+        if (input) { input.value = ''; input.focus(); }
+    });
+
     const input = document.getElementById('messageInput');
     if (input) {
-        input.value = '';  
-        input.focus();    
+        const form = input.closest('form');
+        if (form) {
+            form.addEventListener('submit', () => {
+                setTimeout(() => { input.value = ''; input.focus(); }, 50);
+            });
+        }
     }
-    });
-
-    const input = document.getElementById('messageInput');
-
-    const form = input.closest('form');
-    form.addEventListener('submit', () => {
-        setTimeout(() => {
-            input.value = ''; 
-            input.focus();   
-        }, 50); 
-    });
 
     Livewire.hook('message.sent', () => {
-        input.value = '';
-        input.focus();
+        const inp = document.getElementById('messageInput');
+        if (inp) { inp.value = ''; inp.focus(); }
     });
-
 </script>
 @endscript
 </div>

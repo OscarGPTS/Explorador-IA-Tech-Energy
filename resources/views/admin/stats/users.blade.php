@@ -1,272 +1,253 @@
 @extends('layouts.app')
 
 @push('styles')
+@include('admin._admin-styles')
 <style>
-/* Animaciones y transiciones suaves */
-.stats-card {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateY(0);
-}
-
-.stats-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-.gradient-text {
-    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.activity-bar {
-    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-    transition: all 0.3s ease;
-}
-
-.activity-bar:hover {
-    transform: scaleY(1.1);
-}
-
-.nav-link-active {
-    border-color: #DC2626;
-    color: #DC2626;
-}
-
-.nav-link {
-    transition: all 0.3s ease;
-}
-
-.nav-link:hover {
-    color: #DC2626;
-    border-color: #FBBF24;
-}
+    .avatar-circle {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: #F1F5F9;
+        color: var(--eia-black);
+        font-weight: 700;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--eia-border);
+    }
+    .month-tile {
+        background: #FFFFFF;
+        border: 1px solid var(--eia-border);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .month-tile:hover {
+        border-color: #94A3B8;
+        box-shadow: 0 10px 22px -16px rgba(15, 20, 25, 0.25);
+    }
+    .month-tile-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--eia-black);
+        line-height: 1;
+    }
+    .month-tile-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--eia-mute);
+        font-weight: 600;
+        margin-top: 6px;
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
-    <!-- Header mejorado con gradiente rojo-amarillo -->
-    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
-        <div class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('admin.stats.dashboard') }}" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
-                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
-                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
-                        </svg>
-                    </a>
-                    <div>
-                        <h1 class="text-3xl font-bold">👥 Estadísticas de Usuarios</h1>
-                        <p class="text-orange-100 text-sm mt-1">Análisis detallado de actividad y comportamiento de usuarios</p>
-                    </div>
-                </div>
+<div class="min-h-screen eia-bg">
+    <!-- HERO -->
+    <section class="admin-hero px-4 sm:px-8 lg:px-12 py-10">
+        <div class="max-w-7xl mx-auto flex items-start justify-between gap-6 flex-wrap">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('admin.stats.dashboard') }}" class="admin-back" aria-label="Volver al dashboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </a>
                 <div>
-                    <a href="{{ route('admin.stats.export', ['type' => 'users', 'format' => 'csv']) }}" 
-                       class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
-                        <span>📥 Exportar CSV</span>
-                    </a>
+                    <span class="admin-eyebrow">Administración · Estadísticas</span>
+                    <h1 class="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">Estadísticas de Usuarios</h1>
+                    <p class="mt-1 text-sm text-slate-300 max-w-2xl">Análisis detallado de actividad y comportamiento de usuarios.</p>
                 </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.stats.export', ['type' => 'users', 'format' => 'csv']) }}" class="admin-action">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Exportar CSV
+                </a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="container mx-auto px-4 py-8">
-        <!-- Navegación de estadísticas -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="border-b border-gray-100">
-                <nav class="-mb-px flex space-x-8 px-6">
-                    <a href="{{ route('admin.stats.dashboard') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        📊 Dashboard
-                    </a>
-                    <a href="{{ route('admin.stats.users') }}" 
-                       class="nav-link-active border-b-2 py-4 px-1 text-sm font-medium">
-                        👥 Usuarios
-                    </a>
-                    <a href="{{ route('admin.stats.chats') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        💬 Chats
-                    </a>
-                    <a href="{{ route('admin.stats.modules') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        📊 Módulos
-                    </a>
-                    <a href="{{ route('admin.stats.errors') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        🚨 Errores
-                    </a>
-                </nav>
-            </div>
+    <!-- TABS -->
+    <section class="px-4 sm:px-8 lg:px-12 pt-7">
+        <div class="max-w-7xl mx-auto">
+            <nav class="admin-tabs admin-fade admin-d1">
+                <a href="{{ route('admin.stats.dashboard') }}" class="admin-tab {{ request()->routeIs('admin.stats.dashboard') ? 'active' : '' }}">Dashboard</a>
+                <a href="{{ route('admin.stats.users') }}" class="admin-tab {{ request()->routeIs('admin.stats.users') ? 'active' : '' }}">Usuarios</a>
+                <a href="{{ route('admin.stats.chats') }}" class="admin-tab {{ request()->routeIs('admin.stats.chats') ? 'active' : '' }}">Chats</a>
+                <a href="{{ route('admin.stats.modules') }}" class="admin-tab {{ request()->routeIs('admin.stats.modules') ? 'active' : '' }}">Módulos</a>
+                <a href="{{ route('admin.stats.errors') }}" class="admin-tab {{ request()->routeIs('admin.stats.errors') ? 'active' : '' }}">Errores</a>
+            </nav>
         </div>
+    </section>
 
-        <!-- Estadísticas de usuarios -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-red-100 to-red-200 text-red-600 text-2xl">
-                        👥
+    <!-- CONTENT -->
+    <section class="px-4 sm:px-8 lg:px-12 py-8">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 admin-fade admin-d2">
+                <div class="admin-kpi red">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Total Usuarios</div>
+                            <div class="admin-kpi-value">{{ number_format($totalUsers) }}</div>
+                        </div>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Total Usuarios</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($totalUsers) }}</dd>
-                        </dl>
+                </div>
+
+                <div class="admin-kpi gold">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Verificados</div>
+                            <div class="admin-kpi-value">{{ number_format($verifiedUsers) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-kpi black">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M12 3a14.5 14.5 0 010 18M12 3a14.5 14.5 0 000 18"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Google OAuth</div>
+                            <div class="admin-kpi-value">{{ number_format($googleUsers) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-kpi slate">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Registro Normal</div>
+                            <div class="admin-kpi-value">{{ number_format($regularUsers) }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-orange-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200 text-orange-600 text-2xl">
-                        ✅
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Verificados</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($verifiedUsers) }}</dd>
-                        </dl>
+            <!-- Usuarios más activos detallados -->
+            <div class="admin-panel mb-8 admin-fade admin-d3">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Usuarios más activos · Detallado</div>
+                        <div class="admin-panel-sub">Mensajes acumulados, días de actividad y último registro.</div>
                     </div>
                 </div>
-            </div>
-
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-600 text-2xl">
-                        🔴
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Google OAuth</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($googleUsers) }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-400">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-red-50 to-red-100 text-red-500 text-2xl">
-                        📧
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Registro Normal</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($regularUsers) }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Usuarios más activos detallados -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold gradient-text">🏆 Usuarios Más Activos (Detallado)</h3>
-            </div>
-            <div class="overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gradient-to-r from-red-50 to-yellow-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Usuario</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Mensajes</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Días Activos</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Último Mensaje</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Registro</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        @foreach($activeUsersDetailed as $user)
-                        <tr class="hover:bg-red-50 transition-colors duration-300">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-red-100 to-orange-100 flex items-center justify-center text-red-600 font-semibold">
-                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Mensajes</th>
+                                <th>Días Activos</th>
+                                <th>Último Mensaje</th>
+                                <th>Registro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($activeUsersDetailed as $user)
+                            <tr>
+                                <td class="primary">
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar-circle">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                                        <span>{{ $user->name }}</span>
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                    </div>
+                                </td>
+                                <td>{{ $user->email }}</td>
+                                <td><span class="admin-badge red">{{ number_format($user->total_messages) }}</span></td>
+                                <td><span class="admin-badge gold">{{ number_format($user->active_days) }}</span></td>
+                                <td>
+                                    @if($user->last_message_at)
+                                        {{ \Carbon\Carbon::parse($user->last_message_at)->diffForHumans() }}
+                                    @else
+                                        <span class="text-slate-400">—</span>
+                                    @endif
+                                </td>
+                                <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Actividad por día de la semana -->
+            <div class="admin-panel mb-8 admin-fade admin-d3">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Actividad por día de la semana</div>
+                        <div class="admin-panel-sub">Volumen relativo de mensajes por día.</div>
+                    </div>
+                </div>
+                <div class="admin-panel-body">
+                    @php $maxActivity = $activityByDayOfWeek->max('count') ?: 1; @endphp
+                    <div class="space-y-4">
+                        @foreach($activityByDayOfWeek as $dayActivity)
+                        @php $percentage = $maxActivity > 0 ? ($dayActivity->count / $maxActivity) * 100 : 0; @endphp
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-semibold text-slate-700 w-24 shrink-0">{{ $dayActivity->day_name }}</span>
+                            <div class="flex-1">
+                                <div class="admin-bar-track" style="height: 10px;">
+                                    <div class="admin-bar-fill {{ $loop->index % 2 === 0 ? 'red' : 'gold' }}" style="width: {{ $percentage }}%"></div>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ $user->email }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-orange-100 text-red-800">
-                                    {{ number_format($user->total_messages) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800">
-                                    {{ number_format($user->active_days) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                @if($user->last_message_at)
-                                    {{ \Carbon\Carbon::parse($user->last_message_at)->diffForHumans() }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ $user->created_at->format('d/m/Y') }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Actividad por día de la semana -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold gradient-text">📅 Actividad por Día de la Semana</h3>
-            </div>
-            <div class="p-6">
-                <div class="space-y-4">
-                    @foreach($activityByDayOfWeek as $dayActivity)
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-gray-700 w-20">{{ $dayActivity->day_name }}</span>
-                        <div class="flex items-center flex-1 ml-4">
-                            <div class="w-full bg-gray-200 rounded-full h-4 mr-3 overflow-hidden">
-                                @php
-                                    $maxActivity = $activityByDayOfWeek->max('count');
-                                    $percentage = $maxActivity > 0 ? ($dayActivity->count / $maxActivity) * 100 : 0;
-                                @endphp
-                                <div class="activity-bar h-4 rounded-full transition-all duration-300 hover:scale-y-110" style="width: {{ $percentage }}%"></div>
                             </div>
-                            <span class="text-sm text-gray-600 w-16 text-right">{{ number_format($dayActivity->count) }}</span>
+                            <span class="text-xs font-mono text-slate-500 w-20 text-right">{{ number_format($dayActivity->count) }}</span>
                         </div>
+                        @endforeach
                     </div>
-                    @endforeach
                 </div>
             </div>
-        </div>
 
-        <!-- Registros por mes -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold gradient-text">📈 Registros por Mes (Últimos 12 meses)</h3>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    @foreach($usersByMonth as $monthData)
-                    <div class="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 text-center hover:from-red-100 hover:to-orange-100 transition-all duration-300">
-                        <div class="text-lg font-bold gradient-text">
-                            {{ number_format($monthData->count) }}
-                        </div>
-                        <div class="text-sm text-gray-600">
-                            {{ \Carbon\Carbon::create($monthData->year, $monthData->month)->format('M Y') }}
-                        </div>
+            <!-- Registros por mes -->
+            <div class="admin-panel admin-fade admin-d4">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Registros por mes · Últimos 12 meses</div>
+                        <div class="admin-panel-sub">Nuevos usuarios agrupados por mes.</div>
                     </div>
-                    @endforeach
+                </div>
+                <div class="admin-panel-body">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                        @foreach($usersByMonth as $monthData)
+                        <div class="month-tile">
+                            <div class="month-tile-value">{{ number_format($monthData->count) }}</div>
+                            <div class="month-tile-label">{{ \Carbon\Carbon::create($monthData->year, $monthData->month)->format('M Y') }}</div>
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
+
         </div>
-    </div>
+    </section>
 </div>
 @endsection

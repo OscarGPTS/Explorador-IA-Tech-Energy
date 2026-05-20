@@ -2,195 +2,585 @@
 
 @push('styles')
 <style>
-/* Animaciones y transiciones suaves */
-.news-card {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateY(0);
-}
+    :root {
+        --eia-black: #0F1419;
+        --eia-graphite: #1F2937;
+        --eia-slate: #475569;
+        --eia-mute: #64748B;
+        --eia-border: #E5E7EB;
+        --eia-surface: #FFFFFF;
+        --eia-bg: #F8FAFC;
+        --eia-red: #B91C1C;
+        --eia-gold: #D97706;
+        --eia-gold-soft: #FBBF24;
+    }
 
-.news-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
+    .eia-bg { background: var(--eia-bg); }
 
-.news-image {
-    transition: transform 0.5s ease;
-}
+    /* HERO */
+    .news-hero {
+        background:
+            radial-gradient(1000px 280px at 92% -40%, rgba(217, 119, 6, 0.18), transparent 60%),
+            radial-gradient(800px 260px at 5% 130%, rgba(185, 28, 28, 0.22), transparent 60%),
+            linear-gradient(180deg, #0F1419 0%, #1A1F26 100%);
+        color: #F8FAFC;
+        border-bottom: 1px solid var(--eia-graphite);
+        position: relative;
+    }
+    .news-hero::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--eia-red) 0%, var(--eia-gold) 100%);
+        opacity: 0.85;
+    }
+    .news-back {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.04);
+        display: inline-flex; align-items: center; justify-content: center;
+        color: #E2E8F0;
+        transition: all .2s ease;
+    }
+    .news-back:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--eia-gold);
+        color: #FFFFFF;
+    }
+    .eia-eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--eia-gold-soft);
+        font-weight: 600;
+    }
 
-.news-card:hover .news-image {
-    transform: scale(1.05);
-}
+    /* Botón Personalizar (oscuro corporativo) */
+    .news-personalize {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.06);
+        color: #FFFFFF;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        transition: all .2s ease;
+        cursor: pointer;
+    }
+    .news-personalize:hover {
+        background: rgba(217, 119, 6, 0.15);
+        border-color: var(--eia-gold);
+    }
 
-.fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
-    opacity: 0;
-}
+    /* Tabs */
+    .news-tabs-wrap {
+        background: var(--eia-surface);
+        border: 1px solid var(--eia-border);
+        border-radius: 12px;
+        padding: 6px;
+        display: inline-flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+    .tab-button {
+        position: relative;
+        padding: 9px 16px;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--eia-slate);
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: color .2s ease, background .2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .tab-button:hover { color: var(--eia-black); background: #F1F5F9; }
+    .tab-button.active {
+        color: #FFFFFF;
+        background: var(--eia-black);
+    }
+    .tab-button.active::after {
+        content: '';
+        position: absolute;
+        left: 12px; right: 12px; bottom: 3px;
+        height: 2px;
+        background: var(--eia-gold);
+        border-radius: 2px;
+    }
+    .tab-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 18px;
+        padding: 0 6px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        background: #FEF2F2;
+        color: var(--eia-red);
+        border: 1px solid #FECACA;
+    }
+    .tab-button.active .tab-count {
+        background: rgba(217, 119, 6, 0.18);
+        color: var(--eia-gold-soft);
+        border-color: rgba(217, 119, 6, 0.4);
+    }
 
-.fade-in-delay-1 { animation-delay: 0.1s; }
-.fade-in-delay-2 { animation-delay: 0.2s; }
-.fade-in-delay-3 { animation-delay: 0.3s; }
-.fade-in-delay-4 { animation-delay: 0.4s; }
-
-@keyframes fadeIn {
-    from {
+    /* CARD */
+    .news-card {
+        background: var(--eia-surface);
+        border: 1px solid var(--eia-border);
+        border-radius: 14px;
+        overflow: hidden;
+        transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    .news-card::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: var(--eia-red);
         opacity: 0;
-        transform: translateY(30px);
+        transition: opacity .25s ease;
+        z-index: 3;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .news-card:hover {
+        border-color: #94A3B8;
+        box-shadow: 0 18px 36px -22px rgba(15, 20, 25, 0.4);
+        transform: translateY(-4px);
     }
-}
+    .news-card:hover::before { opacity: 1; }
 
-.tab-button {
-    transition: all 0.3s ease;
-    position: relative;
-}
+    .news-media {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: linear-gradient(135deg, #1F2937 0%, #0F1419 100%);
+    }
+    .news-image {
+        position: absolute;
+        inset: 0;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform .5s ease;
+        filter: saturate(0.92) contrast(1.02);
+    }
+    .news-card:hover .news-image { transform: scale(1.04); }
+    .news-media::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(15, 20, 25, 0) 55%, rgba(15, 20, 25, 0.55) 100%);
+    }
+    .news-media-empty {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.25);
+    }
 
-.tab-button::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 50%;
-    width: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #DC2626, #FBBF24);
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-    border-radius: 2px;
-}
+    .news-source-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(15, 20, 25, 0.85);
+        color: #FFFFFF;
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .news-source-badge .dot {
+        width: 5px; height: 5px;
+        border-radius: 50%;
+        background: var(--eia-gold);
+    }
 
-.tab-button.active::after,
-.tab-button:hover::after {
-    width: 100%;
-}
+    .news-body {
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+    }
+    .news-title {
+        font-size: 15.5px;
+        font-weight: 600;
+        color: var(--eia-black);
+        letter-spacing: -0.01em;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .news-desc {
+        font-size: 13px;
+        color: var(--eia-slate);
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
 
-.news-badge {
-    background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
-    animation: pulse 2s infinite;
-}
+    .news-foot {
+        margin-top: auto;
+        padding: 12px 20px;
+        border-top: 1px solid var(--eia-border);
+        background: #FAFAFB;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .news-foot-meta {
+        font-size: 11px;
+        color: var(--eia-mute);
+        letter-spacing: 0.04em;
+    }
+    .news-cta {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--eia-black);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+    .news-cta svg { transition: transform .25s ease; }
+    .news-card:hover .news-cta svg { transform: translateX(3px); }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.8; }
-}
+    /* Empty state */
+    .news-empty-state {
+        background: var(--eia-surface);
+        border: 1px dashed #CBD5E1;
+        border-radius: 14px;
+        padding: 60px 28px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        color: var(--eia-mute);
+    }
+    .news-empty-icon {
+        width: 56px; height: 56px;
+        border-radius: 14px;
+        background: #F1F5F9;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--eia-mute);
+    }
 
-.glass-effect {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
+    /* Section header */
+    .news-section-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .news-section-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--eia-mute);
+    }
+    .news-section-sub {
+        font-size: 13px;
+        color: var(--eia-slate);
+        margin-top: 4px;
+    }
 
-.gradient-text {
-    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
+    /* Modal restyle */
+    .eia-modal-shell {
+        background: var(--eia-surface);
+        border: 1px solid var(--eia-border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -20px rgba(15, 20, 25, 0.4);
+    }
+    .eia-modal-head {
+        padding: 22px 26px;
+        border-bottom: 1px solid var(--eia-border);
+        background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+    }
+    .eia-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--eia-black);
+        letter-spacing: -0.01em;
+    }
+    .eia-modal-sub {
+        font-size: 12.5px;
+        color: var(--eia-mute);
+        margin-top: 4px;
+    }
+    .eia-modal-close {
+        width: 34px; height: 34px;
+        border-radius: 8px;
+        background: #F1F5F9;
+        color: var(--eia-slate);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--eia-border);
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+    .eia-modal-close:hover {
+        background: var(--eia-black);
+        color: #FFFFFF;
+        border-color: var(--eia-black);
+    }
 
-.loading-shimmer {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-}
+    /* Category checkbox option */
+    .cat-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid var(--eia-border);
+        border-radius: 10px;
+        background: #FFFFFF;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+    .cat-option:hover {
+        border-color: #94A3B8;
+        background: #F8FAFC;
+    }
+    .cat-option input {
+        accent-color: var(--eia-red);
+        width: 16px; height: 16px;
+    }
+    .cat-option:has(input:checked) {
+        border-color: var(--eia-black);
+        background: #F8FAFC;
+        box-shadow: inset 3px 0 0 var(--eia-red);
+    }
+    .cat-option-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--eia-black);
+    }
 
-@keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-}
+    /* Buttons */
+    .btn-eia-primary {
+        background: var(--eia-black);
+        color: #FFFFFF;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: 1px solid var(--eia-black);
+        transition: all .2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-eia-primary:hover {
+        background: #1F2937;
+        border-color: var(--eia-gold);
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+    .btn-eia-secondary {
+        background: #FFFFFF;
+        color: var(--eia-slate);
+        font-size: 13px;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: 1px solid var(--eia-border);
+        transition: all .2s ease;
+        cursor: pointer;
+    }
+    .btn-eia-secondary:hover {
+        background: #F1F5F9;
+        color: var(--eia-black);
+    }
+    .btn-external {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background: var(--eia-red);
+        color: #FFFFFF;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid var(--eia-red);
+        transition: all .2s ease;
+    }
+    .btn-external:hover {
+        background: #991B1B;
+        box-shadow: 0 6px 16px -8px rgba(185, 28, 28, 0.6);
+    }
+
+    /* Detail modal extras */
+    .detail-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        border-radius: 999px;
+        background: #F1F5F9;
+        color: var(--eia-slate);
+        border: 1px solid var(--eia-border);
+    }
+    .detail-chip.red { background: #FEF2F2; color: var(--eia-red); border-color: #FECACA; }
+    .detail-quote {
+        background: #FAFAFB;
+        border: 1px solid var(--eia-border);
+        border-left: 3px solid var(--eia-gold);
+        border-radius: 10px;
+        padding: 18px 22px;
+        color: var(--eia-slate);
+        font-size: 14px;
+        line-height: 1.65;
+    }
+    .detail-source-band {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 18px;
+        background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%);
+        color: #F8FAFC;
+        border-radius: 12px;
+        border: 1px solid var(--eia-graphite);
+    }
+    .detail-source-band .icon-wrap {
+        width: 38px; height: 38px;
+        background: rgba(217, 119, 6, 0.18);
+        border: 1px solid rgba(217, 119, 6, 0.4);
+        border-radius: 10px;
+        display: inline-flex; align-items: center; justify-content: center;
+        color: var(--eia-gold-soft);
+    }
+
+    /* Fade */
+    .eia-fade { animation: eiaFade .55s ease-out both; }
+    .eia-d1 { animation-delay: .05s; }
+    .eia-d2 { animation-delay: .12s; }
+    .eia-d3 { animation-delay: .2s; }
+    .eia-d4 { animation-delay: .28s; }
+    @keyframes eiaFade {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
-    <!-- Header mejorado con gradiente rojo-amarillo -->
-    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
-        <div class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
-                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
-                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
-                        </svg>
-                    </a>
-                    <div>
-                        <h1 class="text-3xl font-bold">📰 Novedades y Noticias</h1>
-                        <p class="text-orange-100 text-sm mt-1">Mantente informado con las últimas noticias del sector</p>
-                    </div>
-                </div>
+<div class="eia-bg min-h-screen">
 
-                <button data-modal-target="top-right-modal" data-modal-toggle="top-right-modal" 
-                    class="flex items-center space-x-3 bg-white/20 hover:bg-white/30 
-                           backdrop-filter backdrop-blur-sm border border-white/30
-                           font-medium rounded-full text-sm px-6 py-3 text-white
-                           transition-all duration-300 transform hover:scale-105" 
-                    type="button">
-                    <span class="text-base">Personalizar</span>
-                    <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M14.2788 2.15224C13.9085 2 13.439 2 12.5 2C11.561 2 11.0915 2 10.7212 2.15224C10.2274 2.35523 9.83509 2.74458 9.63056 3.23463C9.53719 3.45834 9.50065 3.7185 9.48635 4.09799C9.46534 4.65568 9.17716 5.17189 8.69017 5.45093C8.20318 5.72996 7.60864 5.71954 7.11149 5.45876C6.77318 5.2813 6.52789 5.18262 6.28599 5.15102C5.75609 5.08178 5.22018 5.22429 4.79616 5.5472C4.47814 5.78938 4.24339 6.1929 3.7739 6.99993C3.30441 7.80697 3.06967 8.21048 3.01735 8.60491C2.94758 9.1308 3.09118 9.66266 3.41655 10.0835C3.56506 10.2756 3.77377 10.437 4.0977 10.639C4.57391 10.936 4.88032 11.4419 4.88029 12C4.88026 12.5581 4.57386 13.0639 4.0977 13.3608C3.77372 13.5629 3.56497 13.7244 3.41645 13.9165C3.09108 14.3373 2.94749 14.8691 3.01725 15.395C3.06957 15.7894 3.30432 16.193 3.7738 17C4.24329 17.807 4.47804 18.2106 4.79606 18.4527C5.22008 18.7756 5.75599 18.9181 6.28589 18.8489C6.52778 18.8173 6.77305 18.7186 7.11133 18.5412C7.60852 18.2804 8.2031 18.27 8.69012 18.549C9.17714 18.8281 9.46533 19.3443 9.48635 19.9021C9.50065 20.2815 9.53719 20.5417 9.63056 20.7654C9.83509 21.2554 10.2274 21.6448 10.7212 21.8478C11.0915 22 11.561 22 12.5 22C13.439 22 13.9085 22 14.2788 21.8478C14.7726 21.6448 15.1649 21.2554 15.3694 20.7654C15.4628 20.5417 15.4994 20.2815 15.5137 19.902C15.5347 19.3443 15.8228 18.8281 16.3098 18.549C16.7968 18.2699 17.3914 18.2804 17.8886 18.5412C18.2269 18.7186 18.4721 18.8172 18.714 18.8488C19.2439 18.9181 19.7798 18.7756 20.2038 18.4527C20.5219 18.2105 20.7566 17.807 21.2261 16.9999C21.6956 16.1929 21.9303 15.7894 21.9827 15.395C22.0524 14.8691 21.9088 14.3372 21.5835 13.9164C21.4349 13.7243 21.2262 13.5628 20.9022 13.3608C20.4261 13.0639 20.1197 12.558 20.1197 11.9999C20.1197 11.4418 20.4261 10.9361 20.9022 10.6392C21.2263 10.4371 21.435 10.2757 21.5836 10.0835C21.9089 9.66273 22.0525 9.13087 21.9828 8.60497C21.9304 8.21055 21.6957 7.80703 21.2262 7C20.7567 6.19297 20.522 5.78945 20.2039 5.54727C19.7799 5.22436 19.244 5.08185 18.7141 5.15109C18.4722 5.18269 18.2269 5.28136 17.8887 5.4588C17.3915 5.71959 16.7969 5.73002 16.3099 5.45096C15.8229 5.17191 15.5347 4.65566 15.5136 4.09794C15.4993 3.71848 15.4628 3.45833 15.3694 3.23463C15.1649 2.74458 14.7726 2.35523 14.2788 2.15224ZM12.5 15C14.1695 15 15.5228 13.6569 15.5228 12C15.5228 10.3431 14.1695 9 12.5 9C10.8305 9 9.47716 10.3431 9.47716 12C9.47716 13.6569 10.8305 15 12.5 15Z" fill="currentColor"/>
+    {{-- HERO --}}
+    <section class="news-hero px-4 sm:px-8 lg:px-12 py-10">
+        <div class="max-w-7xl mx-auto flex items-start justify-between gap-6 flex-wrap">
+            <div class="flex items-center gap-4">
+                <a href="/" class="news-back" aria-label="Volver al inicio">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/>
                     </svg>
-                </button>
+                </a>
+                <div>
+                    <span class="eia-eyebrow">Inteligencia sectorial</span>
+                    <h1 class="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">Noticias del sector</h1>
+                    <p class="mt-1 text-sm text-slate-300 max-w-2xl">
+                        Mercado energético, industria petrolera y novedades estratégicas en tiempo real.
+                    </p>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Modal de personalización mejorado -->
-    <div id="top-right-modal" data-modal-placement="center" tabindex="-1" 
-        class="fixed inset-0 z-50 hidden w-full h-full bg-black/50 backdrop-blur-sm">
+            <button data-modal-target="top-right-modal" data-modal-toggle="top-right-modal"
+                    class="news-personalize" type="button">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M6 12h12M10 17h4"/>
+                </svg>
+                Personalizar feed
+            </button>
+        </div>
+    </section>
+
+    {{-- Modal de personalización --}}
+    <div id="top-right-modal" data-modal-placement="center" tabindex="-1"
+         class="fixed inset-0 z-50 hidden w-full h-full" style="background: rgba(15, 20, 25, 0.55); backdrop-filter: blur(4px);">
         <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl glass-effect transform transition-all duration-300">
-                <!-- Header del modal -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-100">
+            <div class="eia-modal-shell w-full max-w-2xl">
+                <div class="eia-modal-head flex items-start justify-between">
                     <div>
-                        <h3 class="text-2xl font-bold gradient-text">🎨 Personaliza tus noticias</h3>
-                        <p class="text-gray-500 text-sm mt-1">Selecciona las categorías de tu interés</p>
+                        <p class="text-[10px] uppercase tracking-[0.22em] font-semibold" style="color: var(--eia-red);">Preferencias</p>
+                        <h3 class="eia-modal-title mt-1">Personaliza tu feed de noticias</h3>
+                        <p class="eia-modal-sub">Selecciona las categorías relevantes para tu rol.</p>
                     </div>
-                    <button type="button" class="p-2 text-gray-400 bg-gray-100 hover:bg-gray-200 
-                                               rounded-full transition-all duration-300 transform hover:scale-110" 
-                            data-modal-hide="top-right-modal">
-                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    <button type="button" class="eia-modal-close" data-modal-hide="top-right-modal" aria-label="Cerrar">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                         </svg>
                     </button>
                 </div>
 
-                <!-- Cuerpo del modal -->
                 <div class="p-6">
-                    <form action="{{ route('news.updatePreferences') }}" method="POST" class="space-y-4">
+                    <form action="{{ route('news.updatePreferences') }}" method="POST" class="space-y-5">
                         @csrf
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             @foreach ($news as $id => $name)
-                                <label class="flex items-center p-4 rounded-xl border-2 border-gray-100 
-                                    hover:border-red-200 hover:bg-red-50 cursor-pointer
-                                             transition-all duration-300 group">
-                                    <input type="checkbox" name="news[]" value="{{ $id }}" 
-                                        class="w-5 h-5 text-red-600 bg-gray-100 border-gray-300 rounded 
-                                               focus:ring-red-500 focus:ring-2 transition-all duration-300"
-                                        @if(in_array($id, $userNewsIds)) checked @endif>
-                                    <span class="ml-3 text-sm font-medium text-gray-900 group-hover:text-red-700 
-                                                transition-colors duration-300">{{ $name }}</span>
-                                    <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <span class="text-red-500">✨</span>
-                                    </div>
+                                <label class="cat-option">
+                                    <input type="checkbox" name="news[]" value="{{ $id }}"
+                                           @if(in_array($id, $userNewsIds)) checked @endif>
+                                    <span class="cat-option-label">{{ $name }}</span>
                                 </label>
                             @endforeach
                         </div>
 
-                        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-100">
-                            <button data-modal-hide="top-right-modal" type="button" 
-                                class="px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 
-                                       rounded-full hover:bg-gray-200 transition-all duration-300
-                                       transform hover:scale-105">
+                        <div class="flex justify-end gap-3 pt-5 border-t border-slate-200">
+                            <button data-modal-hide="top-right-modal" type="button" class="btn-eia-secondary">
                                 Cancelar
                             </button>
-                            <button type="submit" 
-                                class="px-8 py-3 text-sm font-medium text-white bg-gradient-to-r 
-                                       from-red-500 to-yellow-500 rounded-full hover:from-red-600 
-                                       hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 
-                                       shadow-lg hover:shadow-xl">
-                                💾 Guardar Preferencias
+                            <button type="submit" class="btn-eia-primary">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Guardar preferencias
                             </button>
                         </div>
                     </form>
@@ -199,257 +589,189 @@
         </div>
     </div>
 
-    <!-- Sección de pestañas modernizada -->
-    <div class="container mx-auto px-4 py-6">
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-1">
-            <ul class="flex flex-wrap gap-2" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
-                @foreach ($newsData as $index => $category) 
-                    <li role="presentation">
-                        <button class="tab-button px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300
-                                     text-gray-600 hover:text-red-600 hover:bg-red-50
-                                     {{ $index === 0 ? 'active text-red-600 border-red-500' : 'border-transparent' }}" 
-                            id="tab-{{ $category->id }}" 
+    {{-- Tabs --}}
+    <section class="px-4 sm:px-8 lg:px-12 pt-7">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+            <div class="news-tabs-wrap eia-fade eia-d1" id="default-tab" data-tabs-toggle="#default-tab-content" role="tablist">
+                @foreach ($newsData as $index => $category)
+                    <button class="tab-button {{ $index === 0 ? 'active' : '' }}"
+                            id="tab-{{ $category->id }}"
                             data-tab="content-{{ $category->id }}"
-                            data-tabs-target="#content-{{ $category->id }}" 
-                            type="button" role="tab" aria-controls="content-{{ $category->id }}" 
+                            data-tabs-target="#content-{{ $category->id }}"
+                            type="button" role="tab"
+                            aria-controls="content-{{ $category->id }}"
                             aria-selected="{{ $index === 0 ? 'true' : 'false' }}">
-                            <span class="flex items-center space-x-2">
-                                <span>{{ $category->category }}</span>
-                                @if(count($category->news) > 0)
-                                    <span class="news-badge px-2 py-1 text-xs rounded-full text-white font-semibold">
-                                        {{ count($category->news) }}
-                                    </span>
-                                @endif
-                            </span>
-                        </button>
-                    </li>
+                        <span>{{ $category->category }}</span>
+                        @if(count($category->news) > 0)
+                            <span class="tab-count">{{ count($category->news) }}</span>
+                        @endif
+                    </button>
                 @endforeach
-            </ul>
+            </div>
+            <p class="text-xs text-slate-500 tracking-wider uppercase font-semibold eia-fade eia-d1">
+                Actualizado · {{ now()->locale('es')->translatedFormat('d M Y') }}
+            </p>
         </div>
-    </div>
+    </section>
 
-    <!-- Contenido de las pestañas con grid mejorado -->
-    <div class="container mx-auto px-4 pb-12">
-        <div id="default-tab-content">
-            @foreach ($newsData as $index => $category) 
-                <div class="{{ $index === 0 ? '' : 'hidden' }} transition-all duration-500" 
-                     id="content-{{ $category->id }}" role="tabpanel" aria-labelledby="tab-{{ $category->id }}">
-                    
-                    @if(count($category->news) > 0)
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            @foreach ($category->news as $itemIndex => $item)
-                                <article class="news-card bg-white rounded-2xl shadow-lg overflow-hidden 
-                                              border border-gray-100 hover:border-red-200 
-                                              fade-in fade-in-delay-{{ ($itemIndex % 4) + 1 }}">
-                                    <!-- Imagen con overlay -->
-                                    <div class="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
-                                        @if($item->image_url)
-                                            <img class="news-image w-full h-full object-cover" 
-                                                 src="{{ $item->image_url }}" 
-                                                 alt="{{ $item->title }}"
-                                                 loading="lazy">
-                                        @else
-                                            <div class="flex items-center justify-center h-full bg-gradient-to-br from-red-100 to-yellow-100">
-                                                <svg class="w-16 h-16 text-red-300" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        @endif
-                                        
-                                        <!-- Overlay con gradiente -->
-                                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-                                        
-                                        <!-- Badge de fuente -->
-                                        <div class="absolute top-3 left-3">
-                                            <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-xs font-semibold 
-                                                       text-gray-700 rounded-full border border-white/20">
-                                                📰 {{ ucfirst($item->source) }}
-                                            </span>
+    {{-- Contenido --}}
+    <section class="px-4 sm:px-8 lg:px-12 py-8">
+        <div class="max-w-7xl mx-auto">
+
+            <div id="default-tab-content">
+                @foreach ($newsData as $index => $category)
+                    <div class="{{ $index === 0 ? '' : 'hidden' }}"
+                         id="content-{{ $category->id }}" role="tabpanel" aria-labelledby="tab-{{ $category->id }}">
+
+                        <div class="news-section-head eia-fade eia-d2">
+                            <div>
+                                <p class="news-section-title">{{ $category->category }} · Feed</p>
+                                <p class="news-section-sub">{{ count($category->news) }} {{ count($category->news) === 1 ? 'publicación disponible' : 'publicaciones disponibles' }}</p>
+                            </div>
+                        </div>
+
+                        @if(count($category->news) > 0)
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                @foreach ($category->news as $itemIndex => $item)
+                                    <article class="news-card eia-fade eia-d{{ ($itemIndex % 4) + 1 }}">
+                                        <div class="news-media">
+                                            <span class="news-source-badge"><span class="dot"></span>{{ ucfirst($item->source) }}</span>
+                                            @if($item->image_url)
+                                                <img class="news-image"
+                                                     src="{{ $item->image_url }}"
+                                                     alt="{{ $item->title }}"
+                                                     loading="lazy">
+                                            @else
+                                                <div class="news-media-empty">
+                                                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 17V7a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2zM4 17l4-5 3 4 2-2 7 7"/>
+                                                        <circle cx="8.5" cy="9.5" r="1.5"/>
+                                                    </svg>
+                                                </div>
+                                            @endif
                                         </div>
-                                    </div>
 
-                                    <!-- Contenido de la card -->
-                                    <div class="p-6 flex flex-col h-40">
-                                        <h4 class="font-bold text-gray-900 text-lg mb-3 truncate">
-                                            {{ $item->title }}
-                                        </h4>
+                                        <div class="news-body">
+                                            <h4 class="news-title">{{ $item->title }}</h4>
+                                            <p class="news-desc">{{ $item->description }}</p>
+                                        </div>
 
-                                        <p class="text-gray-600 text-sm flex-grow mb-4 truncate">
-                                            {{ $item->description }}
-                                        </p>
-                                        
-                                        <!-- Botón mejorado -->
-                                        <div class="mt-auto">
-                                            <button data-modal-target="modal-{{ $item->id }}" data-modal-toggle="modal-{{ $item->id }}" 
-                                                class="w-full bg-gradient-to-r from-red-500 to-yellow-500 
-                                                       hover:from-red-600 hover:to-yellow-600 text-white 
-                                                       font-semibold py-3 px-4 rounded-xl transition-all duration-300 
-                                                       transform hover:scale-105 shadow-md hover:shadow-lg
-                                                       flex items-center justify-center space-x-2">
-                                                <span>Ver Detalles</span>
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                          d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                        <div class="news-foot">
+                                            <span class="news-foot-meta">{{ $item->created_at->diffForHumans() }}</span>
+                                            <button class="news-cta" data-modal-target="modal-{{ $item->id }}" data-modal-toggle="modal-{{ $item->id }}" type="button">
+                                                Ver detalle
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                                                 </svg>
                                             </button>
                                         </div>
-                                    </div>
-                                </article>
+                                    </article>
 
-                                <!-- Modal de detalles mejorado -->
-                                <div id="modal-{{ $item->id }}" tabindex="-1" aria-hidden="true" 
-                                    class="hidden fixed inset-0 z-50 w-full h-full bg-black/50 backdrop-blur-sm">
-                                    <div class="flex items-center justify-center min-h-screen px-4 py-8">
-                                        <div class="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-3xl shadow-2xl 
-                                                   glass-effect transform transition-all duration-300 overflow-hidden">
-                                            
-                                            <!-- Header del modal -->
-                                            <div class="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 p-6 z-10">
-                                                <div class="flex items-start justify-between">
+                                    {{-- Modal detalle --}}
+                                    <div id="modal-{{ $item->id }}" tabindex="-1" aria-hidden="true"
+                                         class="hidden fixed inset-0 z-50 w-full h-full" style="background: rgba(15, 20, 25, 0.55); backdrop-filter: blur(4px);">
+                                        <div class="flex items-start justify-center min-h-screen px-4 py-8">
+                                            <div class="eia-modal-shell w-full max-w-4xl max-h-[90vh] flex flex-col">
+                                                <div class="eia-modal-head flex items-start justify-between">
                                                     <div class="flex-1 pr-4">
-                                                        <h3 class="text-2xl font-bold text-gray-900 leading-tight">
-                                                            {{ $item->title }}
-                                                        </h3>
-                                                        <div class="flex items-center space-x-4 mt-3">
-                                                            <span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">
-                                                                📰 {{ ucfirst($item->source) }}
-                                                            </span>
-                                                            <span class="text-gray-500 text-sm">
-                                                                🕒 {{ $item->created_at->diffForHumans() }}
-                                                            </span>
+                                                        <div class="flex items-center gap-2 flex-wrap">
+                                                            <span class="detail-chip red">{{ ucfirst($item->source) }}</span>
+                                                            <span class="detail-chip">{{ $item->created_at->diffForHumans() }}</span>
                                                         </div>
+                                                        <h3 class="eia-modal-title mt-3" style="font-size: 22px; line-height: 1.3;">{{ $item->title }}</h3>
                                                     </div>
-                                                    <button type="button" 
-                                                        class="p-2 text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 
-                                                               rounded-full transition-all duration-300 transform hover:scale-110 flex-shrink-0" 
-                                                        data-modal-hide="modal-{{ $item->id }}">
-                                                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                    <button type="button" class="eia-modal-close" data-modal-hide="modal-{{ $item->id }}" aria-label="Cerrar">
+                                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
                                                         </svg>
                                                     </button>
                                                 </div>
-                                            </div>
-                                            
-                                            <!-- Contenido del modal con scroll -->
-                                            <div class="overflow-y-auto max-h-[calc(90vh-140px)] p-6 space-y-6">
-                                                <!-- Imagen principal -->
-                                                @if ($item->image_url)
-                                                    <div class="relative rounded-2xl overflow-hidden shadow-lg">
-                                                        <img class="w-full max-h-96 object-cover" 
-                                                             src="{{ $item->image_url }}" 
-                                                             alt="{{ $item->title }}">
-                                                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-                                                    </div>
-                                                @endif
-                                                
-                                                <!-- Descripción -->
-                                                <div class="prose prose-lg max-w-none">
-                                                    <p class="text-gray-700 leading-relaxed text-lg">
+
+                                                <div class="overflow-y-auto p-6 space-y-6" style="flex: 1;">
+                                                    @if ($item->image_url)
+                                                        <div class="rounded-xl overflow-hidden border border-slate-200" style="aspect-ratio: 16 / 9;">
+                                                            <img class="w-full h-full object-cover"
+                                                                 src="{{ $item->image_url }}"
+                                                                 alt="{{ $item->title }}">
+                                                        </div>
+                                                    @endif
+
+                                                    <p class="text-base text-slate-700 leading-relaxed">
                                                         {{ $item->description }}
                                                     </p>
-                                                </div>
-                                                
-                                                <!-- Contenido completo -->
-                                                <div class="prose prose-lg max-w-none">
-                                                    <div class="p-6 bg-gray-50 rounded-2xl border-l-4 border-indigo-500">
-                                                        <p class="text-gray-800 leading-relaxed">
-                                                            {{ $item->content }}
-                                                        </p>
+
+                                                    <div class="detail-quote">
+                                                        {{ $item->content }}
                                                     </div>
-                                                </div>
-                                                
-                                                <!-- Enlace externo -->
-                                                <div class="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-yellow-50 
-                                                           rounded-2xl border border-red-200">
-                                                    <div class="flex items-center space-x-3">
-                                                        <div class="p-2 bg-red-100 rounded-full">
-                                                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+
+                                                    <div class="detail-source-band">
+                                                        <div class="flex items-center gap-3">
+                                                            <div class="icon-wrap">
+                                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-sm font-semibold">Leer artículo completo</p>
+                                                                <p class="text-xs text-slate-400">Fuente: {{ ucfirst($item->source) }}</p>
+                                                            </div>
+                                                        </div>
+                                                        <a href="{{ $item->external_link }}" target="_blank" class="btn-external">
+                                                            Ir al sitio
+                                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                                                             </svg>
-                                                        </div>
-                                                        <div>
-                                                            <p class="text-sm font-medium text-gray-900">Leer artículo completo</p>
-                                                            <p class="text-xs text-gray-500">Fuente: {{ ucfirst($item->source) }}</p>
-                                                        </div>
+                                                        </a>
                                                     </div>
-                                                    <a href="{{ $item->external_link }}" target="_blank" 
-                                                       class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold 
-                                                              rounded-full transition-all duration-300 transform hover:scale-105 
-                                                              shadow-md hover:shadow-lg flex items-center space-x-2">
-                                                        <span>Ir al sitio</span>
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                                        </svg>
-                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <!-- Estado vacío mejorado -->
-                        <div class="flex flex-col items-center justify-center py-20 text-center">
-                            <div class="p-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-6">
-                                <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
-                                          d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                                </svg>
+                                @endforeach
                             </div>
-                            <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay noticias disponibles</h3>
-                            <p class="text-gray-500 max-w-md">
-                                Aún no tenemos noticias en esta categoría. Revisa más tarde o explora otras secciones.
-                            </p>
-                        </div>
-                    @endif
-                </div>
-            @endforeach
+                        @else
+                            <div class="news-empty-state">
+                                <div class="news-empty-icon">
+                                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h11l5 5v9a2 2 0 01-2 2z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 10h6M7 14h10M7 18h7"/>
+                                    </svg>
+                                </div>
+                                <p class="text-sm font-semibold uppercase tracking-widest text-slate-700">No hay noticias disponibles</p>
+                                <p class="text-sm text-slate-500 max-w-md">
+                                    Aún no tenemos publicaciones en esta categoría. Revisa más tarde o ajusta tus preferencias del feed.
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
         </div>
-    </div>
+    </section>
+
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Seleccionar todos los botones de tab
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('[role="tabpanel"]');
-    
-    // Función para cambiar de tab
+
     function switchTab(targetTab) {
-        // Remover clase active de todos los botones
         tabButtons.forEach(button => {
             button.classList.remove('active');
-            button.classList.remove('text-red-600', 'border-red-500');
-            button.classList.add('text-gray-600', 'border-transparent');
             button.setAttribute('aria-selected', 'false');
         });
-        
-        // Ocultar todos los contenidos
-        tabContents.forEach(content => {
-            content.classList.add('hidden');
-        });
-        
-        // Activar el botón clickeado
+        tabContents.forEach(content => content.classList.add('hidden'));
+
         const activeButton = document.querySelector(`[data-tab="${targetTab}"]`);
         if (activeButton) {
             activeButton.classList.add('active');
-            activeButton.classList.remove('text-gray-600', 'border-transparent');
-            activeButton.classList.add('text-red-600', 'border-red-500');
             activeButton.setAttribute('aria-selected', 'true');
         }
-        
-        // Mostrar el contenido correspondiente
         const activeContent = document.getElementById(targetTab);
-        if (activeContent) {
-            activeContent.classList.remove('hidden');
-        }
+        if (activeContent) activeContent.classList.remove('hidden');
     }
-    
-    // Agregar event listeners a todos los botones
+
     tabButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
@@ -457,8 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
             switchTab(targetTab);
         });
     });
-    
-    // Inicializar el primer tab como activo
+
     if (tabButtons.length > 0) {
         const firstTab = tabButtons[0].getAttribute('data-tab');
         switchTab(firstTab);

@@ -4,349 +4,830 @@
 
 @push('styles')
 <style>
-    .solution-content ul {
-        margin: 0.5rem 0;
-    }
-    .solution-content li {
-        margin: 0.25rem 0;
-    }
-    .solution-content h4 {
-        margin-bottom: 0.5rem !important;
-    }
-    .solution-content .space-y-4 > * + * {
-        margin-top: 1rem;
-    }
-    .solution-content .space-y-1 > * + * {
-        margin-top: 0.25rem;
+    :root {
+        --eia-black: #0F1419;
+        --eia-graphite: #1F2937;
+        --eia-slate: #475569;
+        --eia-mute: #64748B;
+        --eia-border: #E5E7EB;
+        --eia-surface: #FFFFFF;
+        --eia-bg: #F8FAFC;
+        --eia-red: #B91C1C;
+        --eia-gold: #D97706;
+        --eia-gold-soft: #FBBF24;
     }
 
-    /* Animaciones y transiciones suaves */
-    .support-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateY(0);
+    .eia-bg { background: var(--eia-bg); }
+
+    /* HERO */
+    .ts-hero {
+        background:
+            radial-gradient(1000px 280px at 92% -40%, rgba(217, 119, 6, 0.18), transparent 60%),
+            radial-gradient(800px 260px at 5% 130%, rgba(185, 28, 28, 0.22), transparent 60%),
+            linear-gradient(180deg, #0F1419 0%, #1A1F26 100%);
+        color: #F8FAFC;
+        border-bottom: 1px solid var(--eia-graphite);
+        position: relative;
+    }
+    .ts-hero::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--eia-red) 0%, var(--eia-gold) 100%);
+        opacity: 0.85;
+    }
+    .ts-back {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.04);
+        display: inline-flex; align-items: center; justify-content: center;
+        color: #E2E8F0;
+        transition: all .2s ease;
+    }
+    .ts-back:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--eia-gold);
+        color: #FFFFFF;
+    }
+    .eia-eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--eia-gold-soft);
+        font-weight: 600;
+    }
+    .ts-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.06);
+        color: #FFFFFF;
+        border-radius: 10px;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        transition: all .2s ease;
+    }
+    .ts-action:hover {
+        background: rgba(217, 119, 6, 0.15);
+        border-color: var(--eia-gold);
     }
 
-    .support-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    /* KPI */
+    .ts-kpi {
+        background: var(--eia-surface);
+        border: 1px solid var(--eia-border);
+        border-radius: 12px;
+        padding: 18px 20px;
+        position: relative;
+        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+        overflow: hidden;
+    }
+    .ts-kpi:hover {
+        border-color: #94A3B8;
+        box-shadow: 0 12px 28px -16px rgba(15, 20, 25, 0.3);
+        transform: translateY(-2px);
+    }
+    .ts-kpi .accent {
+        position: absolute;
+        left: 0; top: 16px; bottom: 16px;
+        width: 3px;
+        border-radius: 2px;
+        background: var(--eia-red);
+    }
+    .ts-kpi.gold .accent { background: var(--eia-gold); }
+    .ts-kpi.black .accent { background: var(--eia-black); }
+    .ts-kpi-icon {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        background: #FEF2F2;
+        color: var(--eia-red);
+        border: 1px solid #FECACA;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .ts-kpi.gold .ts-kpi-icon { background: #FFFBEB; color: var(--eia-gold); border-color: #FDE68A; }
+    .ts-kpi.black .ts-kpi-icon { background: #0F1419; color: #F8FAFC; border-color: #0F1419; }
+    .ts-kpi-label {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--eia-mute);
+        font-weight: 600;
+    }
+    .ts-kpi-value {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--eia-black);
+        line-height: 1;
+        margin-top: 4px;
     }
 
-    .gradient-text {
-        background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+    /* Panel */
+    .ts-panel {
+        background: var(--eia-surface);
+        border: 1px solid var(--eia-border);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+    .ts-panel-head {
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--eia-border);
+        background: #FAFAFB;
+    }
+    .ts-panel-head.dark {
+        background: linear-gradient(180deg, #0F1419 0%, #1A1F26 100%);
+        color: #F8FAFC;
+        border-bottom: 1px solid var(--eia-graphite);
+    }
+    .ts-panel-head.dark .ts-panel-title { color: #FFFFFF; }
+    .ts-panel-head.dark .ts-panel-sub { color: #94A3B8; }
+
+    .ts-panel-title {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--eia-black);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ts-panel-sub {
+        font-size: 12.5px;
+        color: var(--eia-mute);
+        margin-top: 4px;
+    }
+    .ts-panel-body { padding: 20px 22px; }
+
+    /* Inputs */
+    .ts-search-wrap {
+        position: relative;
+    }
+    .ts-search-wrap svg.search-icon {
+        position: absolute;
+        left: 12px; top: 50%;
+        transform: translateY(-50%);
+        color: var(--eia-mute);
+    }
+    .ts-input {
+        width: 100%;
+        padding: 11px 14px 11px 38px;
+        border: 1px solid var(--eia-border);
+        border-radius: 10px;
+        background: #FFFFFF;
+        color: var(--eia-black);
+        font-size: 13.5px;
+        outline: none;
+        transition: all .2s ease;
+    }
+    .ts-input:focus {
+        border-color: var(--eia-black);
+        box-shadow: 0 0 0 3px rgba(15, 20, 25, 0.08);
+    }
+    .ts-input::placeholder { color: #94A3B8; }
+    .ts-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--eia-mute);
+        margin-bottom: 8px;
+    }
+
+    /* === Override de clases que el JS añade dinámicamente === */
+    /* Tags de empleados (JS usa bg-blue-*) */
+    .employee-tag-btn {
+        background: #F1F5F9 !important;
+        color: var(--eia-slate) !important;
+        border: 1px solid var(--eia-border) !important;
+        font-weight: 600;
+        font-size: 12px;
+        padding: 6px 12px !important;
+        border-radius: 999px !important;
+        transition: all .15s ease;
+    }
+    .employee-tag-btn:hover {
+        background: #FFFFFF !important;
+        border-color: var(--eia-black) !important;
+        color: var(--eia-black) !important;
+    }
+    .employee-tag-btn.bg-blue-300,
+    .employee-tag-btn.bg-blue-400 {
+        background: var(--eia-black) !important;
+        color: #FFFFFF !important;
+        border-color: var(--eia-black) !important;
+    }
+    .employee-tag-btn.text-blue-700,
+    .employee-tag-btn.text-blue-800,
+    .employee-tag-btn.text-blue-900 { color: inherit !important; }
+
+    /* Botones categoría documentos (JS usa bg-green-*) */
+    .document-category-btn {
+        background: #F8FAFC !important;
+        border: 1px solid var(--eia-border) !important;
+        border-radius: 10px !important;
+        padding: 12px 14px !important;
+        transition: all .2s ease;
+        color: var(--eia-black);
+        position: relative;
+        overflow: hidden;
+    }
+    .document-category-btn::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: var(--eia-gold);
+        opacity: 0;
+        transition: opacity .2s ease;
+    }
+    .document-category-btn:hover {
+        background: #FFFFFF !important;
+        border-color: #94A3B8 !important;
+    }
+    .document-category-btn:hover::before { opacity: 1; }
+    .document-category-btn.bg-green-200,
+    .document-category-btn.border-green-400 {
+        background: #FFFBEB !important;
+        border-color: var(--eia-gold) !important;
+    }
+    .document-category-btn.bg-green-200::before { opacity: 1; }
+    .document-category-btn i { color: var(--eia-slate) !important; }
+    .document-category-btn.bg-green-200 i,
+    .document-category-btn:hover i { color: var(--eia-gold) !important; }
+    .document-category-btn span { color: inherit !important; font-weight: 600; font-size: 13px; }
+
+    /* Chat container */
+    .ts-chat {
+        height: 480px;
+        overflow-y: auto;
+        padding: 24px;
+        background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+        border-bottom: 1px solid var(--eia-border);
+    }
+    .ts-chat::-webkit-scrollbar { width: 6px; }
+    .ts-chat::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+
+    /* Chat input area */
+    .ts-chat-actions {
+        padding: 16px 22px;
+        background: #FFFFFF;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    /* Botones de chat */
+    .ts-btn-primary {
+        background: var(--eia-black);
+        color: #FFFFFF;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 9px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--eia-black);
+        transition: all .2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ts-btn-primary:hover {
+        background: #1F2937;
+        border-color: var(--eia-gold);
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+    }
+    .ts-btn-ghost {
+        background: #F8FAFC;
+        color: var(--eia-slate);
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 9px 16px;
+        border-radius: 8px;
+        border: 1px solid var(--eia-border);
+        transition: all .2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ts-btn-ghost:hover {
+        background: #FFFFFF;
+        color: var(--eia-black);
+        border-color: var(--eia-black);
+    }
+    .ts-btn-danger {
+        background: #FFFFFF;
+        color: var(--eia-red);
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 9px 16px;
+        border-radius: 8px;
+        border: 1px solid #FECACA;
+        transition: all .2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ts-btn-danger:hover {
+        background: var(--eia-red);
+        color: #FFFFFF;
+        border-color: var(--eia-red);
+    }
+    .ts-btn-success {
+        background: #FFFFFF;
+        color: #047857;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 9px 16px;
+        border-radius: 8px;
+        border: 1px solid #A7F3D0;
+        transition: all .2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ts-btn-success:hover {
+        background: #047857;
+        color: #FFFFFF;
+        border-color: #047857;
+    }
+
+    /* Sidebar acciones rápidas */
+    .ts-quick-action {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 14px 16px;
+        background: #FFFFFF;
+        border: 1px solid var(--eia-border);
+        border-radius: 10px;
+        transition: all .2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    .ts-quick-action::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: var(--eia-black);
+        opacity: 0;
+        transition: opacity .2s ease;
+    }
+    .ts-quick-action:hover {
+        background: #F8FAFC;
+        border-color: #94A3B8;
+        transform: translateX(2px);
+    }
+    .ts-quick-action:hover::before { opacity: 1; }
+    .ts-quick-action.red:hover::before { background: var(--eia-red); }
+    .ts-quick-action.gold:hover::before { background: var(--eia-gold); }
+    .ts-quick-action .ts-qa-icon {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: #F1F5F9;
+        color: var(--eia-slate);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        vertical-align: middle;
+        border: 1px solid var(--eia-border);
+    }
+    .ts-quick-action.red .ts-qa-icon { background: #FEF2F2; color: var(--eia-red); border-color: #FECACA; }
+    .ts-quick-action.gold .ts-qa-icon { background: #FFFBEB; color: var(--eia-gold); border-color: #FDE68A; }
+
+    /* Lista de problemas comunes */
+    .ts-pop-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-top: 1px solid var(--eia-border);
+        font-size: 13px;
+    }
+    .ts-pop-row:first-child { border-top: 0; }
+    .ts-pop-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+        height: 20px;
+        padding: 0 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #FEF2F2;
+        color: var(--eia-red);
+        border: 1px solid #FECACA;
+    }
+
+    /* Horarios */
+    .ts-hour-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-top: 1px solid var(--eia-border);
+        font-size: 13px;
+    }
+    .ts-hour-row:first-child { border-top: 0; }
+    .ts-hour-row .label { color: var(--eia-slate); }
+    .ts-hour-row .value { font-weight: 600; color: var(--eia-black); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    .ts-hour-row .value.alert { color: var(--eia-red); }
+
+    /* Solution card override (renderizado por JS, mantiene clases bg-blue-100 etc) */
+    .ts-chat .bg-blue-100 {
+        background: #F1F5F9 !important;
+        color: var(--eia-black) !important;
+        border: 1px solid var(--eia-border) !important;
+    }
+    .ts-chat .bg-blue-100 i { color: var(--eia-black) !important; }
+    .ts-chat .text-blue-600 { color: var(--eia-black) !important; }
+    .ts-chat .text-blue-800 { color: var(--eia-black) !important; }
+    .ts-chat .bg-blue-500 {
+        background: var(--eia-black) !important;
+        border: 1px solid var(--eia-black) !important;
+    }
+    .ts-chat .border-blue-300,
+    .ts-chat .border-blue-200 { border-color: var(--eia-border) !important; }
+
+    /* Spinner */
+    .eia-spinner {
+        width: 22px; height: 22px;
+        border: 2.5px solid #E2E8F0;
+        border-top-color: var(--eia-black);
+        border-right-color: var(--eia-gold);
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+        display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Fade-in */
+    .eia-fade { animation: eiaFade .55s ease-out both; }
+    .eia-d1 { animation-delay: .05s; }
+    .eia-d2 { animation-delay: .12s; }
+    .eia-d3 { animation-delay: .2s; }
+    .eia-d4 { animation-delay: .28s; }
+    @keyframes eiaFade {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
-    <!-- Header mejorado con gradiente rojo-amarillo -->
-    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
-        <div class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
-                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
-                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
-                        </svg>
-                    </a>
-                    <div>
-                        <h1 class="text-4xl font-bold">🎧 Soporte Técnico</h1>
-                        <p class="text-orange-100 text-lg mt-2">
-                            Resuelve tus problemas tecnológicos de forma rápida y sencilla
-                        </p>
-                    </div>
-                </div>
-                <a href="{{ route('tech-support.dashboard') }}" 
-                   class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Ver Dashboard</span>
+<div class="eia-bg min-h-screen">
+
+    {{-- HERO --}}
+    <section class="ts-hero px-4 sm:px-8 lg:px-12 py-10">
+        <div class="max-w-7xl mx-auto flex items-start justify-between gap-6 flex-wrap">
+            <div class="flex items-center gap-4">
+                <a href="/" class="ts-back" aria-label="Volver al inicio">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/>
+                    </svg>
                 </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="max-w-7xl mx-auto p-6">
-        <!-- Estadísticas rápidas con tema rojo-amarillo -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
-                <div class="flex items-center">
-                    <div class="p-3 bg-gradient-to-br from-red-100 to-red-200 rounded-xl">
-                        <i class="fas fa-comments text-red-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-gray-600 text-sm font-medium">Total Conversaciones</p>
-                        <p class="text-2xl font-bold gradient-text">{{ $stats['total_conversations'] ?? 0 }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-orange-500">
-                <div class="flex items-center">
-                    <div class="p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl">
-                        <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-gray-600 text-sm font-medium">Resueltos Hoy</p>
-                        <p class="text-2xl font-bold gradient-text">{{ $stats['resolved_today'] ?? 0 }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
-                <div class="flex items-center">
-                    <div class="p-3 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl">
-                        <i class="fas fa-level-up-alt text-yellow-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-gray-600 text-sm font-medium">Escalados Hoy</p>
-                        <p class="text-2xl font-bold gradient-text">{{ $stats['escalated_today'] ?? 0 }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-400">
-                <div class="flex items-center">
-                    <div class="p-3 bg-gradient-to-br from-red-100 to-red-200 rounded-xl">
-                        <i class="fas fa-clock text-red-600 text-xl"></i>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-gray-600 text-sm font-medium">Promedio Respuesta</p>
-                        <p class="text-2xl font-bold gradient-text">< 2 min</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Secciones adicionales: Empleados y Documentos -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <!-- Búsqueda de Empleados -->
-            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-white/20">
-                <div class="bg-gradient-to-r from-blue-600 to-cyan-500 p-6">
-                    <h2 class="text-2xl font-bold text-white flex items-center">
-                        <i class="fas fa-users mr-3"></i>
-                        Buscar Empleados
-                    </h2>
-                    <p class="text-blue-100 mt-2">
-                        Encuentra información de contacto de empleados
+                <div>
+                    <span class="eia-eyebrow">Mesa de servicio · IT</span>
+                    <h1 class="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">Soporte técnico</h1>
+                    <p class="mt-1 text-sm text-slate-300 max-w-2xl">
+                        Diagnóstico asistido por IA y acceso al directorio corporativo.
                     </p>
                 </div>
-                
-                <div class="p-6">
-                    <div class="space-y-4">
-                        <div>
-                            <label for="employee-search" class="block text-sm font-medium text-gray-700 mb-2">
-                                Buscar por nombre, departamento o cargo
-                            </label>
-                            <div class="relative">
-                                <input 
-                                    type="text" 
-                                    id="employee-search" 
-                                    placeholder="Ej: Juan Pérez, IT, Administración, Dirección General..."
-                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-2" id="employee-tags">
-                            <!-- Los tags se cargarán dinámicamente -->
-                            <div class="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm">
-                                <i class="fas fa-spinner fa-spin mr-1"></i>Cargando...
-                            </div>
-                        </div>
-                        
-                        <div id="employee-results" class="mt-4 max-h-64 overflow-y-auto">
-                            <div class="text-center text-gray-500 py-8">
-                                <i class="fas fa-search text-3xl mb-2"></i>
-                                <p>Usa el campo de búsqueda o los filtros para encontrar empleados</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Búsqueda de Documentos -->
-            <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-white/20">
-                <div class="bg-gradient-to-r from-green-600 to-teal-500 p-6">
-                    <h2 class="text-2xl font-bold text-white flex items-center">
-                        <i class="fas fa-file-alt mr-3"></i>
-                        Documentos Corporativos
-                    </h2>
-                    <p class="text-green-100 mt-2">
-                        Accede a políticas, manuales y procedimientos
-                    </p>
-                </div>
-                
-                <div class="p-6">
-                    <div class="space-y-4">
-                        <div>
-                            <label for="document-search" class="block text-sm font-medium text-gray-700 mb-2">
-                                Buscar documentos
-                            </label>
-                            <div class="relative">
-                                <input 
-                                    type="text" 
-                                    id="document-search" 
-                                    placeholder="Ej: Manual, Política, Procedimiento..."
-                                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                >
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            </div>
-                        </div>
-                        
-                        <div id="document-tags-container" class="grid grid-cols-1 gap-2">
-                            <!-- Los tags se cargarán dinámicamente aquí -->
-                            <div class="text-center text-gray-500 py-4">
-                                <i class="fas fa-spinner fa-spin mr-2"></i>
-                                Cargando categorías...
-                            </div>
-                        </div>
-                        
-                        <div id="document-results" class="mt-4 max-h-64 overflow-y-auto">
-                            <div class="text-center text-gray-500 py-8">
-                                <i class="fas fa-folder-open text-3xl mb-2"></i>
-                                <p>Selecciona una categoría o busca documentos específicos</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <a href="{{ route('tech-support.dashboard') }}" class="ts-action">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+                </svg>
+                Dashboard de soporte
+            </a>
         </div>
+    </section>
 
-        <!-- Sección principal de soporte con tema rojo-amarillo -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Chat interactivo -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8">
+
+        {{-- KPIs --}}
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+            <div class="ts-kpi eia-fade eia-d1">
+                <span class="accent"></span>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="ts-kpi-label">Conversaciones</p>
+                        <p class="ts-kpi-value">{{ $stats['total_conversations'] ?? 0 }}</p>
+                        <p class="text-xs text-slate-500 mt-1">Total acumulado</p>
+                    </div>
+                    <div class="ts-kpi-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ts-kpi gold eia-fade eia-d2">
+                <span class="accent"></span>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="ts-kpi-label">Resueltos hoy</p>
+                        <p class="ts-kpi-value">{{ $stats['resolved_today'] ?? 0 }}</p>
+                        <p class="text-xs text-slate-500 mt-1">Tickets cerrados</p>
+                    </div>
+                    <div class="ts-kpi-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ts-kpi eia-fade eia-d3">
+                <span class="accent"></span>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="ts-kpi-label">Escalados hoy</p>
+                        <p class="ts-kpi-value">{{ $stats['escalated_today'] ?? 0 }}</p>
+                        <p class="text-xs text-slate-500 mt-1">Derivados a IT</p>
+                    </div>
+                    <div class="ts-kpi-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ts-kpi black eia-fade eia-d4">
+                <span class="accent"></span>
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="ts-kpi-label">Tiempo respuesta</p>
+                        <p class="ts-kpi-value">&lt; 2 min</p>
+                        <p class="text-xs text-slate-500 mt-1">Promedio</p>
+                    </div>
+                    <div class="ts-kpi-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- Empleados + Documentos --}}
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {{-- Empleados --}}
+            <div class="ts-panel eia-fade eia-d1">
+                <div class="ts-panel-head">
+                    <p class="ts-panel-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 14a4 4 0 10-8 0M12 11a3 3 0 100-6 3 3 0 000 6zM4 21a8 8 0 0116 0"/>
+                        </svg>
+                        Directorio de empleados
+                    </p>
+                    <p class="ts-panel-sub">Información de contacto corporativa</p>
+                </div>
+                <div class="ts-panel-body space-y-4">
+                    <div>
+                        <label class="ts-label" for="employee-search">Buscar por nombre, departamento o cargo</label>
+                        <div class="ts-search-wrap">
+                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/>
+                            </svg>
+                            <input type="text" id="employee-search" class="ts-input"
+                                   placeholder="Juan Pérez, IT, Administración, Dirección General...">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2" id="employee-tags">
+                        <div class="employee-tag-btn"><span class="eia-spinner" style="width:12px;height:12px;border-width:2px;vertical-align:middle;margin-right:6px;"></span>Cargando...</div>
+                    </div>
+
+                    <div id="employee-results" class="max-h-72 overflow-y-auto pr-1">
+                        <div class="text-center text-slate-500 py-8">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" class="inline-block mb-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/>
+                            </svg>
+                            <p class="text-sm">Usa el campo de búsqueda o los filtros para encontrar empleados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Documentos --}}
+            <div class="ts-panel eia-fade eia-d2">
+                <div class="ts-panel-head">
+                    <p class="ts-panel-title">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Documentos corporativos
+                    </p>
+                    <p class="ts-panel-sub">Políticas, manuales y procedimientos</p>
+                </div>
+                <div class="ts-panel-body space-y-4">
+                    <div>
+                        <label class="ts-label" for="document-search">Buscar documentos</label>
+                        <div class="ts-search-wrap">
+                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/>
+                            </svg>
+                            <input type="text" id="document-search" class="ts-input"
+                                   placeholder="Manual, Política, Procedimiento...">
+                        </div>
+                    </div>
+
+                    <div id="document-tags-container" class="grid grid-cols-1 gap-2">
+                        <div class="text-center text-slate-500 py-4 text-sm">
+                            <span class="eia-spinner" style="width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px;"></span>
+                            Cargando categorías...
+                        </div>
+                    </div>
+
+                    <div id="document-results" class="max-h-72 overflow-y-auto pr-1">
+                        <div class="text-center text-slate-500 py-8">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" class="inline-block mb-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+                            </svg>
+                            <p class="text-sm">Selecciona una categoría o busca documentos específicos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- Chat + Sidebar --}}
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- Chat principal --}}
             <div class="lg:col-span-2">
-                <div class="support-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden border border-white/20">
-                    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 p-6">
-                        <h2 class="text-2xl font-bold text-white flex items-center">
-                            <i class="fas fa-robot mr-3"></i>
-                            Asistente de Soporte Técnico
-                        </h2>
-                        <p class="text-orange-100 mt-2">
-                            Selecciona tu problema y te ayudo paso a paso de forma sencilla
+                <div class="ts-panel eia-fade eia-d1">
+                    <div class="ts-panel-head dark">
+                        <p class="ts-panel-title" style="color: var(--eia-gold-soft);">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Asistente de soporte técnico
                         </p>
+                        <p class="ts-panel-sub">Selecciona tu problema y te guiamos paso a paso</p>
                     </div>
-                    
-                    <!-- Área del chat -->
-                    <div id="tech-support-chat" class="h-96 overflow-y-auto p-6 bg-gradient-to-br from-red-50/50 to-yellow-50/50">
+
+                    <div id="tech-support-chat" class="ts-chat">
                         <div class="flex items-start mb-4">
                             <div class="bg-blue-100 p-3 rounded-full mr-3">
                                 <i class="fas fa-robot text-blue-600"></i>
                             </div>
-                            <div class="bg-white rounded-lg p-4 shadow-sm max-w-md">
-                                <p class="text-gray-800">
-                                    ¡Hola! 👋 Soy tu asistente de soporte técnico. 
-                                    Estoy aquí para ayudarte a resolver cualquier problema que tengas con tu computadora, 
-                                    internet, correo, impresora o cualquier programa.
+                            <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
+                                <p class="text-slate-800">
+                                    Hola, soy tu asistente de soporte técnico. Estoy aquí para ayudarte a resolver problemas con tu equipo, internet, correo, impresora o cualquier aplicación corporativa.
                                 </p>
-                                <p class="text-gray-800 mt-2">
+                                <p class="text-slate-800 mt-2">
                                     <strong>¿Con qué puedo ayudarte hoy?</strong>
                                 </p>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Input area -->
-                    <div class="p-4 bg-white border-t">
-                        <div class="flex flex-wrap gap-3">
-                            <button id="main-menu" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg border-2 border-blue-300">
-                                <i class="fas fa-home mr-2"></i>
-                                Menú Principal
-                            </button>
-                            <button id="restart-chat" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-200">
-                                <i class="fas fa-redo mr-2"></i>
-                                Nuevo Problema
-                            </button>
-                            <button id="escalate-to-it" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200" style="display: none;">
-                                <i class="fas fa-user-tie mr-2"></i>
-                                Contactar IT
-                            </button>
-                            <button id="mark-resolved" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-200" style="display: none;">
-                                <i class="fas fa-check mr-2"></i>
-                                Problema Resuelto
-                            </button>
-                        </div>
+
+                    <div class="ts-chat-actions">
+                        <button id="main-menu" class="ts-btn-primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75M4.5 9.75v9A1.5 1.5 0 006 20.25h12a1.5 1.5 0 001.5-1.5v-9"/>
+                            </svg>
+                            Menú principal
+                        </button>
+                        <button id="restart-chat" class="ts-btn-ghost">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M4 10a8 8 0 0114-5.5M20 14a8 8 0 01-14 5.5"/>
+                            </svg>
+                            Nuevo problema
+                        </button>
+                        <button id="escalate-to-it" class="ts-btn-danger" style="display: none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            Contactar IT
+                        </button>
+                        <button id="mark-resolved" class="ts-btn-success" style="display: none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Problema resuelto
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Panel lateral -->
+            {{-- Sidebar --}}
             <div class="space-y-6">
-                <!-- Accesos rápidos -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-bolt mr-2 text-yellow-500"></i>
-                        Accesos Rápidos
-                    </h3>
-                    <div class="space-y-3">
-                        <button class="w-full text-left p-3 bg-gray-50 hover:bg-blue-50 rounded-lg transition duration-200 border border-gray-200 hover:border-blue-300" onclick="quickAction('restart_computer')">
-                            <i class="fas fa-power-off mr-3 text-blue-600"></i>
-                            <span class="font-medium">Reiniciar Computadora</span>
-                            <p class="text-sm text-gray-600 mt-1">Guía paso a paso para reiniciar</p>
+                {{-- Accesos rápidos --}}
+                <div class="ts-panel eia-fade eia-d2">
+                    <div class="ts-panel-head">
+                        <p class="ts-panel-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            Accesos rápidos
+                        </p>
+                    </div>
+                    <div class="ts-panel-body space-y-2">
+                        <button class="ts-quick-action" onclick="quickAction('restart_computer')">
+                            <div class="flex items-center">
+                                <span class="ts-qa-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10"/>
+                                    </svg>
+                                </span>
+                                <span class="inline-block align-middle">
+                                    <span class="font-semibold text-slate-900 text-sm">Reiniciar computadora</span>
+                                    <p class="text-xs text-slate-500 mt-0.5">Guía paso a paso para reiniciar</p>
+                                </span>
+                            </div>
                         </button>
-                        
-                        <button class="w-full text-left p-3 bg-gray-50 hover:bg-green-50 rounded-lg transition duration-200 border border-gray-200 hover:border-green-300" onclick="quickAction('check_internet')">
-                            <i class="fas fa-wifi mr-3 text-green-600"></i>
-                            <span class="font-medium">Verificar Internet</span>
-                            <p class="text-sm text-gray-600 mt-1">Diagnosticar problemas de conexión</p>
+                        <button class="ts-quick-action gold" onclick="quickAction('check_internet')">
+                            <div class="flex items-center">
+                                <span class="ts-qa-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/>
+                                    </svg>
+                                </span>
+                                <span class="inline-block align-middle">
+                                    <span class="font-semibold text-slate-900 text-sm">Verificar internet</span>
+                                    <p class="text-xs text-slate-500 mt-0.5">Diagnosticar problemas de conexión</p>
+                                </span>
+                            </div>
                         </button>
-                        
-                        <button class="w-full text-left p-3 bg-gray-50 hover:bg-purple-50 rounded-lg transition duration-200 border border-gray-200 hover:border-purple-300" onclick="quickAction('contact_it')">
-                            <i class="fas fa-phone mr-3 text-purple-600"></i>
-                            <span class="font-medium">Contactar IT</span>
-                            <p class="text-sm text-gray-600 mt-1">Hablar directamente con soporte</p>
+                        <button class="ts-quick-action red" onclick="quickAction('contact_it')">
+                            <div class="flex items-center">
+                                <span class="ts-qa-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 010 1.414l-1.586 1.586a16 16 0 006.586 6.586l1.586-1.586a1 1 0 011.414 0l2.414 2.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-1C9.715 21 3 14.285 3 6V5z"/>
+                                    </svg>
+                                </span>
+                                <span class="inline-block align-middle">
+                                    <span class="font-semibold text-slate-900 text-sm">Contactar IT</span>
+                                    <p class="text-xs text-slate-500 mt-0.5">Hablar directamente con soporte</p>
+                                </span>
+                            </div>
                         </button>
                     </div>
                 </div>
 
-                <!-- Problemas comunes -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-fire mr-2 text-red-500"></i>
-                        Problemas Comunes
-                    </h3>
-                    <div class="space-y-2">
+                {{-- Problemas comunes --}}
+                <div class="ts-panel eia-fade eia-d3">
+                    <div class="ts-panel-head">
+                        <p class="ts-panel-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 6h18M3 18h18"/>
+                            </svg>
+                            Problemas comunes
+                        </p>
+                    </div>
+                    <div class="ts-panel-body">
                         @if(isset($stats['categories_popular']) && count($stats['categories_popular']) > 0)
                             @foreach($stats['categories_popular'] as $category)
-                                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
-                                    <span class="text-sm capitalize">{{ ucfirst($category->problem_category) }}</span>
-                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{{ $category->count }}</span>
+                                <div class="ts-pop-row">
+                                    <span class="capitalize text-slate-700">{{ ucfirst($category->problem_category) }}</span>
+                                    <span class="ts-pop-count">{{ $category->count }}</span>
                                 </div>
                             @endforeach
                         @else
-                            <p class="text-gray-600 text-sm">No hay datos disponibles aún</p>
+                            <p class="text-slate-500 text-sm py-2">No hay datos disponibles aún.</p>
                         @endif
                     </div>
                 </div>
 
-                <!-- Horarios de soporte -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-clock mr-2 text-blue-500"></i>
-                        Horarios de Soporte
-                    </h3>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Lunes - Viernes:</span>
-                            <span class="font-medium">7:30 AM - 3:00 PM</span>
+                {{-- Horarios --}}
+                <div class="ts-panel eia-fade eia-d4">
+                    <div class="ts-panel-head">
+                        <p class="ts-panel-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Horarios de soporte
+                        </p>
+                    </div>
+                    <div class="ts-panel-body">
+                        <div class="ts-hour-row">
+                            <span class="label">Lunes – Viernes</span>
+                            <span class="value">07:30 – 15:00</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Emergencias:</span>
-                            <span class="font-medium text-red-600">24/7</span>
+                        <div class="ts-hour-row">
+                            <span class="label">Emergencias</span>
+                            <span class="value alert">24 / 7</span>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 
-<!-- Scripts específicos para esta página -->
 @push('scripts')
 <script>
 let currentSessionId = null;
@@ -354,13 +835,8 @@ let currentStep = 'categories';
 let currentCategory = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Generar nuevo session ID
     currentSessionId = generateSessionId();
-    
-    // Cargar categorías iniciales
     loadCategories();
-    
-    // Event listeners
     document.getElementById('main-menu').addEventListener('click', showMainMenu);
     document.getElementById('restart-chat').addEventListener('click', restartChat);
     document.getElementById('escalate-to-it').addEventListener('click', escalateToIT);
@@ -378,211 +854,153 @@ function getCurrentCategory() {
 function loadCategories() {
     fetch('{{ route("tech-support.interact") }}', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            type: 'start',
-            session_id: currentSessionId
-        })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ type: 'start', session_id: currentSessionId })
     })
-    .then(response => response.json())
-    .then(data => {
-        // Primero agregar mensaje del bot si no existe
-        setTimeout(() => {
-            displayCategories(data.categories);
-        }, 300);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('Error al cargar las categorías');
-    });
+    .then(r => r.json())
+    .then(data => setTimeout(() => displayCategories(data.categories), 300))
+    .catch(err => { console.error(err); showError('Error al cargar las categorías'); });
 }
 
 function displayCategories(categories) {
     const chatContainer = document.getElementById('tech-support-chat');
-    
-    // Limpiar opciones anteriores si existen
     const existingOptions = document.getElementById('current-options');
-    if (existingOptions) {
-        existingOptions.remove();
-    }
-    
-    // Crear un nuevo div para las categorías
+    if (existingOptions) existingOptions.remove();
+
     const optionsDiv = document.createElement('div');
     optionsDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 mb-4';
     optionsDiv.id = 'current-options';
-    
+
     categories.forEach(category => {
         const button = document.createElement('button');
-        button.className = `p-4 bg-${category.color}-50 hover:bg-${category.color}-100 border border-${category.color}-200 hover:border-${category.color}-300 rounded-lg text-left transition duration-200`;
+        button.className = 'p-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-400 rounded-lg text-left transition duration-200';
+        button.style.cssText = 'position:relative;overflow:hidden;';
         button.innerHTML = `
             <div class="flex items-center">
                 <span class="text-2xl mr-3">${category.icon}</span>
                 <div>
-                    <div class="font-semibold text-gray-800">${category.title}</div>
-                    <div class="text-sm text-gray-600">${category.description}</div>
+                    <div class="font-semibold text-slate-900">${category.title}</div>
+                    <div class="text-sm text-slate-600 mt-0.5">${category.description}</div>
                 </div>
             </div>
         `;
         button.onclick = () => selectCategory(category.id);
         optionsDiv.appendChild(button);
     });
-    
-    // Agregar las categorías al chat
+
     chatContainer.appendChild(optionsDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 function selectCategory(categoryId) {
-    currentCategory = categoryId; // Guardar la categoría actual
+    currentCategory = categoryId;
     addMessageToChat('user', `Seleccioné: ${categoryId}`);
-    
+
     fetch('{{ route("tech-support.interact") }}', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            type: 'category_selected',
-            category: categoryId,
-            session_id: currentSessionId
-        })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ type: 'category_selected', category: categoryId, session_id: currentSessionId })
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        // Primero agregar el mensaje del bot
         addMessageToChat('bot', `Perfecto, veo que tienes problemas con ${categoryId}. ¿Cuál de estos describe mejor tu situación?`);
-        
-        // Después mostrar las opciones
-        setTimeout(() => {
-            displayProblems(data.problems);
-        }, 500);
-        
+        setTimeout(() => displayProblems(data.problems), 500);
         currentStep = 'problems';
     })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('Error al procesar la categoría');
-    });
+    .catch(err => { console.error(err); showError('Error al procesar la categoría'); });
 }
 
 function displayProblems(problems) {
     const chatContainer = document.getElementById('tech-support-chat');
-    
-    // Crear un nuevo div para las opciones
     const optionsDiv = document.createElement('div');
-    optionsDiv.className = 'grid grid-cols-1 md:grid-cols-1 gap-3 mt-4 mb-4';
+    optionsDiv.className = 'grid grid-cols-1 gap-3 mt-4 mb-4';
     optionsDiv.id = 'current-options';
-    
+
     problems.forEach(problem => {
         const button = document.createElement('button');
-        button.className = 'p-4 bg-white hover:bg-blue-50 border border-gray-200 hover:border-blue-300 rounded-lg text-left transition duration-200 shadow-sm';
+        button.className = 'p-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-400 rounded-lg text-left transition duration-200';
         button.innerHTML = `
-            <div class="font-semibold text-gray-800">${problem.title}</div>
-            <div class="text-sm text-gray-600 mt-1">${problem.description}</div>
+            <div class="font-semibold text-slate-900">${problem.title}</div>
+            <div class="text-sm text-slate-600 mt-1">${problem.description}</div>
         `;
         button.onclick = () => selectProblem(problem.id);
         optionsDiv.appendChild(button);
     });
-    
-    // Agregar las opciones al chat
+
     chatContainer.appendChild(optionsDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 function selectProblem(problemId) {
-    // Limpiar opciones anteriores
     const existingOptions = document.getElementById('current-options');
-    if (existingOptions) {
-        existingOptions.remove();
-    }
-    
+    if (existingOptions) existingOptions.remove();
+
     addMessageToChat('user', `Mi problema específico es: ${problemId}`);
-    
+
     fetch('{{ route("tech-support.interact") }}', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            type: 'problem_selected',
-            problem_id: problemId,
-            category: getCurrentCategory(),
-            session_id: currentSessionId
-        })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ type: 'problem_selected', problem_id: problemId, category: getCurrentCategory(), session_id: currentSessionId })
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        // Primero mostrar la solución como mensaje del bot
         addMessageToChat('bot', data.solution.title);
-        
-        // Después mostrar la solución detallada
         setTimeout(() => {
             displaySolution(data.solution);
             showActionButtons();
         }, 500);
-        
         currentStep = 'solution';
     })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('Error al obtener la solución');
-    });
+    .catch(err => { console.error(err); showError('Error al obtener la solución'); });
 }
 
 function displaySolution(solution) {
     const chatContainer = document.getElementById('tech-support-chat');
-    
-    // Crear el div de la solución
     const solutionDiv = document.createElement('div');
+    const priorityColor = solution.priority === 'high' ? 'red' : solution.priority === 'medium' ? 'yellow' : 'green';
     solutionDiv.className = 'flex items-start mb-4';
     solutionDiv.innerHTML = `
         <div class="bg-blue-100 p-3 rounded-full mr-3">
             <i class="fas fa-lightbulb text-blue-600"></i>
         </div>
-        <div class="bg-white border border-gray-200 rounded-lg p-6 max-w-full shadow-sm">
-            <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                💡 Solución paso a paso
-                <span class="ml-auto text-sm font-normal bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-                    ⏱️ ${solution.estimated_time}
+        <div class="bg-white rounded-lg p-6 max-w-full shadow-sm" style="border: 1px solid var(--eia-border);">
+            <h4 class="text-base font-semibold text-slate-900 mb-3 flex items-center" style="letter-spacing:-0.01em;">
+                Solución paso a paso
+                <span class="ml-auto text-xs font-medium px-3 py-1 rounded-full" style="background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;">
+                    ${solution.estimated_time}
                 </span>
             </h4>
-            <div class="solution-content">
+            <div class="solution-content text-slate-700 text-sm leading-relaxed">
                 ${solution.content}
             </div>
-            <div class="mt-4 flex justify-center">
-                <span class="bg-${solution.priority === 'high' ? 'red' : solution.priority === 'medium' ? 'yellow' : 'green'}-100 text-${solution.priority === 'high' ? 'red' : solution.priority === 'medium' ? 'yellow' : 'green'}-800 px-4 py-2 rounded-full text-sm font-semibold">
-                    🎯 Prioridad ${solution.priority === 'high' ? 'Alta' : solution.priority === 'medium' ? 'Media' : 'Baja'}
+            <div class="mt-4 flex justify-start">
+                <span class="bg-${priorityColor}-100 text-${priorityColor}-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider" style="letter-spacing:0.1em;">
+                    Prioridad ${solution.priority === 'high' ? 'Alta' : solution.priority === 'medium' ? 'Media' : 'Baja'}
                 </span>
             </div>
         </div>
     `;
-    
     chatContainer.appendChild(solutionDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 function showActionButtons() {
-    document.getElementById('escalate-to-it').style.display = 'inline-block';
-    document.getElementById('mark-resolved').style.display = 'inline-block';
+    document.getElementById('escalate-to-it').style.display = 'inline-flex';
+    document.getElementById('mark-resolved').style.display = 'inline-flex';
 }
 
 function addMessageToChat(sender, message) {
     const chatContainer = document.getElementById('tech-support-chat');
     const messageDiv = document.createElement('div');
     messageDiv.className = `flex items-start mb-4 ${sender === 'user' ? 'justify-end' : ''}`;
-    
+
     if (sender === 'bot') {
         messageDiv.innerHTML = `
             <div class="bg-blue-100 p-3 rounded-full mr-3">
                 <i class="fas fa-robot text-blue-600"></i>
             </div>
-            <div class="bg-white rounded-lg p-4 shadow-sm max-w-md">
-                <p class="text-gray-800">${message}</p>
+            <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
+                <p class="text-slate-800 whitespace-pre-line">${message}</p>
             </div>
         `;
     } else {
@@ -592,486 +1010,360 @@ function addMessageToChat(sender, message) {
             </div>
         `;
     }
-    
+
     chatContainer.appendChild(messageDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 function showMainMenu() {
-    // Limpiar opciones anteriores si existen
     const existingOptions = document.getElementById('current-options');
-    if (existingOptions) {
-        existingOptions.remove();
-    }
-    
-    // Agregar mensaje del bot sobre el menú
-    addMessageToChat('bot', '📋 **Menú Principal - ¿Qué necesitas hacer?**\n\nPuedes elegir una de estas opciones para una experiencia más rápida:');
-    
-    // Mostrar opciones del menú principal
-    setTimeout(() => {
-        displayMainMenuOptions();
-    }, 300);
-    
-    // Ocultar botones de acción
+    if (existingOptions) existingOptions.remove();
+
+    addMessageToChat('bot', 'Menú principal — ¿Qué necesitas hacer?\n\nElige una de estas opciones para una experiencia más rápida:');
+    setTimeout(() => displayMainMenuOptions(), 300);
+
     document.getElementById('escalate-to-it').style.display = 'none';
     document.getElementById('mark-resolved').style.display = 'none';
-    
     currentStep = 'main_menu';
 }
 
 function displayMainMenuOptions() {
     const chatContainer = document.getElementById('tech-support-chat');
-    
-    // Crear un nuevo div para las opciones del menú
     const optionsDiv = document.createElement('div');
     optionsDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 mb-4';
     optionsDiv.id = 'current-options';
-    
+
     const menuOptions = [
-        {
-            id: 'solve_problem',
-            title: '🔧 Resolver un Problema',
-            description: 'Asistencia paso a paso para problemas técnicos',
-            color: 'blue',
-            icon: '🔧',
-            action: () => {
-                addMessageToChat('user', 'Quiero resolver un problema técnico');
-                setTimeout(() => {
-                    restartChat();
-                }, 500);
-            }
-        },
-        {
-            id: 'quick_actions',
-            title: '⚡ Acciones Rápidas',
-            description: 'Soluciones inmediatas a problemas comunes',
-            color: 'green',
-            icon: '⚡',
-            action: () => {
-                addMessageToChat('user', 'Mostrar acciones rápidas');
-                setTimeout(() => {
-                    showQuickActionsMenu();
-                }, 500);
-            }
-        },
-        {
-            id: 'contact_support',
-            title: '📞 Contactar Soporte',
-            description: 'Hablar directamente con el equipo de IT',
-            color: 'purple',
-            icon: '📞',
-            action: () => {
-                addMessageToChat('user', 'Quiero contactar con soporte');
-                setTimeout(() => {
-                    quickAction('contact_it');
-                }, 500);
-            }
-        },
-        {
-            id: 'system_status',
-            title: '📊 Estado del Sistema',
-            description: 'Verificar el estado de servicios y conexiones',
-            color: 'orange',
-            icon: '📊',
-            action: () => {
-                addMessageToChat('user', 'Verificar estado del sistema');
-                setTimeout(() => {
-                    showSystemStatus();
-                }, 500);
-            }
-        }
+        { id: 'solve_problem', title: 'Resolver un problema', description: 'Asistencia paso a paso', icon: '🔧',
+          action: () => { addMessageToChat('user', 'Quiero resolver un problema técnico'); setTimeout(() => restartChat(), 500); } },
+        { id: 'quick_actions', title: 'Acciones rápidas', description: 'Soluciones inmediatas a problemas comunes', icon: '⚡',
+          action: () => { addMessageToChat('user', 'Mostrar acciones rápidas'); setTimeout(() => showQuickActionsMenu(), 500); } },
+        { id: 'contact_support', title: 'Contactar soporte', description: 'Hablar directamente con el equipo de IT', icon: '📞',
+          action: () => { addMessageToChat('user', 'Quiero contactar con soporte'); setTimeout(() => quickAction('contact_it'), 500); } },
+        { id: 'system_status', title: 'Estado del sistema', description: 'Verificar servicios y conexiones', icon: '📊',
+          action: () => { addMessageToChat('user', 'Verificar estado del sistema'); setTimeout(() => showSystemStatus(), 500); } }
     ];
-    
+
     menuOptions.forEach(option => {
         const button = document.createElement('button');
-        button.className = `p-4 bg-${option.color}-50 hover:bg-${option.color}-100 border border-${option.color}-200 hover:border-${option.color}-300 rounded-lg text-left transition-all duration-200 transform hover:scale-105 shadow-sm hover:shadow-md`;
+        button.className = 'p-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-400 rounded-lg text-left transition duration-200';
         button.innerHTML = `
             <div class="flex items-center">
                 <span class="text-2xl mr-3">${option.icon}</span>
                 <div>
-                    <div class="font-semibold text-gray-800">${option.title}</div>
-                    <div class="text-sm text-gray-600">${option.description}</div>
+                    <div class="font-semibold text-slate-900">${option.title}</div>
+                    <div class="text-sm text-slate-600 mt-0.5">${option.description}</div>
                 </div>
             </div>
         `;
         button.onclick = option.action;
         optionsDiv.appendChild(button);
     });
-    
-    // Agregar las opciones al chat
+
     chatContainer.appendChild(optionsDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 function showQuickActionsMenu() {
-    addMessageToChat('bot', '⚡ **Acciones Rápidas Disponibles:**\n\nElige la acción que necesitas realizar:');
-    
+    addMessageToChat('bot', 'Acciones rápidas disponibles:\n\nElige la acción que necesitas realizar.');
+
     const chatContainer = document.getElementById('tech-support-chat');
-    
     const optionsDiv = document.createElement('div');
     optionsDiv.className = 'grid grid-cols-1 gap-3 mt-4 mb-4';
     optionsDiv.id = 'current-options';
-    
+
     const quickActions = [
         { id: 'restart_computer', title: '🔄 Reiniciar Computadora', description: 'Guía paso a paso para reiniciar' },
         { id: 'check_internet', title: '🌐 Verificar Internet', description: 'Diagnosticar problemas de conexión' },
         { id: 'contact_it', title: '📞 Contactar IT', description: 'Información de contacto directa' }
     ];
-    
+
     quickActions.forEach(action => {
         const button = document.createElement('button');
-        button.className = 'p-3 bg-white hover:bg-gray-50 border border-gray-200 hover:border-blue-300 rounded-lg text-left transition duration-200 shadow-sm';
+        button.className = 'p-3 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-400 rounded-lg text-left transition duration-200';
         button.innerHTML = `
             <div class="flex items-center">
                 <span class="text-xl mr-3">${action.title.split(' ')[0]}</span>
                 <div>
-                    <div class="font-semibold text-gray-800">${action.title.substring(2)}</div>
-                    <div class="text-sm text-gray-600">${action.description}</div>
+                    <div class="font-semibold text-slate-900">${action.title.substring(2)}</div>
+                    <div class="text-sm text-slate-600 mt-0.5">${action.description}</div>
                 </div>
             </div>
         `;
-        button.onclick = () => {
-            addMessageToChat('user', `Seleccioné: ${action.title}`);
-            quickAction(action.id);
-        };
+        button.onclick = () => { addMessageToChat('user', `Seleccioné: ${action.title}`); quickAction(action.id); };
         optionsDiv.appendChild(button);
     });
-    
+
     chatContainer.appendChild(optionsDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 function showSystemStatus() {
-    addMessageToChat('bot', `📊 **Estado del Sistema:**
+    addMessageToChat('bot', `Estado del sistema:
 
-🔍 **Verificaciones Básicas:**
-• Conexión a Internet: ✅ Activa
-• Servidor de Correo: ✅ Funcionando  
-• Red Interna: ✅ Conectada
-• Impresoras de Red: ⚠️ Verificando...
+Verificaciones básicas
+• Conexión a Internet: Activa
+• Servidor de correo: Funcionando
+• Red interna: Conectada
+• Impresoras de red: Verificando
 
-🕐 **Última Actualización:** ${new Date().toLocaleTimeString()}
+Última actualización: ${new Date().toLocaleTimeString()}
 
-💡 **Recomendaciones:**
-• Si tienes problemas específicos, usa "Resolver un Problema"
+Recomendaciones
+• Para problemas específicos, usa "Resolver un Problema"
 • Para asistencia inmediata, contacta IT: 555-TECH
 
 ¿Necesitas verificar algo más específico?`);
-    
     showActionButtons();
 }
 
 function restartChat() {
     currentSessionId = generateSessionId();
     currentStep = 'categories';
-    currentCategory = null; // Limpiar categoría actual
-    
-    // Limpiar chat completamente
+    currentCategory = null;
+
     document.getElementById('tech-support-chat').innerHTML = `
         <div class="flex items-start mb-4">
             <div class="bg-blue-100 p-3 rounded-full mr-3">
                 <i class="fas fa-robot text-blue-600"></i>
             </div>
-            <div class="bg-white rounded-lg p-4 shadow-sm max-w-md">
-                <p class="text-gray-800">
-                    ¡Hola! 👋 Soy tu asistente de soporte técnico. 
-                    Estoy aquí para ayudarte a resolver cualquier problema que tengas.
+            <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
+                <p class="text-slate-800">
+                    Hola, soy tu asistente de soporte técnico. Estoy aquí para ayudarte a resolver cualquier problema que tengas.
                 </p>
-                <p class="text-gray-800 mt-2">
+                <p class="text-slate-800 mt-2">
                     <strong>¿Con qué puedo ayudarte hoy?</strong>
                 </p>
             </div>
         </div>
     `;
-    
-    // Ocultar botones de acción
+
     document.getElementById('escalate-to-it').style.display = 'none';
     document.getElementById('mark-resolved').style.display = 'none';
-    
-    // Recargar categorías después de un breve delay
-    setTimeout(() => {
-        loadCategories();
-    }, 500);
+
+    setTimeout(() => loadCategories(), 500);
 }
 
 function escalateToIT() {
     fetch('{{ route("tech-support.interact") }}', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            type: 'escalate',
-            session_id: currentSessionId,
-            reason: 'Usuario solicitó escalamiento manual'
-        })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ type: 'escalate', session_id: currentSessionId, reason: 'Usuario solicitó escalamiento manual' })
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
         addMessageToChat('bot', data.message);
-        setTimeout(() => {
-            restartChat();
-        }, 3000);
+        setTimeout(() => restartChat(), 3000);
     })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('Error al procesar la solicitud');
-    });
+    .catch(err => { console.error(err); showError('Error al procesar la solicitud'); });
 }
 
 function markAsResolved() {
     fetch('{{ route("tech-support.interact") }}', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            type: 'mark_resolved',
-            session_id: currentSessionId
-        })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ type: 'mark_resolved', session_id: currentSessionId })
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        addMessageToChat('bot', '¡Excelente! Me alegra saber que pudimos resolver tu problema. 😊\n\nSi tienes algún otro problema, estaré aquí para ayudarte.');
-        setTimeout(() => {
-            restartChat();
-        }, 3000);
+        addMessageToChat('bot', 'Excelente, me alegra saber que pudimos resolver tu problema.\n\nSi tienes otro problema, estaré aquí para ayudarte.');
+        setTimeout(() => restartChat(), 3000);
     })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('Error al marcar como resuelto');
-    });
+    .catch(err => { console.error(err); showError('Error al marcar como resuelto'); });
 }
 
 function quickAction(action) {
-    // Limpiar opciones anteriores
     const existingOptions = document.getElementById('current-options');
-    if (existingOptions) {
-        existingOptions.remove();
-    }
-    
+    if (existingOptions) existingOptions.remove();
+
     switch(action) {
         case 'restart_computer':
-            addMessageToChat('bot', `**🔄 Cómo reiniciar tu computadora paso a paso:**
+            addMessageToChat('bot', `Cómo reiniciar tu computadora paso a paso:
 
-1. **Guarda tu trabajo**
+1. Guarda tu trabajo
    • Guarda todos los documentos abiertos (Ctrl + S)
    • Cierra todos los programas
 
-2. **Reiniciar**
+2. Reiniciar
    • Click en el botón de Windows (esquina inferior izquierda)
-   • Click en el ícono de encendido ⚡
+   • Click en el ícono de encendido
    • Selecciona "Reiniciar"
    • Espera a que la computadora se reinicie completamente
 
-3. **Después del reinicio**
+3. Después del reinicio
    • Ingresa tu contraseña si te la pide
    • Espera a que cargue el escritorio
    • Tu computadora debería funcionar mejor
 
-⏱️ **Tiempo estimado:** 3-5 minutos`);
+Tiempo estimado: 3 – 5 minutos`);
             showActionButtons();
             break;
-            
-        case 'check_internet':
-            addMessageToChat('bot', `**🌐 Verificar problemas de Internet:**
 
-1. **Revisar conexión**
+        case 'check_internet':
+            addMessageToChat('bot', `Verificar problemas de internet:
+
+1. Revisar conexión
    • Mira la esquina inferior derecha de tu pantalla
-   • ¿Ves el símbolo del WiFi 📶?
+   • ¿Ves el símbolo del WiFi?
    • Si tiene una X roja, no estás conectado
 
-2. **Reconectar WiFi**
+2. Reconectar WiFi
    • Click en el símbolo de WiFi
    • Busca el nombre de tu red
    • Click en "Conectar"
    • Ingresa la contraseña si te la pide
 
-3. **Probar navegación**
+3. Probar navegación
    • Abre tu navegador
    • Ve a google.com
    • Si carga, tu internet está funcionando
 
-Si nada funciona, el problema puede ser del proveedor de internet.`);
+Si nada funciona, el problema puede estar en el proveedor de internet.`);
             showActionButtons();
             break;
-            
+
         case 'contact_it':
-            addMessageToChat('bot', `**📞 Contactar al equipo de IT:**
+            addMessageToChat('bot', `Contactar al equipo de IT:
 
-**Teléfono directo:** 📞 555-TECH (555-8324)
-**Email:** 📧 soporte@empresa.com
-**Chat interno:** 💬 Disponible en el sistema
+Teléfono directo: 555-TECH (555-8324)
+Email: soporte@empresa.com
+Chat interno: disponible en el sistema
 
-**Horarios:**
-• Lunes - Viernes: 8:00 AM - 6:00 PM
-• Sábados: 9:00 AM - 2:00 PM
+Horarios
+• Lunes – Viernes: 8:00 AM – 6:00 PM
+• Sábados: 9:00 AM – 2:00 PM
 • Emergencias: 24/7
 
-**Antes de llamar, ten lista esta información:**
-• Tu nombre completo
+Antes de llamar ten lista esta información:
+• Nombre completo
 • Número de empleado
 • Descripción del problema
-• ¿Qué estabas haciendo cuando ocurrió?
+• Qué estabas haciendo cuando ocurrió
 
-¡El equipo de IT estará encantado de ayudarte! 😊`);
+El equipo de IT estará encantado de ayudarte.`);
             break;
     }
 }
 
 function showError(message) {
-    addMessageToChat('bot', `❌ ${message}. Por favor intenta nuevamente o contacta a IT.`);
+    addMessageToChat('bot', `${message}. Por favor intenta nuevamente o contacta a IT.`);
 }
 
-// Funciones para búsqueda de empleados
+// === Búsqueda de empleados y documentos ===
 document.addEventListener('DOMContentLoaded', function() {
     const employeeSearch = document.getElementById('employee-search');
     const documentSearch = document.getElementById('document-search');
 
-    // Cargar tags dinámicos
     loadEmployeeTags();
     loadDocumentTags();
 
-    // Búsqueda de empleados en tiempo real
     let employeeSearchTimeout;
     employeeSearch.addEventListener('input', function() {
         clearTimeout(employeeSearchTimeout);
         employeeSearchTimeout = setTimeout(() => {
-            if (this.value.length >= 2) {
-                searchEmployees(this.value);
-            } else {
-                showEmployeeDefaultMessage();
-            }
+            if (this.value.length >= 2) searchEmployees(this.value);
+            else showEmployeeDefaultMessage();
         }, 300);
     });
 
-    // Búsqueda de documentos en tiempo real
     let documentSearchTimeout;
     documentSearch.addEventListener('input', function() {
         clearTimeout(documentSearchTimeout);
         documentSearchTimeout = setTimeout(() => {
-            if (this.value.length >= 2) {
-                searchDocuments(this.value);
-            } else {
-                showDocumentDefaultMessage();
-            }
+            if (this.value.length >= 2) searchDocuments(this.value);
+            else showDocumentDefaultMessage();
         }, 300);
     });
 });
 
 function loadEmployeeTags() {
     fetch('/corporate-chat/employees/tags')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error al cargar tags');
-        }
-        return response.json();
-    })
+    .then(r => { if (!r.ok) throw new Error('Error al cargar tags'); return r.json(); })
     .then(data => {
         const tagsContainer = document.getElementById('employee-tags');
         let html = '';
-        
-        // Mostrar TODOS los departamentos disponibles (no solo algunos principales)
+
         if (data.departments && data.departments.length > 0) {
-            data.departments.slice(0, 8).forEach(dept => { // Mostrar hasta 8 departamentos
-                const displayName = dept === 'Recursos Humanos' ? 'RRHH' : 
+            data.departments.slice(0, 8).forEach(dept => {
+                const displayName = dept === 'Recursos Humanos' ? 'RRHH' :
                                    dept === 'Administración y Finanzas' ? 'Admin y Finanzas' :
                                    dept.length > 15 ? dept.substring(0, 12) + '...' : dept;
                 html += `
-                    <button onclick="selectEmployeeTag('department', '${dept}')" class="employee-tag-btn px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-all duration-200" data-type="department" data-value="${dept}" title="${dept}">
+                    <button onclick="selectEmployeeTag('department', '${dept}')" class="employee-tag-btn" data-type="department" data-value="${dept}" title="${dept}">
                         ${displayName}
                     </button>
                 `;
             });
         }
-        
-        // Agregar algunas posiciones principales si hay espacio
+
         if (data.positions && data.positions.length > 0) {
             const mainPositions = ['Dirección General', 'Administración y Finanzas', 'Jefe de Área'];
             mainPositions.forEach(pos => {
                 if (data.positions.includes(pos)) {
-                    const displayName = pos === 'Dirección General' ? 'Dirección' : 
+                    const displayName = pos === 'Dirección General' ? 'Dirección' :
                                        pos === 'Administración y Finanzas' ? 'Finanzas' : pos;
                     html += `
-                        <button onclick="selectEmployeeTag('position', '${pos}')" class="employee-tag-btn px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm hover:bg-blue-300 transition-all duration-200" data-type="position" data-value="${pos}" title="${pos}">
+                        <button onclick="selectEmployeeTag('position', '${pos}')" class="employee-tag-btn" data-type="position" data-value="${pos}" title="${pos}">
                             ${displayName}
                         </button>
                     `;
                 }
             });
         }
-        
-        // Botón "Ver todos" mejorado
+
         html += `
-            <button onclick="loadAllEmployees()" class="px-3 py-1 bg-blue-500 text-white rounded-full text-sm hover:bg-blue-600 transition-all duration-200 font-medium">
-                <i class="fas fa-users mr-1"></i>Ver todos
+            <button onclick="loadAllEmployees()" class="employee-tag-btn bg-blue-300" style="font-weight:700;">
+                Ver todos
             </button>
         `;
-        
+
         tagsContainer.innerHTML = html;
     })
-    .catch(error => {
-        console.error('Error loading tags:', error);
-        // Fallback a tags estáticos si falla
+    .catch(err => {
+        console.error('Error loading tags:', err);
         const tagsContainer = document.getElementById('employee-tags');
         tagsContainer.innerHTML = `
-            <button onclick="selectEmployeeTag('department', 'IT')" class="employee-tag-btn px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-all duration-200" data-type="department" data-value="IT">
-                IT
-            </button>
-            <button onclick="selectEmployeeTag('department', 'Recursos Humanos')" class="employee-tag-btn px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-all duration-200" data-type="department" data-value="Recursos Humanos">
-                RRHH
-            </button>
-            <button onclick="loadAllEmployees()" class="px-3 py-1 bg-blue-500 text-white rounded-full text-sm hover:bg-blue-600 transition-all duration-200 font-medium">
-                <i class="fas fa-users mr-1"></i>Ver todos
-            </button>
+            <button onclick="selectEmployeeTag('department', 'IT')" class="employee-tag-btn" data-type="department" data-value="IT">IT</button>
+            <button onclick="selectEmployeeTag('department', 'Recursos Humanos')" class="employee-tag-btn" data-type="department" data-value="Recursos Humanos">RRHH</button>
+            <button onclick="loadAllEmployees()" class="employee-tag-btn bg-blue-300" style="font-weight:700;">Ver todos</button>
         `;
     });
 }
 
 function loadDocumentTags() {
     fetch('/corporate-chat/documents/tags')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error al cargar categorías de documentos');
-        }
-        return response.json();
-    })
+    .then(r => { if (!r.ok) throw new Error('Error al cargar categorías'); return r.json(); })
     .then(data => {
         const tagsContainer = document.getElementById('document-tags-container');
         let html = '';
-        
-        // Mapear categorías a nombres y iconos amigables
+
         const categoryMap = {
-            'contexto_planificacion': { name: 'Contexto y Planificación', icon: 'fas fa-calendar-alt' },
-            'procedimientos_normativos': { name: 'Políticas y Normas', icon: 'fas fa-gavel' },
-            'procedimientos_operativos': { name: 'Procedimientos Operativos', icon: 'fas fa-cogs' },
-            'mejora_continua': { name: 'Mejora Continua', icon: 'fas fa-chart-line' },
+            'contexto_planificacion': { name: 'Contexto y planificación', icon: 'fas fa-calendar-alt' },
+            'procedimientos_normativos': { name: 'Políticas y normas', icon: 'fas fa-gavel' },
+            'procedimientos_operativos': { name: 'Procedimientos operativos', icon: 'fas fa-cogs' },
+            'mejora_continua': { name: 'Mejora continua', icon: 'fas fa-chart-line' },
             'general': { name: 'General', icon: 'fas fa-folder' }
         };
-        
-        // Crear botones para cada categoría
+
         data.categories.forEach(category => {
             const categoryInfo = categoryMap[category] || { name: category, icon: 'fas fa-file' };
             html += `
-                <button onclick="selectDocumentCategory('${category}')" class="document-category-btn w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-all duration-200 border border-green-200" data-category="${category}">
-                    <i class="${categoryInfo.icon} mr-2 text-green-600"></i>
-                    <span class="font-medium">${categoryInfo.name}</span>
+                <button onclick="selectDocumentCategory('${category}')" class="document-category-btn" data-category="${category}">
+                    <i class="${categoryInfo.icon} mr-2"></i>
+                    <span>${categoryInfo.name}</span>
                 </button>
             `;
         });
-        
+
         tagsContainer.innerHTML = html;
     })
-    .catch(error => {
-        console.error('Error loading document categories:', error);
-        // Fallback a categorías estáticas si falla
+    .catch(err => {
+        console.error(err);
         const tagsContainer = document.getElementById('document-tags-container');
         tagsContainer.innerHTML = `
-            <button onclick="selectDocumentCategory('general')" class="document-category-btn w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-all duration-200 border border-green-200" data-category="general">
-                <i class="fas fa-folder mr-2 text-green-600"></i>
-                <span class="font-medium">General</span>
+            <button onclick="selectDocumentCategory('general')" class="document-category-btn" data-category="general">
+                <i class="fas fa-folder mr-2"></i>
+                <span>General</span>
             </button>
         `;
     });
@@ -1079,32 +1371,17 @@ function loadDocumentTags() {
 
 function searchEmployees(query) {
     const resultsContainer = document.getElementById('employee-results');
-    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Buscando...</div>';
+    resultsContainer.innerHTML = '<div class="text-center py-4 text-sm text-slate-500"><span class="eia-spinner" style="width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px;"></span>Buscando...</div>';
 
-    fetch('/corporate-chat/employees/search?' + new URLSearchParams({
-        search: query
-    }))
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Employees search result:', data); // Debug
-        displayEmployeeResults(data.employees || []);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al buscar empleados. Por favor, intenta de nuevo.</div>';
-    });
+    fetch('/corporate-chat/employees/search?' + new URLSearchParams({ search: query }))
+    .then(r => { if (!r.ok) throw new Error('Error en la respuesta'); return r.json(); })
+    .then(data => displayEmployeeResults(data.employees || []))
+    .catch(err => { console.error(err); resultsContainer.innerHTML = '<div class="text-center text-red-600 py-4 text-sm">Error al buscar empleados.</div>'; });
 }
 
 function selectEmployeeTag(type, value) {
-    // Remover estado activo de todos los botones de empleados
     document.querySelectorAll('.employee-tag-btn').forEach(btn => {
         const btnType = btn.getAttribute('data-type');
-        
         if (btnType === 'department') {
             btn.classList.remove('bg-blue-300', 'text-blue-900');
             btn.classList.add('bg-blue-100', 'text-blue-700');
@@ -1113,8 +1390,7 @@ function selectEmployeeTag(type, value) {
             btn.classList.add('bg-blue-200', 'text-blue-800');
         }
     });
-    
-    // Activar el botón seleccionado
+
     const selectedBtn = document.querySelector(`[data-type="${type}"][data-value="${value}"]`);
     if (selectedBtn) {
         if (type === 'department') {
@@ -1125,199 +1401,111 @@ function selectEmployeeTag(type, value) {
             selectedBtn.classList.add('bg-blue-400', 'text-blue-900');
         }
     }
-    
-    // Ejecutar la búsqueda
     searchEmployeesByType(type, value);
 }
 
 function searchEmployeesByType(type, value) {
     const resultsContainer = document.getElementById('employee-results');
-    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Buscando...</div>';
+    resultsContainer.innerHTML = '<div class="text-center py-4 text-sm text-slate-500"><span class="eia-spinner" style="width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px;"></span>Buscando...</div>';
 
     const params = {};
     params[type] = value;
 
     fetch('/corporate-chat/employees/search?' + new URLSearchParams(params))
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Employees by type result:', data); // Debug
-        displayEmployeeResults(data.employees || []);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al buscar empleados. Por favor, intenta de nuevo.</div>';
-    });
+    .then(r => { if (!r.ok) throw new Error('Error en la respuesta'); return r.json(); })
+    .then(data => displayEmployeeResults(data.employees || []))
+    .catch(err => { console.error(err); resultsContainer.innerHTML = '<div class="text-center text-red-600 py-4 text-sm">Error al buscar empleados.</div>'; });
 }
 
 function loadAllEmployees() {
     const resultsContainer = document.getElementById('employee-results');
-    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Cargando todos los empleados...</div>';
+    resultsContainer.innerHTML = '<div class="text-center py-4 text-sm text-slate-500"><span class="eia-spinner" style="width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px;"></span>Cargando todos los empleados...</div>';
 
     fetch('/corporate-chat/employees/search')
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        console.log('All employees data:', data); // Debug
-        
         if (!data.employees || data.employees.length === 0) {
-            resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">No se encontraron empleados</div>';
+            resultsContainer.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm">No se encontraron empleados.</div>';
             return;
         }
 
-        // Mostrar todos los empleados en una lista completa
         let html = `
-            <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <h4 class="font-semibold text-blue-800 flex items-center">
-                    <i class="fas fa-users mr-2"></i>
-                    Directorio Completo de Empleados (${data.employees.length} total)
-                </h4>
-                <p class="text-sm text-blue-600 mt-1">Mostrando todos los empleados registrados en el sistema</p>
+            <div class="mb-4 p-3 rounded-lg" style="background:#F8FAFC; border:1px solid var(--eia-border);">
+                <p class="font-semibold text-slate-900 text-sm">Directorio completo de empleados (${data.employees.length} total)</p>
+                <p class="text-xs text-slate-500 mt-0.5">Mostrando todos los empleados registrados</p>
             </div>
             <div class="space-y-3">
         `;
 
-        // Ordenar empleados por departamento y luego por nombre
         const sortedEmployees = data.employees.sort((a, b) => {
             const deptA = a.department || 'ZZ Sin departamento';
             const deptB = b.department || 'ZZ Sin departamento';
-            if (deptA !== deptB) {
-                return deptA.localeCompare(deptB);
-            }
+            if (deptA !== deptB) return deptA.localeCompare(deptB);
             return (a.full_name || '').localeCompare(b.full_name || '');
         });
 
         let currentDept = '';
         sortedEmployees.forEach(emp => {
             const empDept = emp.department || 'Sin departamento';
-            
-            // Agregar separador de departamento si cambió
+
             if (empDept !== currentDept) {
                 html += `
-                    <div class="bg-blue-100 px-3 py-2 rounded-lg mt-4 first:mt-0">
-                        <h5 class="font-medium text-blue-700 flex items-center">
-                            <i class="fas fa-building mr-2 text-blue-600"></i>
-                            ${empDept}
-                        </h5>
+                    <div class="px-3 py-2 rounded-lg mt-4 first:mt-0" style="background:#0F1419; color:#FFFFFF;">
+                        <p class="font-semibold text-xs uppercase tracking-widest" style="color:var(--eia-gold-soft);">${empDept}</p>
                     </div>
                 `;
                 currentDept = empDept;
             }
 
             html += `
-                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors ml-4">
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-gray-800">${emp.full_name || 'Nombre no disponible'}</h4>
-                            <p class="text-sm text-gray-600">${emp.position || 'Cargo no especificado'}</p>
-                            ${emp.location ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${emp.location}</p>` : ''}
+                <div class="rounded-lg p-4 ml-3" style="background:#FFFFFF; border:1px solid var(--eia-border);">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-slate-900 text-sm">${emp.full_name || 'Nombre no disponible'}</p>
+                            <p class="text-xs text-slate-600 mt-0.5">${emp.position || 'Cargo no especificado'}</p>
+                            ${emp.location ? `<p class="text-xs text-slate-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${emp.location}</p>` : ''}
                         </div>
-                        <div class="text-right">
-                            ${emp.email ? `<a href="mailto:${emp.email}" class="text-blue-600 hover:text-blue-800 text-sm block"><i class="fas fa-envelope mr-1"></i>${emp.email}</a>` : ''}
-                            ${emp.phone ? `<a href="tel:${emp.phone}" class="text-green-600 hover:text-green-800 text-sm block mt-1"><i class="fas fa-phone mr-1"></i>${emp.phone}</a>` : ''}
-                            ${emp.extension ? `<div class="text-gray-600 text-xs mt-1">Ext: ${emp.extension}</div>` : ''}
-                            ${emp.employee_id ? `<div class="text-gray-500 text-xs mt-1">ID: ${emp.employee_id}</div>` : ''}
+                        <div class="text-right text-xs space-y-0.5">
+                            ${emp.email ? `<a href="mailto:${emp.email}" class="block" style="color:var(--eia-red);"><i class="fas fa-envelope mr-1"></i>${emp.email}</a>` : ''}
+                            ${emp.phone ? `<a href="tel:${emp.phone}" class="block" style="color:var(--eia-gold);"><i class="fas fa-phone mr-1"></i>${emp.phone}</a>` : ''}
+                            ${emp.extension ? `<div class="text-slate-500">Ext: ${emp.extension}</div>` : ''}
+                            ${emp.employee_id ? `<div class="text-slate-400">ID: ${emp.employee_id}</div>` : ''}
                         </div>
                     </div>
                 </div>
             `;
         });
-        
-        html += '</div>';
 
+        html += '</div>';
         resultsContainer.innerHTML = html;
     })
-    .catch(error => {
-        console.error('Error:', error);
-        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al cargar empleados. Por favor, intenta de nuevo.</div>';
-    });
-}
-
-function loadAllDepartments() {
-    const resultsContainer = document.getElementById('employee-results');
-    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-blue-500"></i> Cargando departamentos...</div>';
-
-    fetch('/corporate-chat/employees/search')
-    .then(response => response.json())
-    .then(data => {
-        console.log('Response data:', data); // Debug
-        
-        if (!data.employees || data.employees.length === 0) {
-            resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">No se encontraron empleados</div>';
-            return;
-        }
-
-        // Agrupar por departamentos
-        const byDepartment = {};
-        data.employees.forEach(emp => {
-            const dept = emp.department || 'Sin departamento';
-            if (!byDepartment[dept]) {
-                byDepartment[dept] = [];
-            }
-            byDepartment[dept].push(emp);
-        });
-
-        let html = '<div class="space-y-3">';
-        Object.keys(byDepartment).sort().forEach(dept => {
-            html += `
-                <div class="border rounded-lg p-3">
-                    <h4 class="font-semibold text-gray-800 mb-2 flex items-center justify-between">
-                        <span>${dept}</span>
-                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">${byDepartment[dept].length}</span>
-                    </h4>
-                    <div class="space-y-1">
-                        ${byDepartment[dept].slice(0, 3).map(emp => `
-                            <div class="text-sm text-gray-600 border-b border-gray-100 pb-1">
-                                <strong>${emp.full_name || 'Nombre no disponible'}</strong> - ${emp.position || 'Cargo no especificado'}
-                                ${emp.email ? `<br><a href="mailto:${emp.email}" class="text-blue-600 text-xs">${emp.email}</a>` : ''}
-                            </div>
-                        `).join('')}
-                        ${byDepartment[dept].length > 3 ? `
-                            <button onclick="searchEmployeesByType('department', '${dept}')" class="text-xs text-blue-600 hover:text-blue-800 underline">
-                                Ver todos los ${byDepartment[dept].length} empleados de ${dept}
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        });
-        html += '</div>';
-
-        resultsContainer.innerHTML = html;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al cargar departamentos. Por favor, intenta de nuevo.</div>';
-    });
+    .catch(err => { console.error(err); resultsContainer.innerHTML = '<div class="text-center text-red-600 py-4 text-sm">Error al cargar empleados.</div>'; });
 }
 
 function displayEmployeeResults(employees) {
     const resultsContainer = document.getElementById('employee-results');
-    
+
     if (!employees || employees.length === 0) {
-        resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">No se encontraron empleados</div>';
+        resultsContainer.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm">No se encontraron empleados.</div>';
         return;
     }
 
     let html = '<div class="space-y-3">';
     employees.forEach(emp => {
         html += `
-            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <h4 class="font-semibold text-gray-800">${emp.full_name || 'Nombre no disponible'}</h4>
-                        <p class="text-sm text-gray-600">${emp.position || 'Cargo no especificado'}</p>
-                        <p class="text-xs text-gray-500">${emp.department || 'Departamento no especificado'}</p>
-                        ${emp.location ? `<p class="text-xs text-gray-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${emp.location}</p>` : ''}
+            <div class="rounded-lg p-4" style="background:#FFFFFF; border:1px solid var(--eia-border);">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-slate-900 text-sm">${emp.full_name || 'Nombre no disponible'}</p>
+                        <p class="text-xs text-slate-600 mt-0.5">${emp.position || 'Cargo no especificado'}</p>
+                        <p class="text-xs text-slate-500">${emp.department || 'Departamento no especificado'}</p>
+                        ${emp.location ? `<p class="text-xs text-slate-500 mt-1"><i class="fas fa-map-marker-alt mr-1"></i>${emp.location}</p>` : ''}
                     </div>
-                    <div class="text-right">
-                        ${emp.email ? `<a href="mailto:${emp.email}" class="text-blue-600 hover:text-blue-800 text-sm block"><i class="fas fa-envelope mr-1"></i>${emp.email}</a>` : ''}
-                        ${emp.phone ? `<a href="tel:${emp.phone}" class="text-green-600 hover:text-green-800 text-sm block mt-1"><i class="fas fa-phone mr-1"></i>${emp.phone}</a>` : ''}
-                        ${emp.extension ? `<div class="text-gray-600 text-xs mt-1">Ext: ${emp.extension}</div>` : ''}
-                        ${emp.employee_id ? `<div class="text-gray-500 text-xs mt-1">ID: ${emp.employee_id}</div>` : ''}
+                    <div class="text-right text-xs space-y-0.5">
+                        ${emp.email ? `<a href="mailto:${emp.email}" class="block" style="color:var(--eia-red);"><i class="fas fa-envelope mr-1"></i>${emp.email}</a>` : ''}
+                        ${emp.phone ? `<a href="tel:${emp.phone}" class="block" style="color:var(--eia-gold);"><i class="fas fa-phone mr-1"></i>${emp.phone}</a>` : ''}
+                        ${emp.extension ? `<div class="text-slate-500">Ext: ${emp.extension}</div>` : ''}
+                        ${emp.employee_id ? `<div class="text-slate-400">ID: ${emp.employee_id}</div>` : ''}
                     </div>
                 </div>
             </div>
@@ -1330,101 +1518,64 @@ function displayEmployeeResults(employees) {
 
 function showEmployeeDefaultMessage() {
     document.getElementById('employee-results').innerHTML = `
-        <div class="text-center text-gray-500 py-8">
-            <i class="fas fa-search text-3xl mb-2"></i>
-            <p>Usa el campo de búsqueda o los filtros para encontrar empleados</p>
+        <div class="text-center text-slate-500 py-8">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" class="inline-block mb-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/>
+            </svg>
+            <p class="text-sm">Usa el campo de búsqueda o los filtros para encontrar empleados</p>
         </div>
     `;
 }
 
-// Funciones para búsqueda de documentos
 function searchDocuments(query) {
     const resultsContainer = document.getElementById('document-results');
-    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-green-500"></i> Buscando...</div>';
+    resultsContainer.innerHTML = '<div class="text-center py-4 text-sm text-slate-500"><span class="eia-spinner" style="width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px;"></span>Buscando...</div>';
 
-    fetch('/corporate-chat/documents/search?' + new URLSearchParams({
-        search: query
-    }))
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Documents search result:', data); // Debug
-        displayDocumentResults(data.documents || []);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al buscar documentos. Por favor, intenta de nuevo.</div>';
-    });
+    fetch('/corporate-chat/documents/search?' + new URLSearchParams({ search: query }))
+    .then(r => { if (!r.ok) throw new Error('Error en la respuesta'); return r.json(); })
+    .then(data => displayDocumentResults(data.documents || []))
+    .catch(err => { console.error(err); resultsContainer.innerHTML = '<div class="text-center text-red-600 py-4 text-sm">Error al buscar documentos.</div>'; });
 }
 
 function selectDocumentCategory(category) {
-    // Remover estado activo de todos los botones de categoría
     document.querySelectorAll('.document-category-btn').forEach(btn => {
         btn.classList.remove('bg-green-200', 'border-green-400', 'shadow-md');
         btn.classList.add('bg-green-50', 'border-green-200');
-        
-        // Resetear color del ícono y texto
         const icon = btn.querySelector('i');
         const span = btn.querySelector('span');
         if (icon) icon.classList.remove('text-green-800');
         if (icon) icon.classList.add('text-green-600');
         if (span) span.classList.remove('text-green-800');
     });
-    
-    // Activar el botón seleccionado
+
     const selectedBtn = document.querySelector(`[data-category="${category}"]`);
     if (selectedBtn) {
         selectedBtn.classList.remove('bg-green-50', 'border-green-200');
         selectedBtn.classList.add('bg-green-200', 'border-green-400', 'shadow-md');
-        
-        // Cambiar color del ícono y texto
         const icon = selectedBtn.querySelector('i');
         const span = selectedBtn.querySelector('span');
-        if (icon) {
-            icon.classList.remove('text-green-600');
-            icon.classList.add('text-green-800');
-        }
-        if (span) {
-            span.classList.add('text-green-800');
-        }
+        if (icon) { icon.classList.remove('text-green-600'); icon.classList.add('text-green-800'); }
+        if (span) span.classList.add('text-green-800');
     }
-    
-    // Ejecutar la búsqueda
+
     searchDocumentsByCategory(category);
 }
 
 function searchDocumentsByCategory(category) {
     const resultsContainer = document.getElementById('document-results');
-    resultsContainer.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-green-500"></i> Buscando...</div>';
+    resultsContainer.innerHTML = '<div class="text-center py-4 text-sm text-slate-500"><span class="eia-spinner" style="width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px;"></span>Buscando...</div>';
 
-    fetch('/corporate-chat/documents/search?' + new URLSearchParams({
-        category: category
-    }))
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Documents by category result:', data); // Debug
-        displayDocumentResults(data.documents || []);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        resultsContainer.innerHTML = '<div class="text-center text-red-500 py-4">Error al buscar documentos. Por favor, intenta de nuevo.</div>';
-    });
+    fetch('/corporate-chat/documents/search?' + new URLSearchParams({ category: category }))
+    .then(r => { if (!r.ok) throw new Error('Error en la respuesta'); return r.json(); })
+    .then(data => displayDocumentResults(data.documents || []))
+    .catch(err => { console.error(err); resultsContainer.innerHTML = '<div class="text-center text-red-600 py-4 text-sm">Error al buscar documentos.</div>'; });
 }
 
 function displayDocumentResults(documents) {
     const resultsContainer = document.getElementById('document-results');
-    
+
     if (!documents || documents.length === 0) {
-        resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">No se encontraron documentos</div>';
+        resultsContainer.innerHTML = '<div class="text-center text-slate-500 py-8 text-sm">No se encontraron documentos.</div>';
         return;
     }
 
@@ -1432,23 +1583,24 @@ function displayDocumentResults(documents) {
     documents.forEach(doc => {
         const categoryName = getCategoryDisplayName(doc.category);
         html += `
-            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <h4 class="font-semibold text-gray-800">${doc.title || 'Documento sin título'}</h4>
-                        ${doc.description ? `<p class="text-sm text-gray-600 mt-1">${doc.description}</p>` : ''}
-                        <div class="flex items-center mt-2 space-x-2">
-                            <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">${categoryName}</span>
-                            ${doc.type ? `<span class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">${doc.type}</span>` : ''}
+            <div class="rounded-lg p-4" style="background:#FFFFFF; border:1px solid var(--eia-border);">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-slate-900 text-sm">${doc.title || 'Documento sin título'}</p>
+                        ${doc.description ? `<p class="text-xs text-slate-600 mt-1">${doc.description}</p>` : ''}
+                        <div class="flex items-center mt-2 gap-2 flex-wrap">
+                            <span class="text-[10px] uppercase tracking-widest px-2 py-1 rounded-full font-semibold" style="background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;">${categoryName}</span>
+                            ${doc.type ? `<span class="text-[10px] uppercase tracking-widest px-2 py-1 rounded-full font-semibold" style="background:#F1F5F9;color:var(--eia-slate);border:1px solid var(--eia-border);">${doc.type}</span>` : ''}
                         </div>
                     </div>
-                    <div class="ml-4">
+                    <div class="ml-2 flex-shrink-0">
                         ${doc.external_url ? `
-                            <a href="${doc.external_url}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors">
-                                <i class="fas fa-external-link-alt mr-1"></i>Ver
+                            <a href="${doc.external_url}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold transition-colors" style="background:var(--eia-black);color:#FFFFFF;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                Abrir
                             </a>
                         ` : `
-                            <span class="bg-gray-300 text-gray-600 px-3 py-1 rounded text-sm">Sin enlace</span>
+                            <span class="inline-block px-3 py-1.5 rounded text-xs font-medium" style="background:#F1F5F9;color:#94A3B8;border:1px solid var(--eia-border);">Sin enlace</span>
                         `}
                     </div>
                 </div>
@@ -1462,10 +1614,10 @@ function displayDocumentResults(documents) {
 
 function getCategoryDisplayName(category) {
     const names = {
-        'contexto_planificacion': 'Contexto de Planificación',
-        'procedimientos_normativos': 'Procedimientos Normativos',
-        'procedimientos_operativos': 'Procedimientos Operativos',
-        'mejora_continua': 'Mejora Continua',
+        'contexto_planificacion': 'Contexto de planificación',
+        'procedimientos_normativos': 'Procedimientos normativos',
+        'procedimientos_operativos': 'Procedimientos operativos',
+        'mejora_continua': 'Mejora continua',
         'general': 'General'
     };
     return names[category] || 'Sin categoría';
@@ -1473,9 +1625,11 @@ function getCategoryDisplayName(category) {
 
 function showDocumentDefaultMessage() {
     document.getElementById('document-results').innerHTML = `
-        <div class="text-center text-gray-500 py-8">
-            <i class="fas fa-folder-open text-3xl mb-2"></i>
-            <p>Selecciona una categoría o busca documentos específicos</p>
+        <div class="text-center text-slate-500 py-8">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" class="inline-block mb-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+            </svg>
+            <p class="text-sm">Selecciona una categoría o busca documentos específicos</p>
         </div>
     `;
 }

@@ -1,303 +1,344 @@
 @extends('layouts.app')
 
 @push('styles')
-<style>
-/* Animaciones y transiciones suaves */
-.stats-card {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateY(0);
-}
-
-.stats-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-.gradient-text {
-    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.activity-bar {
-    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-    transition: all 0.3s ease;
-}
-
-.activity-bar:hover {
-    transform: scaleY(1.1);
-}
-
-.nav-link-active {
-    border-color: #DC2626;
-    color: #DC2626;
-}
-
-.nav-link {
-    transition: all 0.3s ease;
-}
-
-.nav-link:hover {
-    color: #DC2626;
-    border-color: #FBBF24;
-}
-
-.hour-bar {
-    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-    transition: all 0.3s ease;
-}
-
-.hour-bar:hover {
-    transform: scaleY(1.1);
-}
+@include('admin._admin-styles')<style>
+    .hour-bars {
+        display: grid;
+        grid-template-columns: repeat(24, minmax(0, 1fr));
+        gap: 4px;
+        align-items: end;
+        height: 160px;
+        padding-top: 8px;
+    }
+    .hour-bar-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        height: 100%;
+        justify-content: end;
+        position: relative;
+    }
+    .hour-bar-col {
+        width: 100%;
+        background: var(--eia-black);
+        border-radius: 4px 4px 0 0;
+        min-height: 4px;
+        transition: background .2s ease;
+        position: relative;
+    }
+    .hour-bar-col:hover { background: var(--eia-gold); }
+    .hour-bar-count {
+        position: absolute;
+        top: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 9.5px;
+        color: var(--eia-slate);
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    .hour-bar-label {
+        font-size: 9.5px;
+        color: var(--eia-mute);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-align: center;
+    }
+    .avatar-circle {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: #F1F5F9;
+        color: var(--eia-black);
+        font-weight: 700;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--eia-border);
+    }
+    .avatar-circle.podium-1 { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
+    .avatar-circle.podium-2 { background: #F1F5F9; color: var(--eia-slate); border-color: #CBD5E1; }
+    .avatar-circle.podium-3 { background: #FEF2F2; color: var(--eia-red); border-color: #FECACA; }
+    .dist-tile {
+        background: #FFFFFF;
+        border: 1px solid var(--eia-border);
+        border-radius: 12px;
+        padding: 22px;
+        position: relative;
+        overflow: hidden;
+    }
+    .dist-tile::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: var(--eia-red);
+    }
+    .dist-tile.ai::before { background: var(--eia-gold); }
+    .dist-tile-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--eia-black);
+        line-height: 1;
+        margin-top: 8px;
+    }
+    .dist-tile-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--eia-mute);
+        font-weight: 600;
+        margin-top: 8px;
+    }
+    .dist-tile-eyebrow {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-weight: 700;
+        color: var(--eia-red);
+    }
+    .dist-tile.ai .dist-tile-eyebrow { color: var(--eia-gold); }
 </style>
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
-    <!-- Header mejorado con gradiente rojo-amarillo -->
-    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
-        <div class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('admin.stats.dashboard') }}" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
-                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
-                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
-                        </svg>
-                    </a>
-                    <div>
-                        <h1 class="text-3xl font-bold">💬 Estadísticas de Chats</h1>
-                        <p class="text-orange-100 text-sm mt-1">Análisis detallado de conversaciones y mensajes</p>
-                    </div>
-                </div>
+<div class="min-h-screen eia-bg">
+    <!-- HERO -->
+    <section class="admin-hero px-4 sm:px-8 lg:px-12 py-10">
+        <div class="max-w-7xl mx-auto flex items-start justify-between gap-6 flex-wrap">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('admin.stats.dashboard') }}" class="admin-back" aria-label="Volver al dashboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </a>
                 <div>
-                    <a href="{{ route('admin.stats.export', ['type' => 'chats', 'format' => 'csv']) }}" 
-                       class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
-                        <span>📥 Exportar CSV</span>
-                    </a>
+                    <span class="admin-eyebrow">Administración · Estadísticas</span>
+                    <h1 class="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">Estadísticas de Chats</h1>
+                    <p class="mt-1 text-sm text-slate-300 max-w-2xl">Análisis detallado de conversaciones y mensajes.</p>
                 </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.stats.export', ['type' => 'chats', 'format' => 'csv']) }}" class="admin-action">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Exportar CSV
+                </a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="container mx-auto px-4 py-8">
-        <!-- Navegación de estadísticas -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="border-b border-gray-100">
-                <nav class="-mb-px flex space-x-8 px-6">
-                    <a href="{{ route('admin.stats.dashboard') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        📊 Dashboard
-                    </a>
-                    <a href="{{ route('admin.stats.users') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        👥 Usuarios
-                    </a>
-                    <a href="{{ route('admin.stats.chats') }}" 
-                       class="nav-link-active border-b-2 py-4 px-1 text-sm font-medium">
-                        💬 Chats
-                    </a>
-                    <a href="{{ route('admin.stats.modules') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        📊 Módulos
-                    </a>
-                    <a href="{{ route('admin.stats.errors') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        🚨 Errores
-                    </a>
-                </nav>
-            </div>
+    <!-- TABS -->
+    <section class="px-4 sm:px-8 lg:px-12 pt-7">
+        <div class="max-w-7xl mx-auto">
+            <nav class="admin-tabs admin-fade admin-d1">
+                <a href="{{ route('admin.stats.dashboard') }}" class="admin-tab {{ request()->routeIs('admin.stats.dashboard') ? 'active' : '' }}">Dashboard</a>
+                <a href="{{ route('admin.stats.users') }}" class="admin-tab {{ request()->routeIs('admin.stats.users') ? 'active' : '' }}">Usuarios</a>
+                <a href="{{ route('admin.stats.chats') }}" class="admin-tab {{ request()->routeIs('admin.stats.chats') ? 'active' : '' }}">Chats</a>
+                <a href="{{ route('admin.stats.modules') }}" class="admin-tab {{ request()->routeIs('admin.stats.modules') ? 'active' : '' }}">Módulos</a>
+                <a href="{{ route('admin.stats.errors') }}" class="admin-tab {{ request()->routeIs('admin.stats.errors') ? 'active' : '' }}">Errores</a>
+            </nav>
         </div>
+    </section>
 
-        <!-- Estadísticas de chat -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-red-100 to-red-200 text-red-600 text-2xl">
-                        💬
+    <!-- CONTENT -->
+    <section class="px-4 sm:px-8 lg:px-12 py-8">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8 admin-fade admin-d2">
+                <div class="admin-kpi red">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Total Mensajes</div>
+                            <div class="admin-kpi-value">{{ number_format($totalChats) }}</div>
+                        </div>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Total Mensajes</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($totalChats) }}</dd>
-                        </dl>
+                </div>
+
+                <div class="admin-kpi gold">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Conversaciones</div>
+                            <div class="admin-kpi-value">{{ number_format($totalGroups) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-kpi black">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Promedio / Conversación</div>
+                            <div class="admin-kpi-value">{{ $avgMessagesPerGroup }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-orange-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200 text-orange-600 text-2xl">
-                        🗂️
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Conversaciones</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($totalGroups) }}</dd>
-                        </dl>
+            <!-- Actividad por hora -->
+            <div class="admin-panel mb-8 admin-fade admin-d3">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Actividad por hora del día</div>
+                        <div class="admin-panel-sub">Volumen de mensajes por cada hora.</div>
                     </div>
                 </div>
-            </div>
-
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-600 text-2xl">
-                        📊
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Promedio/Conversación</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ $avgMessagesPerGroup }}</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actividad por hora del día -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold gradient-text">⏰ Actividad por Hora del Día</h3>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-12 gap-2">
-                    @for($hour = 0; $hour < 24; $hour++)
-                        @php
-                            $count = $hourlyActivity[$hour] ?? 0;
-                            $maxCount = max($hourlyActivity);
-                            $height = $maxCount > 0 ? ($count / $maxCount) * 100 : 0;
-                        @endphp
-                        <div class="text-center">
-                            <div class="hour-bar rounded-t mb-2 flex items-end justify-center transition-all duration-300 hover:scale-y-110" 
-                                 style="height: {{ max($height, 2) }}px; min-height: 20px;">
-                                @if($count > 0)
-                                    <span class="text-xs text-white font-semibold mb-1">{{ $count }}</span>
-                                @endif
+                <div class="admin-panel-body">
+                    @php $maxCount = max($hourlyActivity) ?: 1; @endphp
+                    <div class="hour-bars">
+                        @for($hour = 0; $hour < 24; $hour++)
+                            @php
+                                $count = $hourlyActivity[$hour] ?? 0;
+                                $height = $maxCount > 0 ? ($count / $maxCount) * 100 : 0;
+                            @endphp
+                            <div class="hour-bar-wrap" title="{{ sprintf('%02d:00', $hour) }} · {{ number_format($count) }}">
+                                <div class="hour-bar-col" style="height: {{ max($height, 3) }}%;">
+                                    @if($count > 0)
+                                        <span class="hour-bar-count">{{ $count }}</span>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="text-xs text-gray-600">{{ sprintf('%02d:00', $hour) }}</div>
-                        </div>
-                    @endfor
-                </div>
-            </div>
-        </div>
-
-        <!-- Mensajes por tipo (Usuario vs IA) -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold gradient-text">📊 Distribución de Mensajes (Últimos 30 días)</h3>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    @foreach($messageTypeStats as $typeStats)
-                    <div class="text-center p-6 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl hover:from-red-100 hover:to-orange-100 transition-all duration-300">
-                        <div class="text-3xl mb-2">
-                            {{ $typeStats->sender === 'user' ? '👤' : '🤖' }}
-                        </div>
-                        <div class="text-2xl font-bold gradient-text">{{ number_format($typeStats->count) }}</div>
-                        <div class="text-sm text-gray-600">
-                            {{ $typeStats->sender === 'user' ? 'Mensajes de Usuario' : 'Respuestas de IA' }}
-                        </div>
+                        @endfor
                     </div>
-                    @endforeach
+                    <div class="hour-bars" style="height: auto; padding-top: 8px;">
+                        @for($hour = 0; $hour < 24; $hour++)
+                            <div class="hour-bar-label">{{ sprintf('%02d', $hour) }}</div>
+                        @endfor
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Conversaciones más largas -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold gradient-text">🏆 Conversaciones Más Largas</h3>
+            <!-- Distribución de mensajes -->
+            <div class="admin-panel mb-8 admin-fade admin-d3">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Distribución de mensajes · Últimos 30 días</div>
+                        <div class="admin-panel-sub">Origen del mensaje: usuario vs IA.</div>
+                    </div>
+                </div>
+                <div class="admin-panel-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        @foreach($messageTypeStats as $typeStats)
+                            @php $isUser = $typeStats->sender === 'user'; @endphp
+                            <div class="dist-tile {{ $isUser ? '' : 'ai' }}">
+                                <div class="dist-tile-eyebrow">{{ $isUser ? 'Usuario' : 'Inteligencia Artificial' }}</div>
+                                <div class="dist-tile-value">{{ number_format($typeStats->count) }}</div>
+                                <div class="dist-tile-label">
+                                    {{ $isUser ? 'Mensajes de Usuario' : 'Respuestas de IA' }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
-            <div class="overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gradient-to-r from-red-50 to-yellow-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Usuario</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ID Conversación</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Mensajes</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        @foreach($longestConversations as $conversation)
-                        <tr class="hover:bg-red-50 transition-colors duration-300">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-red-100 to-orange-100 flex items-center justify-center text-red-600 font-semibold">
-                                        {{ strtoupper(substr($conversation->user->name ?? 'U', 0, 1)) }}
+
+            <!-- Conversaciones más largas -->
+            <div class="admin-panel mb-8 admin-fade admin-d4">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Conversaciones más largas</div>
+                        <div class="admin-panel-sub">Top de conversaciones con mayor número de mensajes.</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>ID Conversación</th>
+                                <th>Mensajes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($longestConversations as $conversation)
+                            <tr>
+                                <td class="primary">
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar-circle">{{ strtoupper(substr($conversation->user->name ?? 'U', 0, 1)) }}</div>
+                                        <span>{{ $conversation->user->name ?? 'Usuario Desconocido' }}</span>
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $conversation->user->name ?? 'Usuario Desconocido' }}
+                                </td>
+                                <td>{{ $conversation->user->email ?? '-' }}</td>
+                                <td><span class="font-mono text-xs text-slate-700">{{ substr($conversation->chatgroup_id, 0, 8) }}…</span></td>
+                                <td><span class="admin-badge red">{{ number_format($conversation->message_count) }}</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top usuarios de la semana -->
+            <div class="admin-panel admin-fade admin-d4">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Top usuarios de la semana</div>
+                        <div class="admin-panel-sub">Usuarios con mayor actividad en los últimos 7 días.</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Posición</th>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Mensajes Esta Semana</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($weeklyTopUsers as $index => $user)
+                            <tr>
+                                <td>
+                                    @if($index === 0)
+                                        <span class="admin-badge gold">1.º</span>
+                                    @elseif($index === 1)
+                                        <span class="admin-badge">2.º</span>
+                                    @elseif($index === 2)
+                                        <span class="admin-badge red">3.º</span>
+                                    @else
+                                        <span class="admin-badge">{{ $index + 1 }}.º</span>
+                                    @endif
+                                </td>
+                                <td class="primary">
+                                    <div class="flex items-center gap-3">
+                                        <div class="avatar-circle {{ $index === 0 ? 'podium-1' : ($index === 1 ? 'podium-2' : ($index === 2 ? 'podium-3' : '')) }}">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
                                         </div>
+                                        <span>{{ $user->name }}</span>
                                     </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ $conversation->user->email ?? '-' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                                {{ substr($conversation->chatgroup_id, 0, 8) }}...
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-orange-100 text-red-800">
-                                    {{ number_format($conversation->message_count) }}
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                </td>
+                                <td>{{ $user->email }}</td>
+                                <td><span class="admin-badge gold">{{ number_format($user->weekly_messages) }}</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <!-- Top usuarios de la semana -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h3 class="text-lg font-semibold gradient-text">🔥 Top Usuarios de la Semana</h3>
-            </div>
-            <div class="overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-100">
-                    <thead class="bg-gradient-to-r from-red-50 to-yellow-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Usuario</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Mensajes Esta Semana</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        @foreach($weeklyTopUsers as $index => $user)
-                        <tr class="hover:bg-red-50 transition-colors duration-300">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-red-400 to-yellow-500 flex items-center justify-center">
-                                        @if($index < 3)
-                                            <span class="text-lg">{{ ['🥇', '🥈', '🥉'][$index] }}</span>
-                                        @else
-                                            <span class="text-white font-semibold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
-                                        @endif
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                {{ $user->email }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-yellow-100 text-orange-800">
-                                    {{ number_format($user->weekly_messages) }}
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
         </div>
-    </div>
+    </section>
 </div>
 @endsection

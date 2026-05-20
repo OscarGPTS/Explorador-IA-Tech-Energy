@@ -1,334 +1,298 @@
 @extends('layouts.app')
 
 @push('styles')
+@include('admin._admin-styles')
 <style>
-/* Animaciones y transiciones suaves */
-.stats-card {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: translateY(0);
-}
-
-.stats-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-.gradient-text {
-    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.activity-bar {
-    background: linear-gradient(135deg, #DC2626 0%, #FBBF24 100%);
-    transition: all 0.3s ease;
-}
-
-.activity-bar:hover {
-    transform: scaleY(1.1);
-}
-
-.nav-link-active {
-    border-color: #DC2626;
-    color: #DC2626;
-}
-
-.nav-link {
-    transition: all 0.3s ease;
-}
-
-.nav-link:hover {
-    color: #DC2626;
-    border-color: #FBBF24;
-}
+    .module-cell {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .module-tag {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        background: var(--eia-black);
+        color: #F8FAFC;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        border: 1px solid var(--eia-black);
+        flex-shrink: 0;
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-red-50 via-white to-yellow-50">
-    <!-- Header mejorado con gradiente rojo-amarillo -->
-    <div class="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
-        <div class="container mx-auto px-4 py-8">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 transform hover:scale-110">
-                        <svg width="24px" height="24px" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                            <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"/>
-                            <path fill="currentColor" d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"/>
-                        </svg>
-                    </a>
+<div class="min-h-screen eia-bg">
+    <!-- HERO -->
+    <section class="admin-hero px-4 sm:px-8 lg:px-12 py-10">
+        <div class="max-w-7xl mx-auto flex items-start justify-between gap-6 flex-wrap">
+            <div class="flex items-center gap-4">
+                <a href="/" class="admin-back" aria-label="Volver al inicio">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </a>
+                <div>
+                    <span class="admin-eyebrow">Administración · Estadísticas</span>
+                    <h1 class="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">Estadísticas de Módulos</h1>
+                    <p class="mt-1 text-sm text-slate-300 max-w-2xl">Análisis detallado del uso de los diferentes módulos y aplicaciones del sistema.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.stats.export', ['type' => 'modules', 'format' => 'csv']) }}" class="admin-action">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    CSV
+                </a>
+                <a href="{{ route('admin.stats.export', ['type' => 'modules', 'format' => 'excel']) }}" class="admin-action">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6h6v6M9 7h6M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    Excel
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- TABS -->
+    <section class="px-4 sm:px-8 lg:px-12 pt-7">
+        <div class="max-w-7xl mx-auto">
+            <nav class="admin-tabs admin-fade admin-d1">
+                <a href="{{ route('admin.stats.dashboard') }}" class="admin-tab {{ request()->routeIs('admin.stats.dashboard') ? 'active' : '' }}">Dashboard</a>
+                <a href="{{ route('admin.stats.users') }}" class="admin-tab {{ request()->routeIs('admin.stats.users') ? 'active' : '' }}">Usuarios</a>
+                <a href="{{ route('admin.stats.chats') }}" class="admin-tab {{ request()->routeIs('admin.stats.chats') ? 'active' : '' }}">Chats</a>
+                <a href="{{ route('admin.stats.modules') }}" class="admin-tab {{ request()->routeIs('admin.stats.modules') ? 'active' : '' }}">Módulos</a>
+                <a href="{{ route('admin.stats.errors') }}" class="admin-tab {{ request()->routeIs('admin.stats.errors') ? 'active' : '' }}">Errores</a>
+            </nav>
+        </div>
+    </section>
+
+    <!-- CONTENT -->
+    <section class="px-4 sm:px-8 lg:px-12 py-8">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Filtros de exportación -->
+            <div class="admin-panel mb-8 admin-fade admin-d2">
+                <div class="admin-panel-head">
                     <div>
-                        <h1 class="text-3xl font-bold">📊 Estadísticas de Módulos</h1>
-                        <p class="text-orange-100 text-sm mt-1">Análisis detallado del uso de los diferentes módulos y aplicaciones del sistema</p>
+                        <div class="admin-panel-title">Filtros de exportación</div>
+                        <div class="admin-panel-sub">Acota el reporte por fechas y tipo de módulo.</div>
                     </div>
                 </div>
-                <div class="flex space-x-3">
-                    <a href="{{ route('admin.stats.export', ['type' => 'modules', 'format' => 'csv']) }}" 
-                       class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
-                        <span>📥 CSV</span>
-                    </a>
-                    <a href="{{ route('admin.stats.export', ['type' => 'modules', 'format' => 'excel']) }}" 
-                       class="flex items-center space-x-2 bg-white/20 hover:bg-white/30 backdrop-filter backdrop-blur-sm border border-white/30 font-medium rounded-full text-sm px-6 py-3 text-white transition-all duration-300 transform hover:scale-105">
-                        <span>📊 Excel</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container mx-auto px-4 py-8">
-        <!-- Navegación de estadísticas -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="border-b border-gray-100">
-                <nav class="-mb-px flex space-x-8 px-6">
-                    <a href="{{ route('admin.stats.dashboard') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        📊 Dashboard
-                    </a>
-                    <a href="{{ route('admin.stats.users') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        👥 Usuarios
-                    </a>
-                    <a href="{{ route('admin.stats.chats') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        💬 Chats
-                    </a>
-                    <a href="{{ route('admin.stats.modules') }}" 
-                       class="nav-link-active border-b-2 py-4 px-1 text-sm font-medium">
-                        📊 Módulos
-                    </a>
-                    <a href="{{ route('admin.stats.errors') }}" 
-                       class="nav-link border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-600">
-                        🚨 Errores
-                    </a>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Panel de Filtros -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-8 border border-white/20">
-            <h3 class="text-lg font-semibold gradient-text mb-4">🔍 Filtros de Exportación</h3>
-            <form id="export-filters" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">Fecha Inicio</label>
-                    <input type="date" id="start_date" name="start_date" 
-                           class="w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
-                </div>
-                <div>
-                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">Fecha Fin</label>
-                    <input type="date" id="end_date" name="end_date" 
-                           class="w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
-                </div>
-                <div>
-                    <label for="module_type" class="block text-sm font-medium text-gray-700 mb-2">Tipo de Módulo</label>
-                    <select id="module_type" name="module_type" 
-                            class="w-full rounded-xl border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500">
-                        <option value="">Todos los módulos</option>
-                        <option value="chat">Chat</option>
-                        <option value="news">Noticias</option>
-                        <option value="recommendations">Recomendaciones</option>
-                        <option value="employee_management">Gestión de Empleados</option>
-                        <option value="analytics">Analytics</option>
-                        <option value="admin_panel">Panel Admin</option>
-                        <option value="profile">Perfil</option>
-                        <option value="dashboard">Dashboard</option>
-                    </select>
-                </div>
-            </form>
-            <div class="mt-6 flex space-x-3">
-                <button onclick="exportWithFilters('csv')" 
-                        class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-full text-white bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    📥 Exportar CSV Filtrado
-                </button>
-                <button onclick="exportWithFilters('excel')" 
-                        class="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-full text-white bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    📊 Exportar Excel Filtrado
-                </button>
-            </div>
-        </div>
-        <!-- Estadísticas principales -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-red-100 to-red-200">
-                        <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Total Módulos</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($totalModules) }}</dd>
-                        </dl>
+                <div class="admin-panel-body">
+                    <form id="export-filters" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="start_date" class="admin-label">Fecha Inicio</label>
+                            <input type="date" id="start_date" name="start_date" class="admin-input">
+                        </div>
+                        <div>
+                            <label for="end_date" class="admin-label">Fecha Fin</label>
+                            <input type="date" id="end_date" name="end_date" class="admin-input">
+                        </div>
+                        <div>
+                            <label for="module_type" class="admin-label">Tipo de Módulo</label>
+                            <select id="module_type" name="module_type" class="admin-select">
+                                <option value="">Todos los módulos</option>
+                                <option value="chat">Chat</option>
+                                <option value="news">Noticias</option>
+                                <option value="recommendations">Recomendaciones</option>
+                                <option value="employee_management">Gestión de Empleados</option>
+                                <option value="analytics">Analytics</option>
+                                <option value="admin_panel">Panel Admin</option>
+                                <option value="profile">Perfil</option>
+                                <option value="dashboard">Dashboard</option>
+                            </select>
+                        </div>
+                    </form>
+                    <div class="mt-5 flex flex-wrap gap-3">
+                        <button type="button" onclick="exportWithFilters('csv')" class="admin-btn-primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/>
+                            </svg>
+                            Exportar CSV filtrado
+                        </button>
+                        <button type="button" onclick="exportWithFilters('excel')" class="admin-btn-secondary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6h6v6M9 7h6M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            Exportar Excel filtrado
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-orange-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200">
-                        <svg class="h-8 w-8 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Logs Totales</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($totalLogs) }}</dd>
-                        </dl>
+            <!-- KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 admin-fade admin-d2">
+                <div class="admin-kpi red">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Total Módulos</div>
+                            <div class="admin-kpi-value">{{ number_format($totalModules) }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-200">
-                        <svg class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
+
+                <div class="admin-kpi gold">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Logs Totales</div>
+                            <div class="admin-kpi-value">{{ number_format($totalLogs) }}</div>
+                        </div>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Actividad Hoy</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($logsToday) }}</dd>
-                        </dl>
+                </div>
+
+                <div class="admin-kpi black">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Actividad Hoy</div>
+                            <div class="admin-kpi-value">{{ number_format($logsToday) }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-kpi slate">
+                    <span class="accent"></span>
+                    <div class="flex items-center gap-4">
+                        <div class="admin-kpi-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="admin-kpi-label">Usuarios Activos Hoy</div>
+                            <div class="admin-kpi-value">{{ number_format($uniqueUsersToday) }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="stats-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 border-l-4 border-red-400">
-                <div class="flex items-center">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-red-100 to-red-200">
-                        <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-600 truncate">Usuarios Activos Hoy</dt>
-                            <dd class="text-lg font-bold gradient-text">{{ number_format($uniqueUsersToday) }}</dd>
-                        </dl>
+            <!-- Módulos más utilizados -->
+            <div class="admin-panel mb-8 admin-fade admin-d3">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Módulos más utilizados</div>
+                        <div class="admin-panel-sub">Ranking por uso total, usuarios únicos y tasa de éxito.</div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Módulos más utilizados con tema rojo-amarillo -->
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-red-50 to-yellow-50 rounded-t-2xl">
-                <h3 class="text-lg font-semibold gradient-text">🏆 Módulos Más Utilizados</h3>
-            </div>
-            <div class="overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gradient-to-r from-red-50 to-yellow-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Módulo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Uso Total</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Usuarios Únicos</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Tasa de Éxito</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Último Uso</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        @foreach($moduleUsageStats as $module)
-                        <tr class="hover:bg-red-50/50 transition-colors duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="h-10 w-10 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm">{{ strtoupper(substr($module->type, 0, 2)) }}</span>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Módulo</th>
+                                <th>Uso Total</th>
+                                <th>Usuarios Únicos</th>
+                                <th>Tasa de Éxito</th>
+                                <th>Último Uso</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($moduleUsageStats as $module)
+                            <tr>
+                                <td class="primary">
+                                    <div class="module-cell">
+                                        <div class="module-tag">{{ strtoupper(substr($module->type, 0, 2)) }}</div>
+                                        <div>
+                                            <div class="text-sm font-semibold text-slate-900">{{ ucfirst($module->type) }}</div>
+                                            <div class="text-xs text-slate-500 mt-0.5">Desde {{ \Carbon\Carbon::parse($module->first_used)->format('M Y') }}</div>
+                                        </div>
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ ucfirst($module->type) }}</div>
-                                        <div class="text-sm text-gray-500">Desde {{ \Carbon\Carbon::parse($module->first_used)->format('M Y') }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    {{ number_format($module->total_usage) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ number_format($module->unique_users) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                    {{ $module->success_rate >= 95 ? 'bg-green-100 text-green-800' : 
-                                       ($module->success_rate >= 85 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                    {{ number_format($module->success_rate, 1) }}%
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ \Carbon\Carbon::parse($module->last_used)->diffForHumans() }}
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                </td>
+                                <td><span class="admin-badge red">{{ number_format($module->total_usage) }}</span></td>
+                                <td>{{ number_format($module->unique_users) }}</td>
+                                <td>
+                                    <span class="admin-badge {{ $module->success_rate >= 95 ? 'green' : ($module->success_rate >= 85 ? 'gold' : 'red') }}">
+                                        {{ number_format($module->success_rate, 1) }}%
+                                    </span>
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($module->last_used)->diffForHumans() }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
 
-        <!-- Análisis de errores con tema rojo-amarillo -->
-        @if($moduleErrors->count() > 0)
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg mb-8 border border-white/20">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 rounded-t-2xl">
-                <h3 class="text-lg font-semibold gradient-text">⚠️ Análisis de Errores por Módulo</h3>
+            <!-- Análisis de errores por módulo -->
+            @if($moduleErrors->count() > 0)
+            <div class="admin-panel admin-fade admin-d4">
+                <div class="admin-panel-head">
+                    <div>
+                        <div class="admin-panel-title">Análisis de errores por módulo</div>
+                        <div class="admin-panel-sub">Requests, errores absolutos y tasa de error por módulo.</div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Módulo</th>
+                                <th>Total Requests</th>
+                                <th>Errores</th>
+                                <th>Tasa de Error</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($moduleErrors as $error)
+                            <tr>
+                                <td class="primary">{{ ucfirst($error->type) }}</td>
+                                <td>{{ number_format($error->total_requests) }}</td>
+                                <td>{{ number_format($error->error_count) }}</td>
+                                <td>
+                                    <span class="admin-badge {{ $error->error_rate <= 5 ? 'green' : ($error->error_rate <= 15 ? 'gold' : 'red') }}">
+                                        {{ number_format($error->error_rate, 2) }}%
+                                    </span>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gradient-to-r from-orange-50 to-red-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Módulo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Total Requests</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Errores</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Tasa de Error</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        @foreach($moduleErrors as $error)
-                        <tr class="hover:bg-orange-50/50 transition-colors duration-200">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {{ ucfirst($error->type) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ number_format($error->total_requests) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ number_format($error->error_count) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                    {{ $error->error_rate <= 5 ? 'bg-green-100 text-green-800' : 
-                                       ($error->error_rate <= 15 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                    {{ number_format($error->error_rate, 2) }}%
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        @endif
+            @endif
 
-    </div>
+        </div>
+    </section>
+</div>
 
 <script>
 function exportWithFilters(format) {
     const startDate = document.getElementById('start_date').value;
     const endDate = document.getElementById('end_date').value;
     const moduleType = document.getElementById('module_type').value;
-    
+
     let url = "{{ route('admin.stats.export') }}";
     const params = new URLSearchParams({
         type: 'modules',
         format: format
     });
-    
+
     if (startDate) params.append('start_date', startDate);
     if (endDate) params.append('end_date', endDate);
     if (moduleType) params.append('module_type', moduleType);
-    
+
     const fullUrl = `${url}?${params.toString()}`;
     window.open(fullUrl, '_blank');
 }
@@ -338,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 30);
-    
+
     document.getElementById('end_date').value = endDate.toISOString().split('T')[0];
     document.getElementById('start_date').value = startDate.toISOString().split('T')[0];
 });
