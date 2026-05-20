@@ -403,11 +403,14 @@
             return;
         }
         
-        // Abrir en nueva pestaña con seguridad
-        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-        if (!newWindow) {
-            alert('⚠️ No se pudo abrir la previsualización. Verifica que los pop-ups estén permitidos.');
-        }
+        // Crear enlace temporal y abrirlo
+        const link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     // Descargar documento

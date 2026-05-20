@@ -11,27 +11,7 @@ class RecommendationsController extends Controller
 {
     public function index()
     {
-        $userID = auth()->id();
-        $userRecommendations = UserRecommendation::where('user_id', $userID)->get();
-        
-        $categories = $userRecommendations->map(function($rec) {
-            return $rec->recommendationType;
-        })->unique();
-        
-        $recommendationData = [];
-        foreach ($categories as $category) {
-            $recommendationData[] = (object)[
-                'id' => $category->id,
-                'category' => $category->name,
-                'recommendations' => $category->recommendations
-            ];
-        }
-
-        $recommendations = RecommendationType::all()->pluck('name', 'id');
-        $userRecommendationsIds=  $categories->pluck('id')->toArray();
-      
-        return view('recommendations.index', compact('recommendationData', 'recommendations', 'userRecommendationsIds'));
-
+        return view('recommendations.index');
     }
 
 
