@@ -909,7 +909,7 @@ function getCurrentCategory() {
 }
 
 function loadCategories() {
-    fetch('{{ route("tech-support.interact") }}', {
+    fetch('{{ route("tech-support.interact", [], false) }}', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: JSON.stringify({ type: 'start', session_id: currentSessionId })
@@ -953,7 +953,7 @@ function selectCategory(categoryId) {
     currentCategory = categoryId;
     addMessageToChat('user', `Seleccioné: ${categoryId}`);
 
-    fetch('{{ route("tech-support.interact") }}', {
+    fetch('{{ route("tech-support.interact", [], false) }}', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: JSON.stringify({ type: 'category_selected', category: categoryId, session_id: currentSessionId })
@@ -994,7 +994,7 @@ function selectProblem(problemId) {
 
     addMessageToChat('user', `Mi problema específico es: ${problemId}`);
 
-    fetch('{{ route("tech-support.interact") }}', {
+    fetch('{{ route("tech-support.interact", [], false) }}', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: JSON.stringify({ type: 'problem_selected', problem_id: problemId, category: getCurrentCategory(), session_id: currentSessionId })
@@ -1204,7 +1204,7 @@ function restartChat() {
 }
 
 function escalateToIT() {
-    fetch('{{ route("tech-support.interact") }}', {
+    fetch('{{ route("tech-support.interact", [], false) }}', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: JSON.stringify({ type: 'escalate', session_id: currentSessionId, reason: 'Usuario solicitó escalamiento manual' })
@@ -1218,7 +1218,7 @@ function escalateToIT() {
 }
 
 function markAsResolved() {
-    fetch('{{ route("tech-support.interact") }}', {
+    fetch('{{ route("tech-support.interact", [], false) }}', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
         body: JSON.stringify({ type: 'mark_resolved', session_id: currentSessionId })

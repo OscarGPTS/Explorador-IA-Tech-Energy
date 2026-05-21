@@ -776,8 +776,8 @@
 
         try {
             const endpoint = type === 'recent'
-                ? '{{ route("document-bot.simple.recent-documents") }}'
-                : '{{ route("document-bot.simple.documents") }}';
+                ? '{{ route("document-bot.simple.recent-documents", [], false) }}'
+                : '{{ route("document-bot.simple.documents", [], false) }}';
 
             const response = await fetch(endpoint);
             const result = await response.json();
@@ -908,18 +908,18 @@
 
             if (!useExternalAPI) {
                 if (selectedDocumentId) {
-                    endpoint = '{{ route("document-bot.simple.analyze-document") }}';
+                    endpoint = '{{ route("document-bot.simple.analyze-document", [], false) }}';
                     payload = { documento_id: selectedDocumentId, pregunta: question };
                 } else {
-                    endpoint = '{{ route("document-bot.simple.query") }}';
+                    endpoint = '{{ route("document-bot.simple.query", [], false) }}';
                     payload = { pregunta: question };
                 }
             } else {
                 if (useDeepReasoning) {
-                    endpoint = '{{ route("document-bot.advanced.deep-reasoning") }}';
+                    endpoint = '{{ route("document-bot.advanced.deep-reasoning", [], false) }}';
                     payload = { pregunta: question, k: 20 };
                 } else {
-                    endpoint = '{{ route("document-bot.advanced.quick-query") }}';
+                    endpoint = '{{ route("document-bot.advanced.quick-query", [], false) }}';
                     payload = { pregunta: question };
                 }
             }
@@ -958,7 +958,7 @@
         resultsContainer.innerHTML = '<div class="flex items-center justify-center py-4"><div class="eia-spinner"></div></div>';
 
         try {
-            const response = await fetch('{{ route("document-bot.advanced.semantic-search") }}', {
+            const response = await fetch('{{ route("document-bot.advanced.semantic-search", [], false) }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1044,8 +1044,8 @@
     document.getElementById('btn-health').addEventListener('click', async function() {
         try {
             const endpoint = useExternalAPI
-                ? '{{ route("document-bot.advanced.health") }}'
-                : '{{ route("document-bot.simple.health") }}';
+                ? '{{ route("document-bot.advanced.health", [], false) }}'
+                : '{{ route("document-bot.simple.health", [], false) }}';
 
             const response = await fetch(endpoint);
             const result = await response.json();
@@ -1081,7 +1081,7 @@
         }
 
         try {
-            const response = await fetch('{{ route("document-bot.advanced.stats") }}');
+            const response = await fetch('{{ route("document-bot.advanced.stats", [], false) }}');
             const result = await response.json();
 
             if (result.success && result.data) {

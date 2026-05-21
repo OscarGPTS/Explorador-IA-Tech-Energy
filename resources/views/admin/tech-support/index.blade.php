@@ -652,7 +652,7 @@ function editProblem(problemId) {
 }
 
 function toggleActive(type, id, isActive) {
-    fetch('{{ route("admin.tech-support.toggle-active") }}', {
+    fetch('{{ route("admin.tech-support.toggle-active", [], false) }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
