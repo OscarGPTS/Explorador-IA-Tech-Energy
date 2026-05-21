@@ -105,11 +105,64 @@
                 color: var(--eia-gold-soft);
             }
             .guest-brand-sub {
-                margin-top: 18px;
+                margin-top: 14px;
                 color: #94A3B8;
                 font-size: 14.5px;
                 line-height: 1.6;
                 max-width: 420px;
+            }
+
+            .guest-evia-intro {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-top: 18px;
+                padding: 7px 14px;
+                background: rgba(217, 119, 6, 0.10);
+                border: 1px solid rgba(217, 119, 6, 0.28);
+                border-radius: 8px;
+                width: fit-content;
+                font-size: 12.5px;
+                color: #FBBF24;
+                letter-spacing: 0.01em;
+            }
+            .guest-evia-intro strong { font-weight: 700; }
+            .guest-evia-intro .evia-sep {
+                opacity: 0.4;
+                margin: 0 2px;
+            }
+            .guest-evia-intro .evia-name-full {
+                color: #94A3B8;
+                font-size: 11.5px;
+            }
+
+            .guest-evia-label {
+                position: absolute;
+                right: 28px;
+                top: calc(50% + 150px);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 3px;
+                pointer-events: none;
+            }
+            .guest-evia-label-name {
+                background: rgba(15, 20, 25, 0.82);
+                border: 1px solid rgba(217, 119, 6, 0.45);
+                border-radius: 6px;
+                padding: 5px 16px;
+                font-size: 13px;
+                font-weight: 700;
+                color: #FBBF24;
+                letter-spacing: 0.12em;
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+            }
+            .guest-evia-label-sub {
+                font-size: 10px;
+                color: #64748B;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
             }
 
             .guest-persona-img {
@@ -236,12 +289,23 @@
                     
                 </div>
 
-                <img src="{{ asset('storage/img/persona_logo.png') }}" alt="" class="guest-persona-img">
+                <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA" class="guest-persona-img">
+
+                <div class="guest-evia-label">
+                    <span class="guest-evia-label-name">EVIA</span>
+                    <span class="guest-evia-label-sub">Tu asistente IA</span>
+                </div>
 
                 <div class="guest-brand-message">
                     <h2 class="guest-brand-headline">
                         Explorador  <em>IA</em>
                     </h2>
+
+                    <div class="guest-evia-intro">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <span>Conoce a <strong>EVIA</strong><span class="evia-sep"> &middot; </span><span class="evia-name-full">Entorno Virtual de Inteligencia Artificial</span></span>
+                    </div>
+
                     <p class="guest-brand-sub">
                         Plataforma empresarial que centraliza IA para mejorar el acceso a la información, automatizar procesos internos y brindar asistencia inteligente mediante módulos especializados de consulta, búsqueda documental, soporte técnico y recomendaciones automatizadas.
                     </p>
