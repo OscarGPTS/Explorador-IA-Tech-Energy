@@ -668,24 +668,26 @@
             {{-- Chat principal --}}
             <div class="lg:col-span-2">
                 <div class="ts-panel eia-fade eia-d1">
-                    <div class="ts-panel-head dark">
-                        <p class="ts-panel-title" style="color: var(--eia-gold-soft);">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            Asistente de soporte técnico
-                        </p>
-                        <p class="ts-panel-sub">Selecciona tu problema y te guiamos paso a paso</p>
+                    <div class="ts-panel-head dark" style="display: flex; align-items: center; gap: 14px;">
+                        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+                             style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 2px solid var(--eia-gold); box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25); flex-shrink: 0;">
+                        <div>
+                            <p class="ts-panel-title" style="color: var(--eia-gold-soft); letter-spacing: 0.18em;">
+                                EVIA · Asistente de Soporte
+                            </p>
+                            <p class="ts-panel-sub" style="color: #94A3B8;">Cuéntame qué pasa, te guío paso a paso para resolverlo.</p>
+                        </div>
                     </div>
 
                     <div id="tech-support-chat" class="ts-chat">
                         <div class="flex items-start mb-4">
-                            <div class="bg-blue-100 p-3 rounded-full mr-3">
-                                <i class="fas fa-robot text-blue-600"></i>
-                            </div>
+                            <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+                                 class="mr-3 rounded-full flex-shrink-0"
+                                 style="width: 40px; height: 40px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
                             <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
+                                <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA · Asistente</p>
                                 <p class="text-slate-800">
-                                    Hola, soy tu asistente de soporte técnico. Estoy aquí para ayudarte a resolver problemas con tu equipo, internet, correo, impresora o cualquier aplicación corporativa.
+                                    ¡Hola! Soy EVIA, tu asistente de soporte. Estoy aquí para ayudarte a resolver problemas con tu equipo, internet, correo, impresora o cualquier aplicación corporativa.
                                 </p>
                                 <p class="text-slate-800 mt-2">
                                     <strong>¿Con qué puedo ayudarte hoy?</strong>
@@ -799,6 +801,61 @@
                         @else
                             <p class="text-slate-500 text-sm py-2">No hay datos disponibles aún.</p>
                         @endif
+                    </div>
+                </div>
+
+                {{-- Equipo de IT --}}
+                <div class="ts-panel eia-fade eia-d4">
+                    <div class="ts-panel-head">
+                        <p class="ts-panel-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 14a4 4 0 10-8 0M12 11a3 3 0 100-6 3 3 0 000 6zM4 21a8 8 0 0116 0"/>
+                            </svg>
+                            Equipo de IT
+                        </p>
+                    </div>
+                    <div class="ts-panel-body" style="padding: 0;">
+                        {{-- Oscar --}}
+                        <div style="padding: 14px 22px; border-bottom: 1px solid var(--eia-border);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); color: var(--eia-gold-soft); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; flex-shrink: 0;">OC</div>
+                                <div style="min-width: 0; flex: 1;">
+                                    <p style="font-size: 13px; font-weight: 600; color: var(--eia-black); line-height: 1.2;">Oscar Chávez Rosales</p>
+                                    <p style="font-size: 10.5px; color: var(--eia-mute); margin-top: 1px;">Soporte técnico</p>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 4px;">
+                                <a href="mailto:ochavez@gptservices.com" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--eia-red); font-weight: 500; text-decoration: none; transition: color .15s;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    ochavez@gptservices.com
+                                </a>
+                                <a href="tel:5610071384" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--eia-gold); font-weight: 600; text-decoration: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 010 1.414l-1.586 1.586a16 16 0 006.586 6.586l1.586-1.586a1 1 0 011.414 0l2.414 2.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-1C9.715 21 3 14.285 3 6V5z"/></svg>
+                                    56 1007 1384
+                                </a>
+                            </div>
+                        </div>
+
+                        {{-- Alan --}}
+                        <div style="padding: 14px 22px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); color: var(--eia-gold-soft); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; flex-shrink: 0;">AH</div>
+                                <div style="min-width: 0; flex: 1;">
+                                    <p style="font-size: 13px; font-weight: 600; color: var(--eia-black); line-height: 1.2;">Alan E. Hernández Mendoza</p>
+                                    <p style="font-size: 10.5px; color: var(--eia-mute); margin-top: 1px;">Soporte técnico</p>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 4px;">
+                                <a href="mailto:ahernandezm@gptservices.com" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--eia-red); font-weight: 500; text-decoration: none;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    ahernandezm@gptservices.com
+                                </a>
+                                <a href="tel:5517989865" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--eia-gold); font-weight: 600; text-decoration: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 010 1.414l-1.586 1.586a16 16 0 006.586 6.586l1.586-1.586a1 1 0 011.414 0l2.414 2.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-1C9.715 21 3 14.285 3 6V5z"/></svg>
+                                    55 1798 9865
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -960,9 +1017,9 @@ function displaySolution(solution) {
     const priorityColor = solution.priority === 'high' ? 'red' : solution.priority === 'medium' ? 'yellow' : 'green';
     solutionDiv.className = 'flex items-start mb-4';
     solutionDiv.innerHTML = `
-        <div class="bg-blue-100 p-3 rounded-full mr-3">
-            <i class="fas fa-lightbulb text-blue-600"></i>
-        </div>
+        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+             class="mr-3 rounded-full flex-shrink-0"
+             style="width: 40px; height: 40px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
         <div class="bg-white rounded-lg p-6 max-w-full shadow-sm" style="border: 1px solid var(--eia-border);">
             <h4 class="text-base font-semibold text-slate-900 mb-3 flex items-center" style="letter-spacing:-0.01em;">
                 Solución paso a paso
@@ -996,10 +1053,11 @@ function addMessageToChat(sender, message) {
 
     if (sender === 'bot') {
         messageDiv.innerHTML = `
-            <div class="bg-blue-100 p-3 rounded-full mr-3">
-                <i class="fas fa-robot text-blue-600"></i>
-            </div>
+            <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+                 class="mr-3 rounded-full flex-shrink-0"
+                 style="width: 36px; height: 36px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
             <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
+                <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA</p>
                 <p class="text-slate-800 whitespace-pre-line">${message}</p>
             </div>
         `;
@@ -1111,7 +1169,7 @@ Verificaciones básicas
 
 Recomendaciones
 • Para problemas específicos, usa "Resolver un Problema"
-• Para asistencia inmediata, contacta IT: 555-TECH
+• Para asistencia inmediata, contacta a Oscar (56 1007 1384) o Alan (55 1798 9865)
 
 ¿Necesitas verificar algo más específico?`);
     showActionButtons();
@@ -1124,12 +1182,13 @@ function restartChat() {
 
     document.getElementById('tech-support-chat').innerHTML = `
         <div class="flex items-start mb-4">
-            <div class="bg-blue-100 p-3 rounded-full mr-3">
-                <i class="fas fa-robot text-blue-600"></i>
-            </div>
+            <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+                 class="mr-3 rounded-full flex-shrink-0"
+                 style="width: 40px; height: 40px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
             <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
+                <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA · Asistente</p>
                 <p class="text-slate-800">
-                    Hola, soy tu asistente de soporte técnico. Estoy aquí para ayudarte a resolver cualquier problema que tengas.
+                    ¡Hola de nuevo! Soy EVIA, tu asistente de soporte. Estoy aquí para ayudarte con cualquier problema técnico.
                 </p>
                 <p class="text-slate-800 mt-2">
                     <strong>¿Con qué puedo ayudarte hoy?</strong>
@@ -1225,13 +1284,16 @@ Si nada funciona, el problema puede estar en el proveedor de internet.`);
         case 'contact_it':
             addMessageToChat('bot', `Contactar al equipo de IT:
 
-Teléfono directo: 555-TECH (555-8324)
-Email: soporte@empresa.com
-Chat interno: disponible en el sistema
+Oscar Chávez Rosales
+Email: ochavez@gptservices.com
+Teléfono: 56 1007 1384
+
+Alan E. Hernández Mendoza
+Email: ahernandezm@gptservices.com
+Teléfono: 55 1798 9865
 
 Horarios
-• Lunes – Viernes: 8:00 AM – 6:00 PM
-• Sábados: 9:00 AM – 2:00 PM
+• Lunes – Viernes: 07:30 – 15:00
 • Emergencias: 24/7
 
 Antes de llamar ten lista esta información:

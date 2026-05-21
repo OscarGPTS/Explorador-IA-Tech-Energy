@@ -588,9 +588,13 @@
 
                 {{-- Consulta --}}
                 <section class="doc-panel eia-fade eia-d2">
-                    <div class="doc-panel-head">
-                        <p class="doc-panel-title">Consulta documental</p>
-                        <p class="doc-panel-sub">Formula tu pregunta en lenguaje natural</p>
+                    <div class="doc-panel-head" style="display: flex; align-items: center; gap: 14px;">
+                        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+                             style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.18); flex-shrink: 0;">
+                        <div>
+                            <p class="doc-panel-title" style="letter-spacing: 0.18em;">EVIA · Consulta documental</p>
+                            <p class="doc-panel-sub">Dime qué necesitas saber, yo busco en tus documentos.</p>
+                        </div>
                     </div>
                     <div class="doc-panel-body">
                         <form id="query-form">
@@ -630,11 +634,10 @@
                 <section id="results-container" class="doc-panel hidden eia-fade">
                     <div class="doc-panel-body">
                         <div class="doc-result-head">
-                            <span class="doc-result-title">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                Respuesta
+                            <span class="doc-result-title" style="display: inline-flex; align-items: center; gap: 10px;">
+                                <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+                                     style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
+                                EVIA responde
                             </span>
                             <span id="response-time" class="text-xs text-slate-500 font-mono"></span>
                         </div>
@@ -645,8 +648,10 @@
                 {{-- Loading --}}
                 <div id="loading-indicator" class="doc-panel hidden">
                     <div class="doc-panel-body flex items-center justify-center gap-3 py-6">
+                        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+                             style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
+                        <span class="text-sm text-slate-700 font-medium">EVIA está revisando los documentos…</span>
                         <div class="eia-spinner"></div>
-                        <span class="text-sm text-slate-700 font-medium">Procesando consulta…</span>
                     </div>
                 </div>
 
@@ -779,12 +784,43 @@
 
             if (result.success && result.data && result.data.documentos) {
                 displayDocuments(result.data.documentos);
+            } else if (result.success && result.data && Array.isArray(result.data)) {
+                // Fallback: si la API devuelve el array directo en data
+                displayDocuments(result.data);
             } else {
-                container.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">No se encontraron documentos</p>';
+                const errMsg = result.error || result.message || 'No se encontraron documentos';
+                const status = result.status ? ` (HTTP ${result.status})` : '';
+                container.innerHTML = `
+                    <div class="doc-error" style="margin: 0;">
+                        <div class="flex items-start gap-3">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: var(--eia-red); flex-shrink: 0; margin-top: 2px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z"/>
+                            </svg>
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold uppercase tracking-widest" style="color: var(--eia-red);">No se pudo conectar al servicio</p>
+                                <p class="text-xs text-slate-700 mt-1 break-words">${errMsg}${status}</p>
+                                <p class="text-[11px] text-slate-500 mt-2">Verifica conexión con la API de bots o contacta al administrador.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                console.error('Error API bots:', result);
             }
         } catch (error) {
-            container.innerHTML = '<p class="text-sm text-red-600 text-center py-6">Error al cargar documentos</p>';
-            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="doc-error" style="margin: 0;">
+                    <div class="flex items-start gap-3">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: var(--eia-red); flex-shrink: 0; margin-top: 2px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z"/>
+                        </svg>
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold uppercase tracking-widest" style="color: var(--eia-red);">Error de red</p>
+                            <p class="text-xs text-slate-700 mt-1 break-words">${error.message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            console.error('Error fetch:', error);
         }
     }
 

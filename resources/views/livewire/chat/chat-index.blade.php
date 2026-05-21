@@ -20,6 +20,48 @@
             flex-direction: column;
         }
 
+        /* Avatar EVIA en header */
+        .evia-avatar-lg {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%);
+            border: 1.5px solid var(--eia-gold);
+            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.22);
+            flex-shrink: 0;
+        }
+        .evia-avatar-wrap {
+            position: relative;
+        }
+        .evia-avatar-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: 0;
+            width: 9px; height: 9px;
+            background: #10B981;
+            border: 2px solid #0F1419;
+            border-radius: 50%;
+        }
+        .evia-headline {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .evia-headline-name {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: #FFFFFF;
+            line-height: 1.1;
+        }
+        .evia-headline-sub {
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--eia-gold-soft);
+            letter-spacing: 0.03em;
+        }
+
         /* HEADER */
         .chat-hero {
             background:
@@ -197,13 +239,23 @@
             margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         .sender-label-user { color: var(--eia-red); justify-content: flex-end; }
         .sender-label-agent { color: var(--eia-mute); }
         .sender-dot { width: 6px; height: 6px; border-radius: 50%; }
         .sender-dot.user { background: var(--eia-red); }
         .sender-dot.agent { background: var(--eia-gold); }
+        .evia-avatar-sm {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%);
+            border: 1.5px solid var(--eia-gold);
+            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);
+        }
+        .evia-name { color: var(--eia-black); font-weight: 700; }
+        .evia-name-meta { color: var(--eia-mute); font-weight: 600; margin-left: 2px; }
 
         /* Message bubbles */
         .message-container {
@@ -451,16 +503,21 @@
         {{-- HEADER --}}
         <header class="chat-hero">
             <div class="flex items-start justify-between gap-4">
-                <div class="flex items-center gap-3 flex-1">
+                <div class="flex items-center gap-4 flex-1">
                     <a href="/" class="chat-back" aria-label="Volver al inicio">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 18l-6-6 6-6"/>
                         </svg>
                     </a>
+                    <div class="evia-avatar-wrap">
+                        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA" class="evia-avatar-lg">
+                    </div>
                     <div>
-                        <span class="chat-eyebrow">Asistente IA · Corporativo</span>
-                        <h1 class="text-xl sm:text-2xl font-semibold tracking-tight mt-1">Buscador Inteligente</h1>
-                        <p class="text-xs text-slate-300 mt-0.5">Información corporativa al instante con inteligencia artificial</p>
+                        <span class="chat-eyebrow">Asistente </span>
+                        <div class="evia-headline mt-1">
+                            <span class="evia-headline-sub">EVIA</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1.5">Hola, soy EVIA. Estoy aquí para ayudarte a encontrar lo que necesites.</p>
                     </div>
                 </div>
 
@@ -563,8 +620,9 @@
                                 <span>Tú</span>
                                 <span class="sender-dot user"></span>
                             @else
-                                <span class="sender-dot agent"></span>
-                                <span>Agente IA</span>
+                                <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA" class="evia-avatar-sm">
+                                <span class="evia-name">EVIA</span>
+                                <span class="evia-name-meta">· Asistente</span>
                             @endif
                         </div>
 
@@ -624,13 +682,12 @@
                 </div>
             @empty
                 <div class="chat-empty">
-                    <div class="chat-empty-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.847a4.5 4.5 0 003.09 3.09L15.75 12l-2.847.813a4.5 4.5 0 00-3.09 3.091z"/>
-                        </svg>
-                    </div>
-                    <p class="text-base font-semibold text-slate-900 mb-1">Inicia una conversación</p>
-                    <p class="text-sm text-slate-500">Envía tu primer mensaje o adjunta un archivo para comenzar a chatear con la IA.</p>
+                    <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+                         class="mx-auto mb-4 rounded-full"
+                         style="width: 84px; height: 84px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 2px solid var(--eia-gold); box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.18), 0 12px 32px -8px rgba(15, 20, 25, 0.4);">
+                    <p class="text-[10px] uppercase tracking-[0.22em] font-bold mb-2" style="color: var(--eia-gold);">Hola, soy EVIA</p>
+                    <p class="text-base font-semibold text-slate-900 mb-1">¿En qué te puedo ayudar hoy?</p>
+                    <p class="text-sm text-slate-500 max-w-md mx-auto">Escríbeme una pregunta, adjunta un documento o pídeme que busque algo en la información corporativa.</p>
                 </div>
             @endforelse
 
@@ -638,13 +695,14 @@
                 <div class="flex justify-start mb-5">
                     <div class="max-w-xs lg:max-w-md message-agent-container">
                         <div class="sender-label sender-label-agent">
-                            <span class="sender-dot agent"></span>
-                            <span>Agente IA</span>
+                            <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA" class="evia-avatar-sm">
+                            <span class="evia-name">EVIA</span>
+                            <span class="evia-name-meta">· Asistente</span>
                         </div>
                         <div class="message-container message-agent">
                             <div class="flex items-center gap-3">
                                 <div class="chat-spinner"></div>
-                                <p class="text-sm text-slate-700">El asistente está pensando…</p>
+                                <p class="text-sm text-slate-700">EVIA está pensando…</p>
                             </div>
                         </div>
                     </div>

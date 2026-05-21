@@ -180,19 +180,27 @@ class DocumentBotService
                 ];
             }
 
-            return [
-                'success' => false,
-                'error' => 'Error al listar documentos',
-                'status' => $response->status()
-            ];
-        } catch (Exception $e) {
-            Log::error('Error al listar documentos', [
-                'error' => $e->getMessage()
+            Log::warning('listDocuments: respuesta no exitosa de API bots', [
+                'url' => "{$this->baseUrl}/api/v1/bot-simple/documents",
+                'status' => $response->status(),
+                'body' => substr($response->body(), 0, 500),
             ]);
 
             return [
                 'success' => false,
-                'error' => $e->getMessage()
+                'error' => 'La API de bots respondió con estado HTTP ' . $response->status(),
+                'status' => $response->status()
+            ];
+        } catch (Exception $e) {
+            Log::error('Error al listar documentos (excepción)', [
+                'url' => "{$this->baseUrl}/api/v1/bot-simple/documents",
+                'error' => $e->getMessage(),
+                'class' => get_class($e),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => 'No se pudo contactar al servicio de bots: ' . $e->getMessage()
             ];
         }
     }

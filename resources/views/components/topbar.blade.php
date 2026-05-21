@@ -41,12 +41,21 @@
     .eia-brand {
         display: inline-flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
         color: var(--eia-black);
         text-decoration: none;
     }
-    .eia-brand img {
+    .eia-brand-corp {
         height: 34px;
+        width: auto;
+    }
+    .eia-brand-divider {
+        width: 1px;
+        height: 28px;
+        background: var(--eia-border);
+    }
+    .eia-brand-platform {
+        height: 32px;
         width: auto;
     }
     .eia-brand-title {
@@ -370,8 +379,10 @@
 
         {{-- Brand --}}
         <a href="/" class="eia-brand">
-            <img src="{{ asset('storage/img/logo.png') }}" alt="Logo">
-            <div class="hidden sm:block">
+            <img src="{{ asset('storage/img/logo.png') }}" alt="Logo corporativo" class="eia-brand-corp">
+            <span class="eia-brand-divider hidden sm:inline-block"></span>
+            <img src="{{ asset('storage/img/logo_clean.png') }}" alt="Explorador IA" class="eia-brand-platform hidden sm:inline-block">
+            <div class="hidden md:block">
                 <span class="eia-brand-title">Explorador IA</span>
             </div>
         </a>
