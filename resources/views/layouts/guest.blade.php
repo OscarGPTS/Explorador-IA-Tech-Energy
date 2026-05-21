@@ -112,6 +112,25 @@
                 max-width: 420px;
             }
 
+            .guest-persona-img {
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 420px;
+                height: auto;
+                object-fit: contain;
+                pointer-events: none;
+                -webkit-mask-image:
+                    linear-gradient(to left,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 18%, rgba(0,0,0,1) 48%),
+                    linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 12%, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 100%);
+                mask-image:
+                    linear-gradient(to left,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 18%, rgba(0,0,0,1) 48%),
+                    linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 12%, rgba(0,0,0,1) 72%, rgba(0,0,0,0) 100%);
+                -webkit-mask-composite: source-in;
+                mask-composite: intersect;
+            }
+
             .guest-brand-pillars {
                 display: flex;
                 gap: 12px;
@@ -216,6 +235,8 @@
                     <img src="{{ asset('storage/img/logo.png') }}" alt="Logo">
                     
                 </div>
+
+                <img src="{{ asset('storage/img/persona_logo.png') }}" alt="" class="guest-persona-img">
 
                 <div class="guest-brand-message">
                     <h2 class="guest-brand-headline">
