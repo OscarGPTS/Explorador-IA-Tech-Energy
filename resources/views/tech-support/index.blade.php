@@ -1092,8 +1092,8 @@ function displayMainMenuOptions() {
     optionsDiv.id = 'current-options';
 
     const menuOptions = [
-        { id: 'solve_problem', title: 'Resolver un problema', description: 'Asistencia paso a paso', icon: '🔧',
-          action: () => { addMessageToChat('user', 'Quiero resolver un problema técnico'); setTimeout(() => restartChat(), 500); } },
+        { id: 'solve_problem', title: 'Resolver un problema', description: 'Describe tu problema, EVIA responde paso a paso', icon: '🔧',
+          action: () => { addMessageToChat('user', 'Quiero describir mi problema'); setTimeout(() => showAiResolveInput(), 400); } },
         { id: 'quick_actions', title: 'Acciones rápidas', description: 'Soluciones inmediatas a problemas comunes', icon: '⚡',
           action: () => { addMessageToChat('user', 'Mostrar acciones rápidas'); setTimeout(() => showQuickActionsMenu(), 500); } },
         { id: 'contact_support', title: 'Contactar soporte', description: 'Hablar directamente con el equipo de IT', icon: '📞',
@@ -1103,6 +1103,181 @@ function displayMainMenuOptions() {
     ];
 
     menuOptions.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'p-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-400 rounded-lg text-left transition duration-200';
+        button.innerHTML = `
+            <div class="flex items-center">
+                <span class="text-2xl mr-3">${option.icon}</span>
+                <div>
+                    <div class="font-semibold text-slate-900">${option.title}</div>
+                    <div class="text-sm text-slate-600 mt-0.5">${option.description}</div>
+                </div>
+            </div>
+        `;
+        button.onclick = option.action;
+        optionsDiv.appendChild(button);
+    });
+
+    chatContainer.appendChild(optionsDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// === Resolver problema con IA (EVIA libre) ===
+function showAiResolveInput() {
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) existingOptions.remove();
+
+    const existingForm = document.getElementById('ai-resolve-form');
+    if (existingForm) existingForm.remove();
+
+    addMessageToChat('bot', 'Cuéntame qué pasa con tu equipo o herramienta. Sé concreto: qué intentaste, qué error ves y qué necesitas hacer. Te respondo paso a paso.');
+
+    setTimeout(() => {
+        const chatContainer = document.getElementById('tech-support-chat');
+        const formDiv = document.createElement('div');
+        formDiv.id = 'ai-resolve-form';
+        formDiv.className = 'mt-4 mb-4';
+        formDiv.innerHTML = `
+            <div style="background: #FFFFFF; border: 1px solid var(--eia-border); border-radius: 12px; padding: 14px;">
+                <label style="display:block; font-size:10px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color: var(--eia-mute); margin-bottom:8px;">Describe tu problema</label>
+                <textarea id="ai-resolve-input" rows="4" maxlength="800"
+                    placeholder="Ejemplo: Mi Outlook no abre, salió un error de perfil y al reiniciar sigue igual."
+                    style="width:100%; padding:11px 14px; border:1px solid var(--eia-border); border-radius:10px; background:#FFFFFF; color:var(--eia-black); font-size:13.5px; outline:none; resize:vertical; font-family:inherit; transition: all .2s ease;"></textarea>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:10px; flex-wrap:wrap;">
+                    <span id="ai-resolve-counter" style="font-size:11px; color: var(--eia-mute); font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">0 / 800</span>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" id="ai-resolve-cancel" class="ts-btn-ghost">Cancelar</button>
+                        <button type="button" id="ai-resolve-send" class="ts-btn-primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 5l7 7-7 7"/></svg>
+                            Enviar a EVIA
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(formDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        const input = document.getElementById('ai-resolve-input');
+        const counter = document.getElementById('ai-resolve-counter');
+        const cancelBtn = document.getElementById('ai-resolve-cancel');
+        const sendBtn = document.getElementById('ai-resolve-send');
+
+        input.focus();
+        input.addEventListener('input', () => {
+            counter.textContent = `${input.value.length} / 800`;
+        });
+        input.addEventListener('focus', () => {
+            input.style.borderColor = 'var(--eia-black)';
+            input.style.boxShadow = '0 0 0 3px rgba(15, 20, 25, 0.08)';
+        });
+        input.addEventListener('blur', () => {
+            input.style.borderColor = 'var(--eia-border)';
+            input.style.boxShadow = 'none';
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                sendBtn.click();
+            }
+        });
+        cancelBtn.addEventListener('click', () => {
+            formDiv.remove();
+            showMainMenu();
+        });
+        sendBtn.addEventListener('click', () => submitAiResolve());
+    }, 350);
+}
+
+function submitAiResolve() {
+    const input = document.getElementById('ai-resolve-input');
+    const sendBtn = document.getElementById('ai-resolve-send');
+    const cancelBtn = document.getElementById('ai-resolve-cancel');
+    if (!input) return;
+
+    const problem = input.value.trim();
+    if (problem.length < 5) {
+        input.focus();
+        input.style.borderColor = 'var(--eia-red)';
+        input.style.boxShadow = '0 0 0 3px rgba(185, 28, 28, 0.15)';
+        return;
+    }
+
+    // Echo del usuario y limpieza del formulario
+    addMessageToChat('user', problem);
+    const formDiv = document.getElementById('ai-resolve-form');
+    if (formDiv) formDiv.remove();
+
+    // Loader como mensaje del bot
+    const chatContainer = document.getElementById('tech-support-chat');
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'ai-resolve-loading';
+    loadingDiv.className = 'flex items-start mb-4';
+    loadingDiv.innerHTML = `
+        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
+             class="mr-3 rounded-full flex-shrink-0"
+             style="width: 36px; height: 36px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
+        <div class="bg-white rounded-lg p-4 shadow-sm" style="border: 1px solid var(--eia-border);">
+            <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA</p>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="eia-spinner"></span>
+                <span class="text-sm text-slate-700">Analizando tu problema…</span>
+            </div>
+        </div>
+    `;
+    chatContainer.appendChild(loadingDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    fetch('{{ route("tech-support.interact", [], false) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            type: 'ai_resolve',
+            session_id: currentSessionId,
+            problem: problem
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        const loader = document.getElementById('ai-resolve-loading');
+        if (loader) loader.remove();
+
+        if (data.success && data.answer) {
+            addMessageToChat('bot', data.answer);
+            showActionButtons();
+            // Permitir nueva consulta
+            setTimeout(() => offerFollowUp(), 600);
+        } else {
+            addMessageToChat('bot', data.error || 'No pude procesar tu solicitud. ¿Puedes reformularla?');
+            setTimeout(() => offerFollowUp(), 600);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        const loader = document.getElementById('ai-resolve-loading');
+        if (loader) loader.remove();
+        addMessageToChat('bot', 'Error de conexión al consultar el servicio. Intenta de nuevo en un momento.');
+    });
+}
+
+function offerFollowUp() {
+    const existingOptions = document.getElementById('current-options');
+    if (existingOptions) existingOptions.remove();
+
+    const chatContainer = document.getElementById('tech-support-chat');
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 mb-4';
+    optionsDiv.id = 'current-options';
+
+    const options = [
+        { title: 'Tengo otra duda', description: 'Describir un problema nuevo', icon: '💬', action: () => { showAiResolveInput(); } },
+        { title: 'Menú principal', description: 'Volver a las opciones', icon: '🏠', action: () => { showMainMenu(); } },
+    ];
+
+    options.forEach(option => {
         const button = document.createElement('button');
         button.className = 'p-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-400 rounded-lg text-left transition duration-200';
         button.innerHTML = `

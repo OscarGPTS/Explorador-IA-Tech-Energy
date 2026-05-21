@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use App\Models\TechSupportConversation;
 use App\Models\TechSupportCategory;
@@ -57,7 +58,10 @@ class TechSupportController extends Controller
                 
                 case 'escalate':
                     return $this->escalateToIT($sessionId, $request->input('reason'));
-                
+
+                case 'ai_resolve':
+                    return $this->aiResolve($request, $sessionId);
+
                 default:
                     return response()->json(['error' => 'Tipo de interacción no válido'], 400);
             }
@@ -267,9 +271,125 @@ class TechSupportController extends Controller
         }
 
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'message' => 'Gracias por usar el sistema de soporte técnico. Para problemas más complejos que requieran atención personalizada, por favor contacta directamente al departamento de IT.'
         ]);
+    }
+
+    /**
+     * Resolver un problema técnico libre con IA (EVIA · soporte técnico).
+     * Reutiliza la misma API de OpenAI que /chat pero con un prompt acotado
+     * a soporte técnico y respuesta paso a paso compacta.
+     */
+    private function aiResolve(Request $request, $sessionId)
+    {
+        $problem = trim((string) $request->input('problem', ''));
+
+        if ($problem === '' || mb_strlen($problem) < 5) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Describe tu problema con al menos unas palabras para poder ayudarte.'
+            ], 422);
+        }
+
+        // Límite duro de tokens de entrada para no encarecer la llamada.
+        if (mb_strlen($problem) > 800) {
+            $problem = mb_substr($problem, 0, 800);
+        }
+
+        $apiKey = config('openai.api_key') ?? env('OPENAI_API_KEY');
+        if (!$apiKey) {
+            Log::error('aiResolve: OPENAI_API_KEY no configurado');
+            return response()->json([
+                'success' => false,
+                'error' => 'El servicio de IA no está configurado. Contacta al equipo de IT.'
+            ], 500);
+        }
+
+        $systemPrompt = "Eres EVIA, asistente de soporte técnico corporativo (Oil & Gas).\n"
+            . "Responde en español, breve y en pasos numerados (máximo 6 pasos).\n"
+            . "Reglas:\n"
+            . "- No saludes ni te despidas.\n"
+            . "- Cada paso en una sola línea, comenzando con un verbo en imperativo.\n"
+            . "- Si el problema requiere intervención de IT (hardware roto, permisos de red, instalación de software), termina con: 'Si no se resuelve, contacta a IT.'\n"
+            . "- Si la pregunta no es técnica, responde solo: 'Solo puedo ayudarte con problemas técnicos.'\n"
+            . "- No inventes contraseñas, accesos, ni datos del usuario.\n"
+            . "- No pidas información sensible.";
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])
+            ->timeout(45)
+            ->connectTimeout(15)
+            ->withOptions(['verify' => false])
+            ->post('https://api.openai.com/v1/chat/completions', [
+                'model' => 'gpt-4o-mini',
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => $problem],
+                ],
+                'max_tokens' => 350,
+                'temperature' => 0.3,
+            ]);
+
+            if ($response->failed()) {
+                Log::warning('aiResolve: OpenAI respondió con error', [
+                    'status' => $response->status(),
+                    'body' => substr($response->body(), 0, 400),
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No se pudo procesar tu solicitud en este momento. Intenta de nuevo.'
+                ], 502);
+            }
+
+            $data = $response->json();
+            $answer = trim($data['choices'][0]['message']['content'] ?? '');
+
+            if ($answer === '') {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'La IA no devolvió una respuesta válida. Intenta reformular tu problema.'
+                ], 502);
+            }
+
+            // Registro de la conversación (best-effort, no rompe si falla)
+            try {
+                TechSupportConversation::create([
+                    'session_id' => $sessionId,
+                    'user_id' => auth()->id(),
+                    'user_message' => $problem,
+                    'bot_response' => $answer,
+                    'problem_category' => 'ai_resolve',
+                    'problem_solved' => false,
+                    'escalated_to_human' => false,
+                    'context_data' => [
+                        'source' => 'ai_resolve',
+                        'model' => 'gpt-4o-mini',
+                        'tokens' => $data['usage'] ?? null,
+                    ],
+                ]);
+            } catch (\Throwable $e) {
+                Log::debug('aiResolve: no se pudo persistir la conversación', ['error' => $e->getMessage()]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'answer' => $answer,
+                'usage' => $data['usage'] ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('aiResolve: excepción al llamar a OpenAI', [
+                'error' => $e->getMessage(),
+                'class' => get_class($e),
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Error de conexión con el servicio de IA. Verifica tu conexión a internet.'
+            ], 500);
+        }
     }
 
     /**
