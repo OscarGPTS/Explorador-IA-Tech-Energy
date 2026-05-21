@@ -581,87 +581,8 @@
             </div>
         </section>
 
-        {{-- Empleados + Documentos --}}
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {{-- Empleados --}}
-            <div class="ts-panel eia-fade eia-d1">
-                <div class="ts-panel-head">
-                    <p class="ts-panel-title">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 14a4 4 0 10-8 0M12 11a3 3 0 100-6 3 3 0 000 6zM4 21a8 8 0 0116 0"/>
-                        </svg>
-                        Directorio de empleados
-                    </p>
-                    <p class="ts-panel-sub">Información de contacto corporativa</p>
-                </div>
-                <div class="ts-panel-body space-y-4">
-                    <div>
-                        <label class="ts-label" for="employee-search">Buscar por nombre, departamento o cargo</label>
-                        <div class="ts-search-wrap">
-                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/>
-                            </svg>
-                            <input type="text" id="employee-search" class="ts-input"
-                                   placeholder="Juan Pérez, IT, Administración, Dirección General...">
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2" id="employee-tags">
-                        <div class="employee-tag-btn"><span class="eia-spinner" style="width:12px;height:12px;border-width:2px;vertical-align:middle;margin-right:6px;"></span>Cargando...</div>
-                    </div>
-
-                    <div id="employee-results" class="max-h-72 overflow-y-auto pr-1">
-                        <div class="text-center text-slate-500 py-8">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" class="inline-block mb-2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/>
-                            </svg>
-                            <p class="text-sm">Usa el campo de búsqueda o los filtros para encontrar empleados</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Documentos --}}
-            <div class="ts-panel eia-fade eia-d2">
-                <div class="ts-panel-head">
-                    <p class="ts-panel-title">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Documentos corporativos
-                    </p>
-                    <p class="ts-panel-sub">Políticas, manuales y procedimientos</p>
-                </div>
-                <div class="ts-panel-body space-y-4">
-                    <div>
-                        <label class="ts-label" for="document-search">Buscar documentos</label>
-                        <div class="ts-search-wrap">
-                            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"/>
-                            </svg>
-                            <input type="text" id="document-search" class="ts-input"
-                                   placeholder="Manual, Política, Procedimiento...">
-                        </div>
-                    </div>
-
-                    <div id="document-tags-container" class="grid grid-cols-1 gap-2">
-                        <div class="text-center text-slate-500 py-4 text-sm">
-                            <span class="eia-spinner" style="width:14px;height:14px;border-width:2px;vertical-align:middle;margin-right:8px;"></span>
-                            Cargando categorías...
-                        </div>
-                    </div>
-
-                    <div id="document-results" class="max-h-72 overflow-y-auto pr-1">
-                        <div class="text-center text-slate-500 py-8">
-                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" class="inline-block mb-2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
-                            </svg>
-                            <p class="text-sm">Selecciona una categoría o busca documentos específicos</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        {{-- Sección "Directorio de empleados + Documentos corporativos" deshabilitada por solicitud.
+             El asistente EVIA toma protagonismo justo debajo de los KPIs. --}}
 
         {{-- Chat + Sidebar --}}
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1486,31 +1407,44 @@ function showError(message) {
     addMessageToChat('bot', `${message}. Por favor intenta nuevamente o contacta a IT.`);
 }
 
-// === Búsqueda de empleados y documentos ===
+// === Búsqueda de empleados y documentos (panel deshabilitado en esta vista) ===
 document.addEventListener('DOMContentLoaded', function() {
     const employeeSearch = document.getElementById('employee-search');
     const documentSearch = document.getElementById('document-search');
 
-    loadEmployeeTags();
-    loadDocumentTags();
+    // Si los paneles no están en el DOM, no inicializamos nada más.
+    if (!employeeSearch && !documentSearch) {
+        return;
+    }
 
-    let employeeSearchTimeout;
-    employeeSearch.addEventListener('input', function() {
-        clearTimeout(employeeSearchTimeout);
-        employeeSearchTimeout = setTimeout(() => {
-            if (this.value.length >= 2) searchEmployees(this.value);
-            else showEmployeeDefaultMessage();
-        }, 300);
-    });
+    if (typeof loadEmployeeTags === 'function' && document.getElementById('employee-tags')) {
+        loadEmployeeTags();
+    }
+    if (typeof loadDocumentTags === 'function' && document.getElementById('document-tags-container')) {
+        loadDocumentTags();
+    }
 
-    let documentSearchTimeout;
-    documentSearch.addEventListener('input', function() {
-        clearTimeout(documentSearchTimeout);
-        documentSearchTimeout = setTimeout(() => {
-            if (this.value.length >= 2) searchDocuments(this.value);
-            else showDocumentDefaultMessage();
-        }, 300);
-    });
+    if (employeeSearch) {
+        let employeeSearchTimeout;
+        employeeSearch.addEventListener('input', function() {
+            clearTimeout(employeeSearchTimeout);
+            employeeSearchTimeout = setTimeout(() => {
+                if (this.value.length >= 2) searchEmployees(this.value);
+                else showEmployeeDefaultMessage();
+            }, 300);
+        });
+    }
+
+    if (documentSearch) {
+        let documentSearchTimeout;
+        documentSearch.addEventListener('input', function() {
+            clearTimeout(documentSearchTimeout);
+            documentSearchTimeout = setTimeout(() => {
+                if (this.value.length >= 2) searchDocuments(this.value);
+                else showDocumentDefaultMessage();
+            }, 300);
+        });
+    }
 });
 
 function loadEmployeeTags() {
