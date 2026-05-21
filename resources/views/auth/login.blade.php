@@ -141,10 +141,10 @@
 </style>
 
 <div>
-    <p class="guest-form-eyebrow">Acceso · Cuenta corporativa</p>
-    <h1 class="guest-form-title">Inicia sesión en la plataforma</h1>
+    <img src="{{ asset('storage/img/logo_clean.png') }}" alt="Login Illustration" class="mb-6 w-full max-w-sm mx-auto">
+    <h1 class="guest-form-title">Inicia sesión</h1>
     <p class="guest-form-sub">
-        Autenticación segura mediante tu cuenta empresarial de Google. Tu acceso está vinculado al directorio corporativo.
+        Utiliza tu cuenta de GPT Services para acceder a la plataforma
     </p>
 
     <div class="login-divider">Identificación</div>

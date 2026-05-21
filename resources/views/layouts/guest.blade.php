@@ -214,14 +214,12 @@
             <aside class="guest-brand">
                 <div class="guest-brand-mark">
                     <img src="{{ asset('storage/img/logo.png') }}" alt="Logo">
-                    <div>
-                        <span class="guest-brand-name">Explorador IA</span>
-                    </div>
+                    
                 </div>
 
                 <div class="guest-brand-message">
                     <h2 class="guest-brand-headline">
-                        Herramientas de <em>inteligencia artificial</em> para colaboradores.
+                        Explorador  <em>IA</em>
                     </h2>
                     <p class="guest-brand-sub">
                         Plataforma empresarial que centraliza IA para mejorar el acceso a la información, automatizar procesos internos y brindar asistencia inteligente mediante módulos especializados de consulta, búsqueda documental, soporte técnico y recomendaciones automatizadas.
@@ -238,8 +236,7 @@
 
                 <div class="guest-brand-footer">
                     <div>
-                        <p class="guest-brand-footer-eyebrow">Acceso restringido</p>
-                        <p class="mt-1 text-slate-400">Plataforma de uso interno corporativo.</p>
+                        <p class="guest-brand-footer-eyebrow">Plataforma de uso interno corporativo.</p>
                     </div>
                     <p>© {{ date('Y') }} · Todos los derechos reservados</p>
                 </div>
