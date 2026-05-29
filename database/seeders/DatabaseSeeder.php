@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
 
         // Llamar al seeder de empleados temporales
         $this->call([
+            PermissionRoleSeeder::class,
             TempEmployeeSeeder::class,
         ]);
     }

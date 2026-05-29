@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\EmployeeAdminController;
+use App\Http\Controllers\Admin\RecommendationAdminController;
+use App\Http\Controllers\Admin\NewsAdminController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\GoogleController;
@@ -30,8 +32,37 @@ Route::middleware('auth')->group(function () {
     Route::get('/recommendations', [RecommendationsController::class, 'index'])->name('recommendations.index');
     Route::post('/recommendations', [RecommendationsController::class, 'updatePreferences'])->name('recommendations.updatePreferences');
 
+    // Administración de Recomendaciones (CRUD) — limitado por permiso
+    Route::prefix('admin/recommendations')->name('admin.recommendations.')
+        ->middleware('permission:manage-recommendations')->group(function () {
+            Route::post('/', [RecommendationAdminController::class, 'store'])->name('store');
+            Route::put('/{recommendation}', [RecommendationAdminController::class, 'update'])->name('update');
+            Route::delete('/{recommendation}', [RecommendationAdminController::class, 'destroy'])->name('destroy');
+        });
+
     Route::get('/news', [NewsController::class, 'index'])->name('news.index');
     Route::post('/news', [NewsController::class, 'updatePreferences'])->name('news.updatePreferences');
+
+    // Administración de Noticias + fuentes de scraping — limitado por permiso
+    Route::prefix('admin/news')->name('admin.news.')
+        ->middleware('permission:manage-news')->group(function () {
+            Route::get('/', [NewsAdminController::class, 'index'])->name('index');
+
+            // Noticias (carga manual)
+            Route::post('/items', [NewsAdminController::class, 'storeNews'])->name('items.store');
+            Route::put('/items/{news}', [NewsAdminController::class, 'updateNews'])->name('items.update');
+            Route::delete('/items/{news}', [NewsAdminController::class, 'destroyNews'])->name('items.destroy');
+
+            // Fuentes de scraping
+            Route::post('/sources', [NewsAdminController::class, 'storeSource'])->name('sources.store');
+            Route::put('/sources/{source}', [NewsAdminController::class, 'updateSource'])->name('sources.update');
+            Route::delete('/sources/{source}', [NewsAdminController::class, 'destroySource'])->name('sources.destroy');
+            Route::post('/sources/{source}/toggle', [NewsAdminController::class, 'toggleSource'])->name('sources.toggle');
+
+            // Disparo manual del scraping (bajo demanda)
+            Route::post('/scrape', [NewsAdminController::class, 'scrapeNow'])
+                ->middleware('throttle:12,1')->name('scrape');
+        });
 
     Route::get('/chat', function () {
         return view('chat.index');

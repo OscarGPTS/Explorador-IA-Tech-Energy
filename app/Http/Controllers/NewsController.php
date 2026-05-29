@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\NewsType;
 use App\Models\UserNews;
-use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
@@ -12,24 +11,27 @@ class NewsController extends Controller
     public function index()
     {
         $userID = auth()->id();
-        $userNews = UserNews::where('user_id', $userID)->get();
+        $selectedTypeIds = UserNews::where('user_id', $userID)->pluck('news_type_id')->unique();
 
-        $categories = $userNews->map(function($news) {
-            return $news->newsType;
-        })->unique();
+        // Áreas a mostrar: las preferidas del usuario o, si no ha personalizado,
+        // todas las que tengan noticias (fallback para que el feed nunca quede vacío).
+        $typesQuery = NewsType::query()->has('news');
+        if ($selectedTypeIds->isNotEmpty()) {
+            $typesQuery->whereIn('id', $selectedTypeIds);
+        }
+        $categories = $typesQuery->orderBy('name')->get();
 
         $newsData = [];
         foreach ($categories as $category) {
             $newsData[] = (object)[
                 'id' => $category->id,
                 'category' => $category->name,
-                'news' => $category->news 
+                'news' => $category->news()->orderByDesc('created_at')->limit(15)->get(),
             ];
         }
 
-        $news = NewsType::orderBy('created_at', 'desc')->pluck('name', 'id');
-
-        $userNewsIds = $categories->pluck('id')->toArray();
+        $news = NewsType::orderBy('name')->pluck('name', 'id');
+        $userNewsIds = $selectedTypeIds->values()->toArray();
 
         return view('news.index', compact('newsData', 'news', 'userNewsIds'));
     }

@@ -11,7 +11,18 @@ class RecommendationsController extends Controller
 {
     public function index()
     {
-        return view('recommendations.index');
+        // Tipos (áreas) que tienen al menos una recomendación, ordenados por nombre.
+        $types = RecommendationType::orderBy('name')->get();
+
+        // Recomendaciones agrupadas por tipo (área), más recientes primero.
+        $recommendations = Recommendation::with('recommendationType')
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy('recommendation_type_id');
+
+        $canManage = auth()->user()?->hasPermission('manage-recommendations') ?? false;
+
+        return view('recommendations.index', compact('types', 'recommendations', 'canManage'));
     }
 
 
