@@ -474,34 +474,7 @@
                         <span class="eia-app-title">Noticias</span>
                     </a>
 
-                    <a href="{{ route('admin.stats.dashboard') }}" class="eia-app-tile">
-                        <div class="eia-app-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
-                            </svg>
-                        </div>
-                        <span class="eia-app-title">Estadísticas</span>
-                    </a>
-
-                    <a href="{{ route('admin.employees.index') }}" class="eia-app-tile">
-                        <div class="eia-app-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 14a4 4 0 10-8 0M12 11a3 3 0 100-6 3 3 0 000 6zM4 21a8 8 0 0116 0M20 8v3M20 11h3M20 11h-3"/>
-                            </svg>
-                        </div>
-                        <span class="eia-app-title">Empleados</span>
-                    </a>
-
-                    <a href="{{ route('tech-support.index') }}" class="eia-app-tile red">
-                        <div class="eia-app-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h3m-3 12h3M5 12h14M7 6h.01M7 18h.01M5 6a2 2 0 012-2h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6z"/>
-                            </svg>
-                        </div>
-                        <span class="eia-app-title">Soporte</span>
-                    </a>
-
-                    <a href="{{ route('document-bot.index') }}" class="eia-app-tile gold">
+                    <a href="{{ route('document-bot.index') }}" class="eia-app-tile black">
                         <div class="eia-app-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9V5a2 2 0 00-2-2h-7l-5 5v11a2 2 0 002 2h6"/>
@@ -510,6 +483,33 @@
                         </div>
                         <span class="eia-app-title">Documentos</span>
                     </a>
+
+                    <a href="{{ route('tech-support.index') }}" class="eia-app-tile red">
+                        <div class="eia-app-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h3m-3 12h3M5 12h14M7 6h.01M7 18h.01M5 6a2 2 0 012-2h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6z"/>
+                            </svg>
+                        </div>
+                        <span class="eia-app-title">Soporte Técnico</span>
+                    </a>
+
+                    <a href="{{ route('profile.index') }}" class="eia-app-tile">
+                        <div class="eia-app-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 14a4 4 0 10-8 0M12 11a3 3 0 100-6 3 3 0 000 6zM4 21a8 8 0 0116 0"/>
+                            </svg>
+                        </div>
+                        <span class="eia-app-title">Mi Perfil</span>
+                    </a>
+
+                    <div class="eia-app-tile locked">
+                        <div class="eia-app-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <span class="eia-app-title">Próximo</span>
+                    </div>
 
                     <div class="eia-app-tile locked">
                         <div class="eia-app-icon">
@@ -535,7 +535,7 @@
                         <span class="eia-status-dot-live"></span>
                         Sistema activo
                     </span>
-                    <span>7 aplicaciones</span>
+                    <span>6 aplicaciones</span>
                 </div>
             </div>
         </div>
