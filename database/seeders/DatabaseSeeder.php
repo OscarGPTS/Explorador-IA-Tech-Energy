@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         // Llamar al seeder de empleados temporales
         $this->call([
             TempEmployeeSeeder::class,
+            SuperAdminSeeder::class,
         ]);
     }
 }

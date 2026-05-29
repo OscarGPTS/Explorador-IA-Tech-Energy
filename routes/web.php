@@ -113,7 +113,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Panel de Estadísticas Administrativas
-    Route::prefix('admin/stats')->name('admin.stats.')->middleware(['auth'])->group(function () {
+    Route::prefix('admin/stats')->name('admin.stats.')->middleware(['auth', 'role:admin|super-admin'])->group(function () {
         Route::get('/dashboard', [AdminStatsController::class, 'dashboard'])->name('dashboard');
         Route::get('/users', [AdminStatsController::class, 'users'])->name('users');
         Route::get('/chats', [AdminStatsController::class, 'chats'])->name('chats');
@@ -123,7 +123,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Administración de Empleados
-    Route::prefix('admin/employees')->name('admin.employees.')->middleware(['auth'])->group(function () {
+    Route::prefix('admin/employees')->name('admin.employees.')->middleware(['auth', 'role:admin|super-admin'])->group(function () {
         Route::get('/', [EmployeeAdminController::class, 'index'])->name('index');
         Route::get('/import', [EmployeeAdminController::class, 'import'])->name('import');
         Route::post('/import', [EmployeeAdminController::class, 'processImport'])->name('process-import');
@@ -137,7 +137,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // Rutas para gestión de soporte técnico
-    Route::prefix('admin/tech-support')->name('admin.tech-support.')->middleware(['auth'])->group(function () {
+    Route::prefix('admin/tech-support')->name('admin.tech-support.')->middleware(['auth', 'role:admin|super-admin'])->group(function () {
         Route::get('/', [TechSupportManagementController::class, 'index'])->name('index');
         
         // Categorías
