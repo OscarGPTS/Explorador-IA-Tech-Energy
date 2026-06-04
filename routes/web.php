@@ -14,6 +14,7 @@ use App\Http\Controllers\AgentConfigurationController;
 use App\Http\Controllers\CorporateInfoController;
 use App\Http\Controllers\TechSupportController;
 use App\Http\Controllers\DocumentBotController;
+use App\Http\Controllers\VozController;
 use App\Http\Controllers\Admin\TechSupportManagementController;
 use App\Http\Controllers\AdminStatsController;
 
@@ -141,6 +142,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/semantic-search', [DocumentBotController::class, 'semanticSearch'])->name('semantic-search');
         Route::get('/stats', [DocumentBotController::class, 'stats'])->name('stats');
         Route::post('/reindex', [DocumentBotController::class, 'reindex'])->name('reindex')->middleware('role:admin');
+    });
+
+    // Servicio de Voz (UI de prueba)
+    Route::prefix('voz')->name('voz.')->group(function () {
+        Route::get('/', [VozController::class, 'index'])->name('index');
+        Route::get('/health', [VozController::class, 'health'])->name('health');
+        Route::post('/consulta', [VozController::class, 'consulta'])->name('consulta');
     });
 
     // Panel de Estadísticas Administrativas
