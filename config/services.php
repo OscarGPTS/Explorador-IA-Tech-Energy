@@ -43,4 +43,25 @@ return [
         'key' => env('OPENAI_API_KEY'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | API de Bots (Document Bot / Voz)
+    |--------------------------------------------------------------------------
+    |
+    | URL base del servicio externo de bots. En local apunta a tu instancia
+    | de pruebas (ej. http://localhost:8000) y en el servidor a la URL final.
+    | Se configura desde el .env mediante DOCUMENT_BOT_API_URL.
+    |
+    */
+    'document_bot' => [
+        'url' => env('DOCUMENT_BOT_API_URL', 'https://bots.tech-energy.lat'),
+        'timeout' => env('DOCUMENT_BOT_TIMEOUT', 60),
+    ],
+
+    'voz' => [
+        // Por defecto reutiliza la misma API de bots; se puede sobreescribir con VOZ_API_URL.
+        'url' => env('VOZ_API_URL', env('DOCUMENT_BOT_API_URL', 'https://bots.tech-energy.lat')),
+        'timeout' => env('VOZ_API_TIMEOUT', 120),
+    ],
+
 ];

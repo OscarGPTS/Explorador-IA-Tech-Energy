@@ -13,9 +13,10 @@ class DocumentBotService
 
     public function __construct()
     {
-        // URL base de la API de bots (se puede configurar desde .env)
-        $this->baseUrl = env('DOCUMENT_BOT_API_URL', 'https://bots.tech-energy.lat');
-        $this->timeout = env('DOCUMENT_BOT_TIMEOUT', 60);
+        // URL base de la API de bots (configurable desde .env mediante DOCUMENT_BOT_API_URL).
+        // En local apunta a tu instancia de pruebas y en el servidor a la URL final.
+        $this->baseUrl = rtrim(config('services.document_bot.url'), '/');
+        $this->timeout = (int) config('services.document_bot.timeout');
     }
 
     /**

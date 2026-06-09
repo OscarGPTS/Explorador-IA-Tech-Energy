@@ -16,8 +16,8 @@ class VozService
     {
         // Reutiliza la misma API de bots que el resto del proyecto.
         // Se puede sobreescribir con VOZ_API_URL en el .env.
-        $this->baseUrl = env('VOZ_API_URL', env('DOCUMENT_BOT_API_URL', 'https://bots.tech-energy.lat'));
-        $this->timeout = (int) env('VOZ_API_TIMEOUT', 120);
+        $this->baseUrl = rtrim(config('services.voz.url'), '/');
+        $this->timeout = (int) config('services.voz.timeout');
     }
 
     /**
