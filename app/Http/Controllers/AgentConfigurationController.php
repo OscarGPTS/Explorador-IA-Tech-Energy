@@ -6,10 +6,16 @@ use Illuminate\Http\Request;
 use App\Models\AgentRole;
 use App\Models\UserAgentSetting;
 use App\Models\ChatConfiguration;
+use App\Services\AiProviderService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class AgentConfigurationController extends Controller
 {
+    public function __construct(private AiProviderService $aiProviderService)
+    {
+    }
+
     /**
      * Obtener todos los roles de agente disponibles
      */
@@ -232,6 +238,45 @@ class AgentConfigurationController extends Controller
                 'temperature' => 0.7,
                 'max_tokens' => 2000
             ]
+        ]);
+    }
+
+    /**
+     * Obtener la configuración global del proveedor de IA.
+     */
+    public function getProviderConfiguration()
+    {
+        return response()->json([
+            'success' => true,
+            'configuration' => $this->aiProviderService->getProviderSummary(),
+        ]);
+    }
+
+    /**
+     * Actualizar el proveedor global activo.
+     */
+    public function updateProviderConfiguration(Request $request)
+    {
+        $validated = $request->validate([
+            'provider' => ['required', 'string', Rule::in($this->aiProviderService->getSupportedProviders())],
+        ]);
+
+        $summary = $this->aiProviderService->getProviderSummary();
+        $providerConfig = $summary['providers'][$validated['provider']] ?? null;
+
+        if (! $providerConfig || ! $providerConfig['configured']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El proveedor seleccionado no tiene credenciales configuradas.',
+            ], 422);
+        }
+
+        $this->aiProviderService->setActiveProvider($validated['provider']);
+
+        return response()->json([
+            'success' => true,
+            'configuration' => $this->aiProviderService->getProviderSummary(),
+            'message' => 'Proveedor de IA actualizado correctamente.',
         ]);
     }
 }

@@ -22,6 +22,21 @@
 
         <!-- Content Container -->
         <div id="content" class="hidden">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+                <div class="px-6 py-4 border-b border-gray-200 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900">Proveedor de IA Activo</h2>
+                        <p class="text-gray-600 text-sm mt-1">Cambia el proveedor por defecto para /chat y /tech-support sin reiniciar la aplicación.</p>
+                    </div>
+                    <div id="provider-status-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-700 w-fit">
+                        Cargando...
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div id="provider-config-panel"></div>
+                </div>
+            </div>
+
             <!-- Available Roles Section -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
                 <div class="px-6 py-4 border-b border-gray-200">
@@ -124,13 +139,20 @@
 document.addEventListener('DOMContentLoaded', function() {
     let availableRoles = [];
     let userConfigurations = [];
+    let providerConfiguration = null;
     let editingConfigId = null;
 
     // Load initial data
     Promise.all([
+        fetch('/agent-config/provider').then(r => r.json()),
         fetch('/agent-config/roles').then(r => r.json()),
         fetch('/agent-config/settings').then(r => r.json())
-    ]).then(([rolesResponse, settingsResponse]) => {
+    ]).then(([providerResponse, rolesResponse, settingsResponse]) => {
+        if (providerResponse.success) {
+            providerConfiguration = providerResponse.configuration;
+            renderProviderConfiguration();
+        }
+
         if (rolesResponse.success) {
             availableRoles = rolesResponse.roles;
             renderAvailableRoles();
@@ -147,6 +169,105 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error loading data:', error);
         document.getElementById('loading').innerHTML = '<p class="text-red-600">Error cargando datos</p>';
     });
+
+    function renderProviderConfiguration() {
+        const badge = document.getElementById('provider-status-badge');
+        const panel = document.getElementById('provider-config-panel');
+
+        if (!providerConfiguration) {
+            badge.textContent = 'Sin datos';
+            badge.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-700 w-fit';
+            panel.innerHTML = '<p class="text-sm text-red-600">No se pudo cargar la configuración del proveedor.</p>';
+            return;
+        }
+
+        const activeProvider = providerConfiguration.active_provider;
+        const providers = Object.values(providerConfiguration.providers || {});
+        const activeConfig = providerConfiguration.providers?.[activeProvider];
+
+        badge.textContent = `Activo: ${activeConfig?.label || activeProvider}`;
+        badge.className = 'text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 w-fit';
+
+        panel.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] gap-6 items-start">
+                <div class="space-y-4">
+                    <div>
+                        <label for="active-provider-select" class="block text-sm font-medium text-gray-700 mb-2">Proveedor por defecto</label>
+                        <select id="active-provider-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            ${providers.map(provider => `
+                                <option value="${provider.key}" ${provider.key === activeProvider ? 'selected' : ''}>
+                                    ${provider.label}${provider.configured ? '' : ' (sin configurar)'}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <button id="save-provider-btn" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        Guardar proveedor activo
+                    </button>
+                    <p id="provider-feedback" class="text-sm text-gray-500"></p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${providers.map(provider => `
+                        <div class="border rounded-lg p-4 ${provider.is_active ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200 bg-gray-50'}">
+                            <div class="flex items-center justify-between gap-3 mb-3">
+                                <h3 class="font-semibold text-gray-900">${provider.label}</h3>
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full ${provider.configured ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">
+                                    ${provider.configured ? 'Configurado' : 'Sin credenciales'}
+                                </span>
+                            </div>
+                            <dl class="space-y-2 text-sm text-gray-600">
+                                <div>
+                                    <dt class="font-medium text-gray-800">Base URL</dt>
+                                    <dd class="break-all">${provider.base_url || 'No definida'}</dd>
+                                </div>
+                                <div>
+                                    <dt class="font-medium text-gray-800">Modelo</dt>
+                                    <dd>${provider.model || 'No definido'}</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        document.getElementById('save-provider-btn').addEventListener('click', updateProviderConfiguration);
+    }
+
+    function updateProviderConfiguration() {
+        const select = document.getElementById('active-provider-select');
+        const feedback = document.getElementById('provider-feedback');
+
+        feedback.textContent = 'Guardando proveedor activo...';
+        feedback.className = 'text-sm text-gray-500';
+
+        fetch('/agent-config/provider', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ provider: select.value })
+        })
+        .then(async response => {
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'No se pudo actualizar el proveedor.');
+            }
+
+            providerConfiguration = data.configuration;
+            renderProviderConfiguration();
+            const nextFeedback = document.getElementById('provider-feedback');
+            if (nextFeedback) {
+                nextFeedback.textContent = data.message || 'Proveedor actualizado.';
+                nextFeedback.className = 'text-sm text-emerald-600';
+            }
+        })
+        .catch(error => {
+            feedback.textContent = error.message;
+            feedback.className = 'text-sm text-red-600';
+        });
+    }
 
     // Render available roles
     function renderAvailableRoles() {

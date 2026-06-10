@@ -465,7 +465,7 @@
                     <span class="eia-eyebrow">Repositorio corporativo · RAG</span>
                     <h1 class="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight">Buscador de documentos</h1>
                     <p class="mt-1 text-sm text-slate-300 max-w-2xl">
-                        Consulta inteligente sobre documentación corporativa con IA local y razonamiento avanzado.
+                        Consulta inteligente sobre documentación corporativa con IA y razonamiento avanzado.
                     </p>
                 </div>
             </div>
@@ -546,27 +546,11 @@
                     <div class="doc-panel-head flex items-start justify-between gap-4 flex-wrap">
                         <div>
                             <p class="doc-panel-title">Modo de consulta</p>
-                            <p class="doc-panel-sub" id="query-mode-description">Modelo local (Ollama)</p>
+                            <p class="doc-panel-sub" id="query-mode-description">Consulta rápida · IA externa</p>
                         </div>
                     </div>
                     <div class="doc-panel-body space-y-3">
-                        <div class="toggle-row">
-                            <div>
-                                <div class="toggle-row-label">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999A5.002 5.002 0 006.07 7.029 4 4 0 003 15z"/>
-                                    </svg>
-                                    Usar modelo externo (API)
-                                </div>
-                                <p class="toggle-row-sub">Habilita motor OpenAI para razonamiento avanzado.</p>
-                            </div>
-                            <label class="eia-toggle">
-                                <input type="checkbox" id="use-external-api">
-                                <span class="eia-toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div id="deep-reasoning-container" class="hidden">
+                        <div id="deep-reasoning-container">
                             <div class="toggle-row">
                                 <div>
                                     <div class="toggle-row-label">
@@ -679,34 +663,16 @@
 <script>
     let selectedDocumentId = null;
     let selectedDocumentName = '';
-    let useExternalAPI = false;
+    // El bot usa siempre el proveedor externo (API OpenCode). La opción de IA local (Ollama) fue retirada.
+    const useExternalAPI = true;
     let useDeepReasoning = false;
 
     document.addEventListener('DOMContentLoaded', function() {
         loadDocuments('all');
-        setupExternalAPIToggle();
         setupDeepReasoningToggle();
         setupClearDocumentButton();
+        updateQueryModeDescription();
     });
-
-    function setupExternalAPIToggle() {
-        const checkbox = document.getElementById('use-external-api');
-        const deepReasoningContainer = document.getElementById('deep-reasoning-container');
-
-        checkbox.addEventListener('change', function() {
-            useExternalAPI = this.checked;
-
-            if (useExternalAPI) {
-                deepReasoningContainer.classList.remove('hidden');
-            } else {
-                deepReasoningContainer.classList.add('hidden');
-                document.getElementById('deep-reasoning').checked = false;
-                useDeepReasoning = false;
-            }
-
-            updateQueryModeDescription();
-        });
-    }
 
     function setupDeepReasoningToggle() {
         const checkbox = document.getElementById('deep-reasoning');
@@ -733,18 +699,10 @@
     function updateQueryModeDescription() {
         const description = document.getElementById('query-mode-description');
 
-        if (!useExternalAPI) {
-            if (selectedDocumentId) {
-                description.textContent = 'Análisis de documento · Modelo local (Ollama)';
-            } else {
-                description.textContent = 'Consulta general · Modelo local (Ollama)';
-            }
+        if (useDeepReasoning) {
+            description.textContent = 'Razonamiento profundo · IA externa (hasta 20 chunks)';
         } else {
-            if (useDeepReasoning) {
-                description.textContent = 'Razonamiento profundo · OpenAI (hasta 20 chunks)';
-            } else {
-                description.textContent = 'Consulta rápida · OpenAI (hasta 3 chunks)';
-            }
+            description.textContent = 'Consulta rápida · IA externa (hasta 3 chunks)';
         }
     }
 
@@ -906,22 +864,12 @@
         try {
             let endpoint, payload;
 
-            if (!useExternalAPI) {
-                if (selectedDocumentId) {
-                    endpoint = '{{ route("document-bot.simple.analyze-document", [], false) }}';
-                    payload = { documento_id: selectedDocumentId, pregunta: question };
-                } else {
-                    endpoint = '{{ route("document-bot.simple.query", [], false) }}';
-                    payload = { pregunta: question };
-                }
+            if (useDeepReasoning) {
+                endpoint = '{{ route("document-bot.advanced.deep-reasoning", [], false) }}';
+                payload = { pregunta: question, k: 20 };
             } else {
-                if (useDeepReasoning) {
-                    endpoint = '{{ route("document-bot.advanced.deep-reasoning", [], false) }}';
-                    payload = { pregunta: question, k: 20 };
-                } else {
-                    endpoint = '{{ route("document-bot.advanced.quick-query", [], false) }}';
-                    payload = { pregunta: question };
-                }
+                endpoint = '{{ route("document-bot.advanced.quick-query", [], false) }}';
+                payload = { pregunta: question };
             }
 
             const response = await fetch(endpoint, {
@@ -1043,18 +991,14 @@
 
     document.getElementById('btn-health').addEventListener('click', async function() {
         try {
-            const endpoint = useExternalAPI
-                ? '{{ route("document-bot.advanced.health", [], false) }}'
-                : '{{ route("document-bot.simple.health", [], false) }}';
+            const endpoint = '{{ route("document-bot.advanced.health", [], false) }}';
 
             const response = await fetch(endpoint);
             const result = await response.json();
 
             if (result.success && result.data) {
                 const data = result.data;
-                let message = useExternalAPI
-                    ? 'API Externa (OpenAI)\n\n'
-                    : 'Modelo Local (Ollama)\n\n';
+                let message = 'IA externa\n\n';
 
                 message += `Estado: ${data.status}\n`;
                 message += `IA Disponible: ${data.ia_disponible ? 'Sí' : 'No'}\n`;
@@ -1062,7 +1006,7 @@
                 message += `Paperless: ${data.paperless_conectado ? 'Sí' : 'No'}\n`;
                 message += `Total Documentos: ${data.total_documentos}\n`;
 
-                if (useExternalAPI && data.total_vectores) {
+                if (data.total_vectores) {
                     message += `Total Vectores: ${data.total_vectores}\n`;
                 }
                 alert(message);
@@ -1075,11 +1019,6 @@
     });
 
     document.getElementById('btn-stats').addEventListener('click', async function() {
-        if (!useExternalAPI) {
-            alert('Estadísticas\n\nLas estadísticas detalladas solo están disponibles con la API externa (OpenAI).\n\nActiva "Usar modelo externo" para ver más información.');
-            return;
-        }
-
         try {
             const response = await fetch('{{ route("document-bot.advanced.stats", [], false) }}');
             const result = await response.json();

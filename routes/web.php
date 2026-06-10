@@ -76,6 +76,8 @@ Route::middleware('auth')->group(function () {
 
     // Rutas para configuración de agentes IA
     Route::prefix('agent-config')->name('agent.')->group(function () {
+        Route::get('/provider', [AgentConfigurationController::class, 'getProviderConfiguration'])->name('provider');
+        Route::put('/provider', [AgentConfigurationController::class, 'updateProviderConfiguration'])->name('provider.update');
         Route::get('/roles', [AgentConfigurationController::class, 'getAvailableRoles'])->name('roles');
         Route::get('/settings', [AgentConfigurationController::class, 'getUserSettings'])->name('settings');
         Route::post('/settings', [AgentConfigurationController::class, 'createUserSetting'])->name('settings.create');

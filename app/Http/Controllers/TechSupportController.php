@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use App\Models\TechSupportConversation;
 use App\Models\TechSupportCategory;
 use App\Models\TechSupportProblem;
+use App\Services\AiProviderService;
 use Illuminate\Support\Facades\DB;
 
 class TechSupportController extends Controller
@@ -297,9 +297,15 @@ class TechSupportController extends Controller
             $problem = mb_substr($problem, 0, 800);
         }
 
-        $apiKey = config('openai.api_key') ?? env('OPENAI_API_KEY');
-        if (!$apiKey) {
-            Log::error('aiResolve: OPENAI_API_KEY no configurado');
+        $providerService = app(AiProviderService::class);
+        $providerSummary = $providerService->getProviderSummary();
+        $activeProvider = $providerSummary['active_provider'];
+        $activeProviderConfig = $providerSummary['providers'][$activeProvider] ?? null;
+
+        if (! $activeProviderConfig || ! $activeProviderConfig['configured']) {
+            Log::error('aiResolve: proveedor de IA sin configurar', [
+                'provider' => $activeProvider,
+            ]);
             return response()->json([
                 'success' => false,
                 'error' => 'El servicio de IA no está configurado. Contacta al equipo de IT.'
@@ -317,36 +323,17 @@ class TechSupportController extends Controller
             . "- No pidas información sensible.";
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-                'Content-Type' => 'application/json',
-            ])
-            ->timeout(45)
-            ->connectTimeout(15)
-            ->withOptions(['verify' => false])
-            ->post('https://api.openai.com/v1/chat/completions', [
-                'model' => 'gpt-4o-mini',
-                'messages' => [
+            $result = $providerService->createChatCompletion([
                     ['role' => 'system', 'content' => $systemPrompt],
                     ['role' => 'user', 'content' => $problem],
                 ],
+                [
                 'max_tokens' => 350,
                 'temperature' => 0.3,
-            ]);
+                ]
+            );
 
-            if ($response->failed()) {
-                Log::warning('aiResolve: OpenAI respondió con error', [
-                    'status' => $response->status(),
-                    'body' => substr($response->body(), 0, 400),
-                ]);
-                return response()->json([
-                    'success' => false,
-                    'error' => 'No se pudo procesar tu solicitud en este momento. Intenta de nuevo.'
-                ], 502);
-            }
-
-            $data = $response->json();
-            $answer = trim($data['choices'][0]['message']['content'] ?? '');
+            $answer = $result['content'];
 
             if ($answer === '') {
                 return response()->json([
@@ -367,8 +354,9 @@ class TechSupportController extends Controller
                     'escalated_to_human' => false,
                     'context_data' => [
                         'source' => 'ai_resolve',
-                        'model' => 'gpt-4o-mini',
-                        'tokens' => $data['usage'] ?? null,
+                        'provider' => $result['provider'],
+                        'model' => $result['model'],
+                        'tokens' => $result['raw']['usage'] ?? null,
                     ],
                 ]);
             } catch (\Throwable $e) {
@@ -378,12 +366,15 @@ class TechSupportController extends Controller
             return response()->json([
                 'success' => true,
                 'answer' => $answer,
-                'usage' => $data['usage'] ?? null,
+                'provider' => $result['provider'],
+                'model' => $result['model'],
+                'usage' => $result['raw']['usage'] ?? null,
             ]);
         } catch (\Throwable $e) {
-            Log::error('aiResolve: excepción al llamar a OpenAI', [
+            Log::error('aiResolve: excepción al llamar al proveedor IA', [
                 'error' => $e->getMessage(),
                 'class' => get_class($e),
+                'provider' => $activeProvider,
             ]);
             return response()->json([
                 'success' => false,

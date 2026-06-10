@@ -7,7 +7,6 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ChatGroup;
 use App\Models\Chat;
@@ -15,7 +14,7 @@ use App\Models\File;
 use App\Models\AgentRole;
 use App\Models\UserAgentSetting;
 use App\Models\ChatConfiguration;
-use OpenAI\Laravel\Facades\OpenAI;
+use App\Services\AiProviderService;
 use PhpOffice\PhpWord\IOFactory as WordIOFactory;
 use PhpOffice\PhpSpreadsheet\IOFactory as SpreadsheetIOFactory;
 use Smalot\PdfParser\Parser as PdfParser;
@@ -503,41 +502,24 @@ class ChatIndex extends Component
         return round($size, $precision) . ' ' . $units[$i];
     }
 
-    // Método alternativo usando Laravel HTTP Client
-    private function sendToOpenAIWithHttp($messages, $hasImages = false)
+    private function sendToAiProvider($messages, $hasImages = false)
     {
-        $apiKey = config('openai.api_key') ?? env('OPENAI_API_KEY');
+        $providerService = app(AiProviderService::class);
+        $providerSummary = $providerService->getProviderSummary();
+        $activeProvider = $providerSummary['active_provider'];
+        $activeProviderConfig = $providerSummary['providers'][$activeProvider] ?? [];
         
-        // Usar gpt-4o-mini para imágenes (más económico), gpt-3.5-turbo para texto
-        $model = $hasImages ? 'gpt-4o-mini' : 'gpt-3.5-turbo';
-        
-        Log::info('Usando modelo OpenAI', [
-            'model' => $model,
+        Log::info('Usando proveedor de IA', [
+            'provider' => $activeProvider,
+            'model' => $activeProviderConfig['model'] ?? null,
             'has_images' => $hasImages,
             'messages_count' => count($messages)
         ]);
-        
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $apiKey,
-            'Content-Type' => 'application/json',
-        ])
-        ->timeout(60)
-        ->connectTimeout(30)
-        ->withOptions([
-            'verify' => false, // Deshabilitar verificación SSL para XAMPP
-        ])
-        ->post('https://api.openai.com/v1/chat/completions', [
-            'model' => $model,
-            'messages' => $messages,
+
+        return $providerService->createChatCompletion($messages, [
             'max_tokens' => $this->currentAgentConfig['max_tokens'] ?? ($hasImages ? 300 : 500),
             'temperature' => $this->currentAgentConfig['temperature'] ?? 0.7,
         ]);
-
-        if ($response->failed()) {
-            throw new \Exception('Error HTTP: ' . $response->status() . ' - ' . $response->body());
-        }
-
-        return $response->json();
     }
 
     public function sendMessage()
@@ -607,11 +589,12 @@ class ChatIndex extends Component
                 'chatgroup_id' => $this->chatgroup_id
             ]);
 
-            // Verificar que la API key esté configurada
-            $apiKey = config('openai.api_key') ?? env('OPENAI_API_KEY');
-            
-            if (empty($apiKey)) {
-                throw new \Exception('API key de OpenAI no encontrada en configuración');
+            $providerSummary = app(AiProviderService::class)->getProviderSummary();
+            $activeProvider = $providerSummary['active_provider'];
+            $activeProviderConfig = $providerSummary['providers'][$activeProvider] ?? null;
+
+            if (! $activeProviderConfig || ! $activeProviderConfig['configured']) {
+                throw new \Exception('El proveedor de IA activo no tiene credenciales configuradas');
             }
 
             // Guardar mensaje del usuario
@@ -755,57 +738,22 @@ class ChatIndex extends Component
                 ];
             }
 
-            Log::info('Enviando request a OpenAI', [
+            Log::info('Enviando request a proveedor IA', [
                 'message_preview' => substr($currentMessage, 0, 50) . '...',
                 'has_images' => $hasImages,
                 'images_count' => count($imageContents),
-                'model_to_use' => $hasImages ? 'gpt-4o-mini' : 'gpt-3.5-turbo'
+                'provider' => $activeProvider,
+                'model_to_use' => $activeProviderConfig['model'] ?? null,
             ]);
 
-            // Intentar primero con Laravel HTTP Client
-            try {
-                $response = $this->sendToOpenAIWithHttp($messages, $hasImages);
-                
-                if (!isset($response['choices'][0]['message']['content'])) {
-                    throw new \Exception('Respuesta inválida de OpenAI: no se encontró contenido');
-                }
+            $response = $this->sendToAiProvider($messages, $hasImages);
+            $aiResponse = $response['content'];
 
-                $aiResponse = $response['choices'][0]['message']['content'];
-                
-                Log::info('Respuesta recibida de OpenAI (HTTP)', [
-                    'response_length' => strlen($aiResponse)
-                ]);
-
-            } catch (\Exception $httpException) {
-                Log::warning('HTTP Client falló', [
-                    'http_error' => $httpException->getMessage(),
-                    'has_images' => $hasImages
-                ]);
-
-                // Si hay imágenes, no usar fallback porque el package puede no soportar el formato base64
-                if ($hasImages) {
-                    throw new \Exception('Error enviando imágenes a OpenAI: ' . $httpException->getMessage());
-                }
-
-                // Fallback solo para mensajes de texto: usar el package de OpenAI Laravel
-                Log::info('Usando fallback con OpenAI package para mensaje de texto');
-                $openaiResponse = OpenAI::chat()->create([
-                    'model' => 'gpt-3.5-turbo',
-                    'messages' => $messages,
-                    'max_tokens' => $this->currentAgentConfig['max_tokens'] ?? 500,
-                    'temperature' => $this->currentAgentConfig['temperature'] ?? 0.7,
-                ]);
-
-                if (empty($openaiResponse->choices) || !isset($openaiResponse->choices[0]->message->content)) {
-                    throw new \Exception('Respuesta inválida de OpenAI: no se encontró contenido');
-                }
-
-                $aiResponse = $openaiResponse->choices[0]->message->content;
-                
-                Log::info('Respuesta recibida de OpenAI (Package)', [
-                    'response_length' => strlen($aiResponse)
-                ]);
-            }
+            Log::info('Respuesta recibida de proveedor IA', [
+                'provider' => $response['provider'],
+                'model' => $response['model'],
+                'response_length' => strlen($aiResponse)
+            ]);
 
             // Guardar respuesta de la IA
             $aiMessage = Chat::create([
@@ -816,24 +764,6 @@ class ChatIndex extends Component
             ]);
 
             Log::info('Respuesta de IA guardada', ['ai_message_id' => $aiMessage->id]);
-
-        } catch (\OpenAI\Exceptions\ErrorException $e) {
-            // Error específico de OpenAI API
-            Log::error('Error de OpenAI API', [
-                'error' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'user_id' => Auth::id()
-            ]);
-
-            $errorMsg = 'Error de OpenAI API: ' . $e->getMessage();
-            $this->errorMessage = $errorMsg;
-
-            Chat::create([
-                'message' => $errorMsg,
-                'emisor_id' => null, // null para que se muestre como IA
-                'receiver' => Auth::id(),
-                'chatgroup_id' => $this->chatgroup_id,
-            ]);
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             // Error de conexión HTTP
@@ -881,7 +811,7 @@ class ChatIndex extends Component
     public function testOpenAI()
     {
         try {
-            Log::info('Testeando conexión OpenAI con HTTP Client');
+            Log::info('Testeando conexión del proveedor IA activo');
             
             $userName = Auth::user()->name;
             $messages = [
@@ -895,26 +825,10 @@ class ChatIndex extends Component
                 ]
             ];
 
-            // Probar con HTTP Client primero
-            try {
-                $response = $this->sendToOpenAIWithHttp($messages);
-                $result = $response['choices'][0]['message']['content'];
-                $this->errorMessage = 'Test HTTP exitoso: ' . $result;
-                Log::info('Test HTTP exitoso', ['response' => $result]);
-            } catch (\Exception $httpException) {
-                Log::info('HTTP falló, probando con OpenAI package');
-                
-                // Fallback con OpenAI package
-                $response = OpenAI::chat()->create([
-                    'model' => 'gpt-3.5-turbo',
-                    'messages' => $messages,
-                    'max_tokens' => 10
-                ]);
-
-                $result = $response->choices[0]->message->content;
-                $this->errorMessage = 'Test Package exitoso: ' . $result;
-                Log::info('Test Package exitoso', ['response' => $result]);
-            }
+            $response = $this->sendToAiProvider($messages);
+            $result = $response['content'];
+            $this->errorMessage = 'Test proveedor exitoso (' . $response['provider'] . '): ' . $result;
+            Log::info('Test proveedor exitoso', ['response' => $result, 'provider' => $response['provider']]);
             
         } catch (\Exception $e) {
             $errorMsg = 'Test falló: ' . $e->getMessage();

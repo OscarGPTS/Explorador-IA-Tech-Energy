@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use GuzzleHttp\Client;
-
 class AiService
 {
     /**
@@ -11,40 +9,19 @@ class AiService
      */
     public static function ask(array $messages)
     {
-        $apiKey = env('OPENAI_API_KEY');
-
-        $client = new Client([
-            
-            'base_uri' => 'https://api.openai.com/ ',
-            'timeout'  => 30,
-        ]);
-
-        // Convertimos los mensajes al formato requerido por OpenAI
+        // Convertimos los mensajes al formato requerido por el proveedor activo
         $chatMessages = collect($messages)->map(fn($m) => [
             'role' => $m['role'] === 'user' ? 'user' : 'assistant',
             'content' => $m['content'] ?? ''
         ])->toArray();
 
-        $payload = [
-            'model' => 'gpt-5-mini',
-            'messages' => $chatMessages,
-            'max_tokens' => 500,
-        ];
-
         try {
-            $response = $client->post('v1/responses ', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $apiKey,
-                    'Content-Type'  => 'application/json',
-                ],
-                'json' => $payload,
+            $response = app(AiProviderService::class)->createChatCompletion($chatMessages, [
+                'max_tokens' => 500,
             ]);
-            dd($response);
-            $body = json_decode($response->getBody(), true);
 
-            return $body['choices'][0]['message']['content'] ?? 'No response from AI';
+            return $response['content'];
         } catch (\Exception $e) {
-            // Para depuración puedes hacer dump($e->getMessage())
             return "Error al contactar la IA: " . $e->getMessage();
         }
     }
