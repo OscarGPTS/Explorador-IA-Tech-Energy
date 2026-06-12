@@ -470,6 +470,33 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Fade-in */
+    /* Avatar GPT — robot 3D dentro del badge circular */
+    .gpt-avatar-badge {
+        border-radius: 50%;
+        background: #F3F4F6;
+        border: none;
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+    }
+    .avatar-profile-btn {
+        padding: 6px 10px;
+        font-size: 14px;
+        line-height: 1;
+        border-radius: 8px;
+        background: #FFFFFF;
+        border: 1px solid var(--eia-border);
+        cursor: pointer;
+        transition: all .2s ease;
+        color: var(--eia-slate);
+    }
+    .avatar-profile-btn:hover { background: #F3F4F6; border-color: #9CA3AF; }
+    .avatar-profile-btn.active {
+        background: #E5E7EB;
+        border-color: #D1D5DB;
+        color: var(--eia-slate);
+    }
+
     .eia-fade { animation: eiaFade .55s ease-out both; }
     .eia-d1 { animation-delay: .05s; }
     .eia-d2 { animation-delay: .12s; }
@@ -512,7 +539,7 @@
         </div>
     </section>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8">
+    <div class="px-4 sm:px-8 lg:px-12 py-8">
 
         {{-- KPIs --}}
         <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
@@ -590,21 +617,26 @@
             <div class="lg:col-span-2">
                 <div class="ts-panel eia-fade eia-d1">
                     <div class="ts-panel-head dark" style="display: flex; align-items: center; gap: 14px;">
-                        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-                             style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 2px solid var(--eia-gold); box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25); flex-shrink: 0;">
-                        <div>
+                        <div class="gpt-avatar-badge" data-gpt-avatar data-avatar-mode="full"
+                             data-fallback-src="{{ asset('storage/img/persona_logo.png') }}"
+                             style="width: 48px; height: 48px;" aria-label="EVIA"></div>
+                        <div style="flex: 1;">
                             <p class="ts-panel-title" style="color: var(--eia-gold-soft); letter-spacing: 0.18em;">
                                 EVIA · Asistente de Soporte
                             </p>
                             <p class="ts-panel-sub" style="color: #94A3B8;">Cuéntame qué pasa, te guío paso a paso para resolverlo.</p>
                         </div>
+                        <div id="ts-avatar-profile-toggle" style="display: flex; flex-direction: column; gap: 6px;">
+                            <button type="button" class="avatar-profile-btn" data-profile="field" title="Perfil de campo (EPP)" aria-label="Perfil de campo">⛑️</button>
+                            <button type="button" class="avatar-profile-btn" data-profile="exec" title="Perfil ejecutivo" aria-label="Perfil ejecutivo">👔</button>
+                        </div>
                     </div>
 
                     <div id="tech-support-chat" class="ts-chat">
                         <div class="flex items-start mb-4">
-                            <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-                                 class="mr-3 rounded-full flex-shrink-0"
-                                 style="width: 40px; height: 40px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
+                            <div class="gpt-avatar-badge mr-3 flex-shrink-0" data-gpt-avatar data-avatar-mode="full"
+                                 data-fallback-src="{{ asset('storage/img/persona_logo.png') }}"
+                                 style="width: 40px; height: 40px;" aria-label="EVIA"></div>
                             <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
                                 <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA · Asistente</p>
                                 <p class="text-slate-800">
@@ -807,12 +839,28 @@
 </div>
 
 @push('scripts')
+<script src="{{ asset('js/gpt-avatar.js') }}"></script>
 <script>
 let currentSessionId = null;
 let currentStep = 'categories';
 let currentCategory = null;
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Montar avatar 3D
+    document.querySelectorAll('[data-gpt-avatar]').forEach(el => GPTAvatar.mount(el));
+
+    // Toggle de perfil (campo / ejecutivo)
+    const toggleButtons = document.querySelectorAll('#ts-avatar-profile-toggle .avatar-profile-btn');
+    function refreshProfileButtons() {
+        toggleButtons.forEach(btn =>
+            btn.classList.toggle('active', btn.dataset.profile === GPTAvatar.getProfile()));
+    }
+    toggleButtons.forEach(btn => btn.addEventListener('click', function() {
+        GPTAvatar.setProfile(this.dataset.profile);
+        refreshProfileButtons();
+    }));
+    refreshProfileButtons();
+
     currentSessionId = generateSessionId();
     loadCategories();
     document.getElementById('main-menu').addEventListener('click', showMainMenu);
@@ -937,28 +985,41 @@ function displaySolution(solution) {
     const solutionDiv = document.createElement('div');
     const priorityColor = solution.priority === 'high' ? 'red' : solution.priority === 'medium' ? 'yellow' : 'green';
     solutionDiv.className = 'flex items-start mb-4';
-    solutionDiv.innerHTML = `
-        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-             class="mr-3 rounded-full flex-shrink-0"
-             style="width: 40px; height: 40px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
-        <div class="bg-white rounded-lg p-6 max-w-full shadow-sm" style="border: 1px solid var(--eia-border);">
-            <h4 class="text-base font-semibold text-slate-900 mb-3 flex items-center" style="letter-spacing:-0.01em;">
-                Solución paso a paso
-                <span class="ml-auto text-xs font-medium px-3 py-1 rounded-full" style="background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;">
-                    ${solution.estimated_time}
-                </span>
-            </h4>
-            <div class="solution-content text-slate-700 text-sm leading-relaxed">
-                ${solution.content}
-            </div>
-            <div class="mt-4 flex justify-start">
-                <span class="bg-${priorityColor}-100 text-${priorityColor}-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider" style="letter-spacing:0.1em;">
-                    Prioridad ${solution.priority === 'high' ? 'Alta' : solution.priority === 'medium' ? 'Media' : 'Baja'}
-                </span>
-            </div>
+
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = 'gpt-avatar-badge mr-3 flex-shrink-0';
+    avatarDiv.setAttribute('data-gpt-avatar');
+    avatarDiv.setAttribute('data-avatar-mode', 'full');
+    avatarDiv.setAttribute('data-fallback-src', '{{ asset("storage/img/persona_logo.png") }}');
+    avatarDiv.style.width = '40px';
+    avatarDiv.style.height = '40px';
+
+    const bubbleDiv = document.createElement('div');
+    bubbleDiv.className = 'bg-white rounded-lg p-6 max-w-full shadow-sm';
+    bubbleDiv.style.border = '1px solid var(--eia-border)';
+    bubbleDiv.innerHTML = `
+        <h4 class="text-base font-semibold text-slate-900 mb-3 flex items-center" style="letter-spacing:-0.01em;">
+            Solución paso a paso
+            <span class="ml-auto text-xs font-medium px-3 py-1 rounded-full" style="background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;">
+                ${solution.estimated_time}
+            </span>
+        </h4>
+        <div class="solution-content text-slate-700 text-sm leading-relaxed">
+            ${solution.content}
+        </div>
+        <div class="mt-4 flex justify-start">
+            <span class="bg-${priorityColor}-100 text-${priorityColor}-800 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider" style="letter-spacing:0.1em;">
+                Prioridad ${solution.priority === 'high' ? 'Alta' : solution.priority === 'medium' ? 'Media' : 'Baja'}
+            </span>
         </div>
     `;
+
+    solutionDiv.appendChild(avatarDiv);
+    solutionDiv.appendChild(bubbleDiv);
     chatContainer.appendChild(solutionDiv);
+
+    // Montar el avatar después de agregarlo
+    GPTAvatar.mount(avatarDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
@@ -973,15 +1034,27 @@ function addMessageToChat(sender, message) {
     messageDiv.className = `flex items-start mb-4 ${sender === 'user' ? 'justify-end' : ''}`;
 
     if (sender === 'bot') {
-        messageDiv.innerHTML = `
-            <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-                 class="mr-3 rounded-full flex-shrink-0"
-                 style="width: 36px; height: 36px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
-            <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
-                <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA</p>
-                <p class="text-slate-800 whitespace-pre-line">${message}</p>
-            </div>
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'gpt-avatar-badge mr-3 flex-shrink-0';
+        avatarDiv.setAttribute('data-gpt-avatar');
+        avatarDiv.setAttribute('data-avatar-mode', 'full');
+        avatarDiv.setAttribute('data-fallback-src', '{{ asset("storage/img/persona_logo.png") }}');
+        avatarDiv.style.width = '36px';
+        avatarDiv.style.height = '36px';
+
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'bg-white rounded-lg p-4 shadow-sm max-w-md';
+        bubbleDiv.style.border = '1px solid var(--eia-border)';
+        bubbleDiv.innerHTML = `
+            <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA</p>
+            <p class="text-slate-800 whitespace-pre-line">${message}</p>
         `;
+
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(bubbleDiv);
+
+        // Montar el avatar después de agregarlo
+        GPTAvatar.mount(avatarDiv);
     } else {
         messageDiv.innerHTML = `
             <div class="bg-blue-500 rounded-lg p-4 shadow-sm max-w-md">
@@ -1116,6 +1189,8 @@ function submitAiResolve() {
     const cancelBtn = document.getElementById('ai-resolve-cancel');
     if (!input) return;
 
+    GPTAvatar.setState('thinking');
+
     const problem = input.value.trim();
     if (problem.length < 5) {
         input.focus();
@@ -1134,19 +1209,32 @@ function submitAiResolve() {
     const loadingDiv = document.createElement('div');
     loadingDiv.id = 'ai-resolve-loading';
     loadingDiv.className = 'flex items-start mb-4';
-    loadingDiv.innerHTML = `
-        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-             class="mr-3 rounded-full flex-shrink-0"
-             style="width: 36px; height: 36px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
-        <div class="bg-white rounded-lg p-4 shadow-sm" style="border: 1px solid var(--eia-border);">
-            <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA</p>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span class="eia-spinner"></span>
-                <span class="text-sm text-slate-700">Analizando tu problema…</span>
-            </div>
+
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = 'gpt-avatar-badge mr-3 flex-shrink-0';
+    avatarDiv.setAttribute('data-gpt-avatar');
+    avatarDiv.setAttribute('data-avatar-mode', 'full');
+    avatarDiv.setAttribute('data-fallback-src', '{{ asset("storage/img/persona_logo.png") }}');
+    avatarDiv.style.width = '36px';
+    avatarDiv.style.height = '36px';
+
+    const bubbleDiv = document.createElement('div');
+    bubbleDiv.className = 'bg-white rounded-lg p-4 shadow-sm';
+    bubbleDiv.style.border = '1px solid var(--eia-border)';
+    bubbleDiv.innerHTML = `
+        <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA</p>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span class="eia-spinner"></span>
+            <span class="text-sm text-slate-700">Analizando tu problema…</span>
         </div>
     `;
+
+    loadingDiv.appendChild(avatarDiv);
+    loadingDiv.appendChild(bubbleDiv);
     chatContainer.appendChild(loadingDiv);
+
+    // Montar el avatar
+    GPTAvatar.mount(avatarDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     fetch('{{ route("tech-support.interact", [], false) }}', {
@@ -1165,6 +1253,8 @@ function submitAiResolve() {
     .then(data => {
         const loader = document.getElementById('ai-resolve-loading');
         if (loader) loader.remove();
+
+        GPTAvatar.setState('idle');
 
         if (data.success && data.answer) {
             addMessageToChat('bot', data.answer);
@@ -1276,22 +1366,38 @@ function restartChat() {
     currentStep = 'categories';
     currentCategory = null;
 
-    document.getElementById('tech-support-chat').innerHTML = `
-        <div class="flex items-start mb-4">
-            <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-                 class="mr-3 rounded-full flex-shrink-0"
-                 style="width: 40px; height: 40px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
-            <div class="bg-white rounded-lg p-4 shadow-sm max-w-md" style="border: 1px solid var(--eia-border);">
-                <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA · Asistente</p>
-                <p class="text-slate-800">
-                    ¡Hola de nuevo! Soy EVIA, tu asistente de soporte. Estoy aquí para ayudarte con cualquier problema técnico.
-                </p>
-                <p class="text-slate-800 mt-2">
-                    <strong>¿Con qué puedo ayudarte hoy?</strong>
-                </p>
-            </div>
-        </div>
+    const chatEl = document.getElementById('tech-support-chat');
+    chatEl.innerHTML = '';
+    const initDiv = document.createElement('div');
+    initDiv.className = 'flex items-start mb-4';
+
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = 'gpt-avatar-badge mr-3 flex-shrink-0';
+    avatarDiv.setAttribute('data-gpt-avatar');
+    avatarDiv.setAttribute('data-avatar-mode', 'full');
+    avatarDiv.setAttribute('data-fallback-src', '{{ asset("storage/img/persona_logo.png") }}');
+    avatarDiv.style.width = '40px';
+    avatarDiv.style.height = '40px';
+
+    const bubbleDiv = document.createElement('div');
+    bubbleDiv.className = 'bg-white rounded-lg p-4 shadow-sm max-w-md';
+    bubbleDiv.style.border = '1px solid var(--eia-border)';
+    bubbleDiv.innerHTML = `
+        <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA · Asistente</p>
+        <p class="text-slate-800">
+            ¡Hola de nuevo! Soy EVIA, tu asistente de soporte. Estoy aquí para ayudarte con cualquier problema técnico.
+        </p>
+        <p class="text-slate-800 mt-2">
+            <strong>¿Con qué puedo ayudarte hoy?</strong>
+        </p>
     `;
+
+    initDiv.appendChild(avatarDiv);
+    initDiv.appendChild(bubbleDiv);
+    chatEl.appendChild(initDiv);
+
+    // Montar el avatar
+    GPTAvatar.mount(avatarDiv);
 
     document.getElementById('escalate-to-it').style.display = 'none';
     document.getElementById('mark-resolved').style.display = 'none';

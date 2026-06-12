@@ -21,14 +21,14 @@
         }
 
         /* Avatar EVIA en header */
-        .evia-avatar-lg {
-            width: 40px; height: 40px;
+        /* Avatar GPT — robot 3D dentro del badge circular */
+        .gpt-avatar-badge {
             border-radius: 50%;
-            object-fit: cover;
-            background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%);
-            border: 1.5px solid var(--eia-gold);
-            box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.22);
+            background: #F3F4F6;
+            border: none;
+            overflow: hidden;
             flex-shrink: 0;
+            position: relative;
         }
         .evia-avatar-wrap {
             position: relative;
@@ -41,6 +41,23 @@
             background: #10B981;
             border: 2px solid #0F1419;
             border-radius: 50%;
+            z-index: 2;
+        }
+        .avatar-profile-btn {
+            padding: 6px 10px;
+            font-size: 14px;
+            line-height: 1;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            cursor: pointer;
+            transition: all .2s ease;
+            color: #FFFFFF;
+        }
+        .avatar-profile-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: var(--eia-gold); }
+        .avatar-profile-btn.active {
+            background: rgba(217, 119, 6, 0.2);
+            border-color: var(--eia-gold);
         }
         .evia-headline {
             display: inline-flex;
@@ -250,7 +267,7 @@
             width: 22px; height: 22px;
             border-radius: 50%;
             object-fit: cover;
-            background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%);
+            background: #F3F4F6;
             border: 1.5px solid var(--eia-gold);
             box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);
         }
@@ -510,14 +527,20 @@
                         </svg>
                     </a>
                     <div class="evia-avatar-wrap">
-                        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA" class="evia-avatar-lg">
+                        <div class="gpt-avatar-badge" data-gpt-avatar data-avatar-mode="full"
+                             data-fallback-src="{{ asset('storage/img/persona_logo.png') }}"
+                             style="width: 52px; height: 52px;" aria-label="EVIA"></div>
                     </div>
-                    <div>
+                    <div style="flex: 1;">
                         <span class="chat-eyebrow">Asistente </span>
                         <div class="evia-headline mt-1">
                             <span class="evia-headline-sub">EVIA</span>
                         </div>
                         <p class="text-xs text-slate-300 mt-1.5">Hola, soy EVIA. Estoy aquí para ayudarte a encontrar lo que necesites.</p>
+                    </div>
+                    <div id="chat-avatar-profile-toggle" style="display: flex; flex-direction: column; gap: 8px;">
+                        <button type="button" class="avatar-profile-btn" data-profile="field" title="Perfil de campo (EPP)" aria-label="Perfil de campo">⛑️</button>
+                        <button type="button" class="avatar-profile-btn" data-profile="exec" title="Perfil ejecutivo" aria-label="Perfil ejecutivo">👔</button>
                     </div>
                 </div>
 
@@ -620,7 +643,7 @@
                                 <span>Tú</span>
                                 <span class="sender-dot user"></span>
                             @else
-                                <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA" class="evia-avatar-sm">
+                                <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA" class="evia-avatar-sm evia-avatar-snapshot">
                                 <span class="evia-name">EVIA</span>
                                 <span class="evia-name-meta">· Asistente</span>
                             @endif
@@ -682,9 +705,9 @@
                 </div>
             @empty
                 <div class="chat-empty">
-                    <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-                         class="mx-auto mb-4 rounded-full"
-                         style="width: 84px; height: 84px; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 2px solid var(--eia-gold); box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.18), 0 12px 32px -8px rgba(15, 20, 25, 0.4);">
+                    <div class="gpt-avatar-badge mx-auto mb-4" data-gpt-avatar data-avatar-mode="full"
+                         data-fallback-src="{{ asset('storage/img/persona_logo.png') }}"
+                         style="width: 84px; height: 84px;" aria-label="EVIA"></div>
                     <p class="text-[10px] uppercase tracking-[0.22em] font-bold mb-2" style="color: var(--eia-gold);">Hola, soy EVIA</p>
                     <p class="text-base font-semibold text-slate-900 mb-1">¿En qué te puedo ayudar hoy?</p>
                     <p class="text-sm text-slate-500 max-w-md mx-auto">Escríbeme una pregunta, adjunta un documento o pídeme que busque algo en la información corporativa.</p>
@@ -862,71 +885,98 @@
         </div>
     </div>
 
-@script
+@push('scripts')
+<script src="{{ asset('js/gpt-avatar.js') }}"></script>
 <script>
-    // Auto-scroll
-    document.addEventListener('livewire:updated', () => {
-        setTimeout(() => {
-            const container = document.getElementById('messages-container');
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* ---- Avatar 3D ---- */
+    document.querySelectorAll('[data-gpt-avatar]').forEach(function (el) {
+        GPTAvatar.mount(el);
+    });
+
+    /* ---- Toggle perfil (campo / ejecutivo) ---- */
+    var toggleButtons = document.querySelectorAll('#chat-avatar-profile-toggle .avatar-profile-btn');
+    function refreshProfileButtons() {
+        toggleButtons.forEach(function (btn) {
+            btn.classList.toggle('active', btn.dataset.profile === GPTAvatar.getProfile());
+        });
+    }
+    toggleButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            GPTAvatar.setProfile(this.dataset.profile);
+            refreshProfileButtons();
+        });
+    });
+    refreshProfileButtons();
+
+    /* ---- Estado del robot sincronizado con peticiones Livewire ---- */
+    document.addEventListener('livewire:request', function () {
+        GPTAvatar.setState('thinking');
+    });
+    document.addEventListener('livewire:response', function () {
+        GPTAvatar.setState('idle');
+    });
+
+    /* ---- Auto-scroll + re-montar empty-state badge + propagar snapshot ---- */
+    document.addEventListener('livewire:updated', function () {
+        setTimeout(function () {
+            var container = document.getElementById('messages-container');
             if (container) container.scrollTop = container.scrollHeight;
-        }, 100);
+
+            // Re-montar solo si apareció un badge 3D nuevo (ej. empty state)
+            document.querySelectorAll('[data-gpt-avatar]').forEach(function (el) {
+                GPTAvatar.mount(el);
+            });
+
+            // Aplicar snapshot actual a los sender-labels nuevos
+            var snap = GPTAvatar.getSnapshotUrl();
+            if (snap) {
+                document.querySelectorAll('.evia-avatar-snapshot').forEach(function (img) {
+                    if (img.src !== snap) img.src = snap;
+                });
+            }
+        }, 80);
     });
 
-    $wire.on('chatCleared', () => {
-        setTimeout(() => {
-            const input = document.querySelector('input[wire\\:model\\.live="message"]');
-            if (input) input.focus();
-        }, 100);
-    });
-
-    window.openImageModal = function(imageUrl, imageName) {
-        const modal = document.getElementById('imageModal');
-        const modalImage = document.getElementById('modalImage');
-        const modalImageName = document.getElementById('modalImageName');
+    /* ---- Modal de imagen ---- */
+    window.openImageModal = function (imageUrl, imageName) {
+        var modal = document.getElementById('imageModal');
+        var modalImage = document.getElementById('modalImage');
+        var modalImageName = document.getElementById('modalImageName');
         modalImage.src = imageUrl;
         modalImage.alt = imageName;
         modalImageName.textContent = imageName;
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
-
-        const handleEscape = function(e) {
-            if (e.key === 'Escape') {
-                closeImageModal();
-                document.removeEventListener('keydown', handleEscape);
-            }
-        };
-        document.addEventListener('keydown', handleEscape);
+        document.addEventListener('keydown', function escHandler(e) {
+            if (e.key === 'Escape') { closeImageModal(); document.removeEventListener('keydown', escHandler); }
+        });
     };
-
-    window.closeImageModal = function() {
-        const modal = document.getElementById('imageModal');
+    window.closeImageModal = function () {
+        var modal = document.getElementById('imageModal');
         modal.classList.add('hidden');
         modal.style.display = 'none';
     };
-
-    document.getElementById('imageModal').addEventListener('click', function(e) {
+    document.getElementById('imageModal').addEventListener('click', function (e) {
         if (e.target === this) closeImageModal();
     });
 
-    Livewire.on('messageSent', () => {
-        const input = document.getElementById('messageInput');
-        if (input) { input.value = ''; input.focus(); }
+    /* ---- Limpiar input tras enviar ---- */
+    window.addEventListener('livewire:initialized', function () {
+        Livewire.on('messageSent', function () {
+            var inp = document.getElementById('messageInput');
+            if (inp) { inp.value = ''; inp.focus(); }
+        });
+        Livewire.on('chatCleared', function () {
+            setTimeout(function () {
+                var inp = document.querySelector('input[wire\\:model\\.live="message"]');
+                if (inp) inp.focus();
+            }, 100);
+        });
     });
 
-    const input = document.getElementById('messageInput');
-    if (input) {
-        const form = input.closest('form');
-        if (form) {
-            form.addEventListener('submit', () => {
-                setTimeout(() => { input.value = ''; input.focus(); }, 50);
-            });
-        }
-    }
-
-    Livewire.hook('message.sent', () => {
-        const inp = document.getElementById('messageInput');
-        if (inp) { inp.value = ''; inp.focus(); }
-    });
+});
 </script>
-@endscript
+@endpush
 </div>

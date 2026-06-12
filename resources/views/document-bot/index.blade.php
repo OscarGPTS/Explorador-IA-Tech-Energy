@@ -437,6 +437,33 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* Avatar GPT — robot 3D dentro del badge circular */
+    .gpt-avatar-badge {
+        border-radius: 50%;
+        background: #F3F4F6;
+        border: none;
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+    }
+    .avatar-profile-btn {
+        padding: 6px 10px;
+        font-size: 14px;
+        line-height: 1;
+        border-radius: 8px;
+        background: #FFFFFF;
+        border: 1px solid var(--eia-border);
+        cursor: pointer;
+        transition: all .2s ease;
+        color: var(--eia-slate);
+    }
+    .avatar-profile-btn:hover { background: #F3F4F6; border-color: #9CA3AF; }
+    .avatar-profile-btn.active {
+        background: #E5E7EB;
+        border-color: #D1D5DB;
+        color: var(--eia-slate);
+    }
+
     /* Fade-in */
     .eia-fade { animation: eiaFade .55s ease-out both; }
     .eia-d1 { animation-delay: .05s; }
@@ -454,7 +481,7 @@
 
     {{-- HERO --}}
     <section class="doc-hero px-4 sm:px-8 lg:px-12 py-10">
-        <div class="max-w-7xl mx-auto flex items-start justify-between gap-6 flex-wrap">
+        <div class="flex items-start justify-between gap-6 flex-wrap">
             <div class="flex items-center gap-4">
                 <a href="/" class="doc-back" aria-label="Volver al inicio">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -489,7 +516,7 @@
 
     {{-- BODY --}}
     <div class="px-4 sm:px-8 lg:px-12 py-8">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             {{-- LEFT --}}
             <div class="lg:col-span-1 space-y-6">
@@ -573,11 +600,18 @@
                 {{-- Consulta --}}
                 <section class="doc-panel eia-fade eia-d2">
                     <div class="doc-panel-head" style="display: flex; align-items: center; gap: 14px;">
-                        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-                             style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.18); flex-shrink: 0;">
                         <div>
                             <p class="doc-panel-title" style="letter-spacing: 0.18em;">EVIA · Consulta documental</p>
                             <p class="doc-panel-sub">Dime qué necesitas saber, yo busco en tus documentos.</p>
+                        </div>
+                        <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                            <div id="avatar-profile-toggle" style="display: flex; flex-direction: column; gap: 6px;">
+                                <button type="button" class="avatar-profile-btn" data-profile="field" title="Perfil de campo (EPP)" aria-label="Perfil de campo">⛑️</button>
+                                <button type="button" class="avatar-profile-btn" data-profile="exec" title="Perfil ejecutivo" aria-label="Perfil ejecutivo">👔</button>
+                            </div>
+                            <div class="gpt-avatar-badge" data-gpt-avatar data-avatar-mode="full"
+                                 data-fallback-src="{{ asset('storage/img/persona_logo.png') }}"
+                                 style="width: 60px; height: 60px;" aria-label="EVIA"></div>
                         </div>
                     </div>
                     <div class="doc-panel-body">
@@ -619,11 +653,17 @@
                     <div class="doc-panel-body">
                         <div class="doc-result-head">
                             <span class="doc-result-title" style="display: inline-flex; align-items: center; gap: 10px;">
-                                <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-                                     style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
+                                <div class="gpt-avatar-badge" data-gpt-avatar data-avatar-mode="full"
+                                     data-fallback-src="{{ asset('storage/img/persona_logo.png') }}"
+                                     style="width: 32px; height: 32px;" aria-label="EVIA"></div>
                                 EVIA responde
                             </span>
-                            <span id="response-time" class="text-xs text-slate-500 font-mono"></span>
+                            <span style="display: inline-flex; align-items: center; gap: 10px;">
+                                <button type="button" id="btn-read-response" class="doc-action-btn" title="Leer respuesta en voz alta">
+                                    <i class="fas fa-volume-up text-xs"></i>
+                                </button>
+                                <span id="response-time" class="text-xs text-slate-500 font-mono"></span>
+                            </span>
                         </div>
                         <div id="response-content" class="doc-result-content"></div>
                     </div>
@@ -632,8 +672,9 @@
                 {{-- Loading --}}
                 <div id="loading-indicator" class="doc-panel hidden">
                     <div class="doc-panel-body flex items-center justify-center gap-3 py-6">
-                        <img src="{{ asset('storage/img/persona_logo.png') }}" alt="EVIA"
-                             style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, #0F1419 0%, #1F2937 100%); border: 1.5px solid var(--eia-gold); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.15);">
+                        <div class="gpt-avatar-badge" data-gpt-avatar data-avatar-mode="full"
+                             data-fallback-src="{{ asset('storage/img/persona_logo.png') }}"
+                             style="width: 32px; height: 32px;" aria-label="EVIA"></div>
                         <span class="text-sm text-slate-700 font-medium">EVIA está revisando los documentos…</span>
                         <div class="eia-spinner"></div>
                     </div>
@@ -660,6 +701,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/gpt-avatar.js') }}"></script>
 <script>
     let selectedDocumentId = null;
     let selectedDocumentName = '';
@@ -672,7 +714,42 @@
         setupDeepReasoningToggle();
         setupClearDocumentButton();
         updateQueryModeDescription();
+        setupGptAvatar();
     });
+
+    /* ---------- Avatar GPT ---------- */
+    function setupGptAvatar() {
+        document.querySelectorAll('[data-gpt-avatar]').forEach(el => GPTAvatar.mount(el));
+
+        // Toggle de perfil (campo / ejecutivo), persiste entre servicios
+        const toggleButtons = document.querySelectorAll('#avatar-profile-toggle .avatar-profile-btn');
+        function refreshProfileButtons() {
+            toggleButtons.forEach(btn =>
+                btn.classList.toggle('active', btn.dataset.profile === GPTAvatar.getProfile()));
+        }
+        toggleButtons.forEach(btn => btn.addEventListener('click', function() {
+            GPTAvatar.setProfile(this.dataset.profile);
+            refreshProfileButtons();
+        }));
+        refreshProfileButtons();
+
+        // Leer la respuesta en voz alta (la boca del robot se sincroniza)
+        const btnRead = document.getElementById('btn-read-response');
+        const readIcon = btnRead.querySelector('i');
+        let reading = false;
+        function setReadingUI(active) {
+            reading = active;
+            readIcon.className = active ? 'fas fa-stop text-xs' : 'fas fa-volume-up text-xs';
+            btnRead.title = active ? 'Detener lectura' : 'Leer respuesta en voz alta';
+        }
+        btnRead.addEventListener('click', function() {
+            if (reading) { GPTAvatar.stop(); return; }
+            const text = document.getElementById('response-content').textContent.trim();
+            if (!text) return;
+            setReadingUI(true);
+            GPTAvatar.speak(text, { onend: () => setReadingUI(false) });
+        });
+    }
 
     function setupDeepReasoningToggle() {
         const checkbox = document.getElementById('deep-reasoning');
@@ -860,6 +937,8 @@
         showLoading();
         hideResults();
         hideError();
+        GPTAvatar.stop();
+        GPTAvatar.setState('thinking');
 
         try {
             let endpoint, payload;
@@ -883,6 +962,7 @@
 
             const result = await response.json();
             hideLoading();
+            GPTAvatar.setState('idle');
 
             if (result.success && result.data) {
                 displayResults(result.data);
@@ -891,6 +971,7 @@
             }
         } catch (error) {
             hideLoading();
+            GPTAvatar.setState('idle');
             showError('Error de conexión: ' + error.message);
             console.error('Error:', error);
         }
