@@ -513,6 +513,90 @@
             background: var(--eia-red);
             border-color: var(--eia-red);
         }
+
+        /* ---- Markdown renderizado (respuestas del bot) ---- */
+        .md-content { color: var(--eia-black); word-wrap: break-word; overflow-wrap: anywhere; }
+        .md-content > *:first-child { margin-top: 0; }
+        .md-content > *:last-child { margin-bottom: 0; }
+        .md-content p { margin: 0 0 10px; line-height: 1.6; }
+        .md-content h1,
+        .md-content h2,
+        .md-content h3,
+        .md-content h4 {
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 16px 0 8px;
+            color: var(--eia-black);
+        }
+        .md-content h1 { font-size: 1.25rem; }
+        .md-content h2 { font-size: 1.15rem; }
+        .md-content h3 { font-size: 1.05rem; }
+        .md-content h4 { font-size: 0.95rem; }
+        .md-content strong { font-weight: 700; color: var(--eia-black); }
+        .md-content em { font-style: italic; }
+        .md-content ul,
+        .md-content ol { margin: 0 0 10px; padding-left: 1.35em; }
+        .md-content ul { list-style: disc; }
+        .md-content ol { list-style: decimal; }
+        .md-content li { margin: 4px 0; line-height: 1.55; }
+        .md-content li > ul,
+        .md-content li > ol { margin: 4px 0 4px; }
+        .md-content a {
+            color: var(--eia-red);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .md-content a:hover { color: #7F1D1D; }
+        .md-content blockquote {
+            margin: 0 0 10px;
+            padding: 6px 14px;
+            border-left: 3px solid var(--eia-gold);
+            background: #FFFBEB;
+            color: var(--eia-slate);
+            border-radius: 0 8px 8px 0;
+        }
+        .md-content code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.85em;
+            background: #F1F5F9;
+            border: 1px solid var(--eia-border);
+            border-radius: 5px;
+            padding: 1px 5px;
+        }
+        .md-content pre {
+            margin: 0 0 10px;
+            padding: 12px 14px;
+            background: #0F1419;
+            color: #E2E8F0;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+        .md-content pre code {
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+        .md-content hr {
+            border: none;
+            border-top: 1px solid var(--eia-border);
+            margin: 14px 0;
+        }
+        .md-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 10px;
+            font-size: 0.85rem;
+        }
+        .md-content th,
+        .md-content td {
+            border: 1px solid var(--eia-border);
+            padding: 6px 10px;
+            text-align: left;
+        }
+        .md-content th { background: #F8FAFC; font-weight: 700; }
     </style>
 
     <div class="chat-shell">
@@ -696,7 +780,16 @@
                             @endif
 
                             @if($msg['message'])
-                                <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ $msg['message'] }}</p>
+                                @if($msg['emisor_id'] == auth()->id())
+                                    <p class="text-sm whitespace-pre-wrap leading-relaxed">{{ $msg['message'] }}</p>
+                                @else
+                                    <div class="md-content text-sm leading-relaxed">
+                                        {!! \Illuminate\Support\Str::markdown($msg['message'], [
+                                            'html_input' => 'strip',
+                                            'allow_unsafe_links' => false,
+                                        ]) !!}
+                                    </div>
+                                @endif
                             @endif
 
                             <p class="message-time">{{ \Carbon\Carbon::parse($msg['created_at'])->format('H:i') }}</p>
