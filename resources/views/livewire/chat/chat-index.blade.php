@@ -15,9 +15,10 @@
 
         .chat-shell {
             background: var(--eia-bg);
-            min-height: calc(100vh - 60px);
+            height: calc(100vh - 64px);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         /* Avatar EVIA en header */
@@ -239,6 +240,7 @@
         /* Messages container */
         .messages-area {
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
             padding: 28px;
             background: #FFFFFF;

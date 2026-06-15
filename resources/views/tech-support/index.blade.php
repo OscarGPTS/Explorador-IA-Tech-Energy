@@ -988,7 +988,7 @@ function displaySolution(solution) {
 
     const avatarDiv = document.createElement('div');
     avatarDiv.className = 'gpt-avatar-badge mr-3 flex-shrink-0';
-    avatarDiv.setAttribute('data-gpt-avatar');
+    avatarDiv.setAttribute('data-gpt-avatar', '');
     avatarDiv.setAttribute('data-avatar-mode', 'full');
     avatarDiv.setAttribute('data-fallback-src', '{{ asset("storage/img/persona_logo.png") }}');
     avatarDiv.style.width = '40px';
@@ -1036,7 +1036,7 @@ function addMessageToChat(sender, message) {
     if (sender === 'bot') {
         const avatarDiv = document.createElement('div');
         avatarDiv.className = 'gpt-avatar-badge mr-3 flex-shrink-0';
-        avatarDiv.setAttribute('data-gpt-avatar');
+        avatarDiv.setAttribute('data-gpt-avatar', '');
         avatarDiv.setAttribute('data-avatar-mode', 'full');
         avatarDiv.setAttribute('data-fallback-src', '{{ asset("storage/img/persona_logo.png") }}');
         avatarDiv.style.width = '36px';
@@ -1212,7 +1212,7 @@ function submitAiResolve() {
 
     const avatarDiv = document.createElement('div');
     avatarDiv.className = 'gpt-avatar-badge mr-3 flex-shrink-0';
-    avatarDiv.setAttribute('data-gpt-avatar');
+    avatarDiv.setAttribute('data-gpt-avatar', '');
     avatarDiv.setAttribute('data-avatar-mode', 'full');
     avatarDiv.setAttribute('data-fallback-src', '{{ asset("storage/img/persona_logo.png") }}');
     avatarDiv.style.width = '36px';
@@ -1373,7 +1373,7 @@ function restartChat() {
 
     const avatarDiv = document.createElement('div');
     avatarDiv.className = 'gpt-avatar-badge mr-3 flex-shrink-0';
-    avatarDiv.setAttribute('data-gpt-avatar');
+    avatarDiv.setAttribute('data-gpt-avatar', '');
     avatarDiv.setAttribute('data-avatar-mode', 'full');
     avatarDiv.setAttribute('data-fallback-src', '{{ asset("storage/img/persona_logo.png") }}');
     avatarDiv.style.width = '40px';

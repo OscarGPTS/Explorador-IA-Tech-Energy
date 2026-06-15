@@ -328,7 +328,11 @@ class TechSupportController extends Controller
                     ['role' => 'user', 'content' => $problem],
                 ],
                 [
-                'max_tokens' => 350,
+                // deepseek-v4-flash es un modelo de razonamiento: los reasoning_tokens
+                // se descuentan de max_tokens. Con un presupuesto bajo (350) el modelo
+                // agota el límite "pensando" y devuelve content vacío -> 500.
+                // Se sube para garantizar espacio para la respuesta final.
+                'max_tokens' => 1500,
                 'temperature' => 0.3,
                 ]
             );
@@ -349,7 +353,9 @@ class TechSupportController extends Controller
                     'user_id' => auth()->id(),
                     'user_message' => $problem,
                     'bot_response' => $answer,
-                    'problem_category' => 'ai_resolve',
+                    // 'problem_category' es un ENUM acotado; el origen real (ai_resolve)
+                    // se conserva en context_data['source'].
+                    'problem_category' => 'other',
                     'problem_solved' => false,
                     'escalated_to_human' => false,
                     'context_data' => [
