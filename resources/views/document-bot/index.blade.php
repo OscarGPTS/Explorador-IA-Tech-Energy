@@ -181,6 +181,37 @@
     .doc-action-btn.preview:hover { background: var(--eia-red); border-color: var(--eia-red); }
     .doc-action-btn.download:hover { background: var(--eia-gold); border-color: var(--eia-gold); }
 
+    /* Botón de consulta por voz */
+    .doc-voice-btn {
+        flex-shrink: 0;
+        width: 46px; height: 46px;
+        border-radius: 10px;
+        border: 1px solid var(--eia-border);
+        background: #FFFFFF;
+        color: var(--eia-slate);
+        display: inline-flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all .2s ease;
+    }
+    .doc-voice-btn:hover {
+        border-color: var(--eia-black);
+        color: var(--eia-black);
+        box-shadow: 0 0 0 3px rgba(15, 20, 25, 0.06);
+    }
+    .doc-voice-btn:disabled { opacity: .55; cursor: not-allowed; }
+    .doc-voice-btn.recording {
+        background: linear-gradient(145deg, #DC2626 0%, #991B1B 100%);
+        border-color: #991B1B;
+        color: #FFFFFF;
+        animation: doc-voice-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes doc-voice-pulse {
+        0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+        70%  { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+
     /* Form inputs */
     .eia-input,
     .eia-textarea {
@@ -638,12 +669,19 @@
                             <textarea id="question-input" rows="4" required class="eia-textarea"
                                       placeholder="¿Qué información necesitas obtener de los documentos?"></textarea>
 
-                            <button type="submit" id="submit-btn" class="btn-eia-primary mt-4">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 5l7 7-7 7"/>
-                                </svg>
-                                <span id="submit-text">Enviar consulta</span>
-                            </button>
+                            <div class="mt-4 flex items-center gap-3">
+                                <button type="button" id="btn-voice-query" class="doc-voice-btn"
+                                        title="Preguntar por voz" aria-label="Preguntar por voz">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button type="submit" id="submit-btn" class="btn-eia-primary" style="margin-top:0;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 5l7 7-7 7"/>
+                                    </svg>
+                                    <span id="submit-text">Enviar consulta</span>
+                                </button>
+                            </div>
+                            <p id="voice-status" class="text-xs mt-2" style="color: var(--eia-mute); min-height: 16px;"></p>
                         </form>
                     </div>
                 </section>
@@ -715,6 +753,7 @@
         setupClearDocumentButton();
         updateQueryModeDescription();
         setupGptAvatar();
+        setupVoiceInput();
     });
 
     /* ---------- Avatar GPT ---------- */
@@ -748,6 +787,112 @@
             if (!text) return;
             setReadingUI(true);
             GPTAvatar.speak(text, { onend: () => setReadingUI(false) });
+        });
+    }
+
+    /* ---------- Consulta por voz ----------
+       Graba audio en el navegador, lo transcribe con el servicio de voz
+       (voz.consulta, solo texto) y coloca la transcripción en el textarea
+       para enviarla por el flujo normal de document-bot (respeta documento
+       seleccionado y razonamiento profundo). */
+    function setupVoiceInput() {
+        const btnVoice = document.getElementById('btn-voice-query');
+        const voiceStatus = document.getElementById('voice-status');
+        const questionInput = document.getElementById('question-input');
+        if (!btnVoice) return;
+
+        // Sin soporte de grabación: ocultar el botón en vez de fallar.
+        if (!navigator.mediaDevices || !window.MediaRecorder) {
+            btnVoice.style.display = 'none';
+            return;
+        }
+
+        const micIcon = btnVoice.querySelector('i');
+        let mediaRecorder = null;
+        let chunks = [];
+        let stream = null;
+        let recording = false;
+
+        function setStatus(text) { voiceStatus.textContent = text || ''; }
+        function setRecordingUI(active) {
+            recording = active;
+            btnVoice.classList.toggle('recording', active);
+            if (micIcon) micIcon.className = active ? 'fas fa-stop' : 'fas fa-microphone';
+            btnVoice.title = active ? 'Detener y enviar' : 'Preguntar por voz';
+        }
+
+        async function startRecording() {
+            setStatus('');
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (e) {
+                setStatus('No se pudo acceder al micrófono: ' + e.message);
+                return;
+            }
+            const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+            mediaRecorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+            chunks = [];
+            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+            mediaRecorder.onstop = onRecordingStop;
+            mediaRecorder.start();
+            setRecordingUI(true);
+            setStatus('Grabando… pulsa de nuevo para enviar.');
+        }
+
+        function stopRecording() {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+            mediaRecorder.stop();
+            setRecordingUI(false);
+        }
+
+        async function onRecordingStop() {
+            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            const blob = new Blob(chunks, { type: 'audio/webm' });
+            if (blob.size === 0) {
+                setStatus('No se capturó audio. Intenta de nuevo.');
+                return;
+            }
+            await transcribeAndSubmit(blob);
+        }
+
+        async function transcribeAndSubmit(blob) {
+            btnVoice.disabled = true;
+            setStatus('Transcribiendo tu pregunta…');
+
+            const form = new FormData();
+            form.append('file', blob, 'pregunta.webm');
+            form.append('formato_respuesta', 'texto'); // solo texto: no necesitamos audio TTS
+
+            try {
+                const resp = await fetch('{{ route("voz.consulta", [], false) }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                    body: form
+                });
+                const result = await resp.json();
+                const texto = result.success && result.data
+                    ? (result.data.pregunta_transcrita || '').trim()
+                    : '';
+
+                if (!texto) {
+                    setStatus(result.error || result.message || 'No se entendió el audio. Intenta de nuevo.');
+                    return;
+                }
+
+                questionInput.value = texto;
+                setStatus('');
+                // Enviar por el flujo normal de consulta documental.
+                document.getElementById('query-form').requestSubmit();
+            } catch (e) {
+                setStatus('Error de conexión con el servicio de voz: ' + e.message);
+            } finally {
+                btnVoice.disabled = false;
+            }
+        }
+
+        btnVoice.addEventListener('click', () => {
+            if (recording) stopRecording();
+            else startRecording();
         });
     }
 
