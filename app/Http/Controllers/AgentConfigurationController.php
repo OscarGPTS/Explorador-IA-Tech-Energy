@@ -259,6 +259,7 @@ class AgentConfigurationController extends Controller
     {
         $validated = $request->validate([
             'provider' => ['required', 'string', Rule::in($this->aiProviderService->getSupportedProviders())],
+            'model' => ['nullable', 'string'],
         ]);
 
         $summary = $this->aiProviderService->getProviderSummary();
@@ -271,7 +272,23 @@ class AgentConfigurationController extends Controller
             ], 422);
         }
 
+        // Validar el modelo (si se envió) contra el catálogo del proveedor.
+        if (! empty($validated['model'])) {
+            $availableModels = $providerConfig['models'] ?? [];
+
+            if (! empty($availableModels) && ! array_key_exists($validated['model'], $availableModels)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'El modelo seleccionado no está disponible para este proveedor.',
+                ], 422);
+            }
+        }
+
         $this->aiProviderService->setActiveProvider($validated['provider']);
+
+        if (! empty($validated['model'])) {
+            $this->aiProviderService->setActiveModel($validated['provider'], $validated['model']);
+        }
 
         return response()->json([
             'success' => true,

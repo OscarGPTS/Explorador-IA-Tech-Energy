@@ -1028,7 +1028,24 @@ function showActionButtons() {
     document.getElementById('mark-resolved').style.display = 'inline-flex';
 }
 
-function addMessageToChat(sender, message) {
+// Mapa id-de-modelo => etiqueta visible (de config/ai.php)
+const AI_MODEL_LABELS = @json(collect(config('ai.providers', []))->flatMap(fn ($p) => $p['models'] ?? [])->all());
+
+function modelTagHtml(model) {
+    if (!model) return '';
+    const label = AI_MODEL_LABELS[model] || model;
+    return `
+        <div style="margin-top:8px;">
+            <span title="Modelo que generó esta respuesta"
+                  style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;background:#F1F5F9;border:1px solid var(--eia-border);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--eia-slate);">
+                <span style="width:5px;height:5px;border-radius:50%;background:var(--eia-gold,#D97706);"></span>
+                ${label}
+            </span>
+        </div>
+    `;
+}
+
+function addMessageToChat(sender, message, model) {
     const chatContainer = document.getElementById('tech-support-chat');
     const messageDiv = document.createElement('div');
     messageDiv.className = `flex items-start mb-4 ${sender === 'user' ? 'justify-end' : ''}`;
@@ -1048,6 +1065,7 @@ function addMessageToChat(sender, message) {
         bubbleDiv.innerHTML = `
             <p class="text-[10px] uppercase tracking-[0.18em] font-bold mb-2" style="color: var(--eia-red);">EVIA</p>
             <p class="text-slate-800 whitespace-pre-line">${message}</p>
+            ${modelTagHtml(model)}
         `;
 
         messageDiv.appendChild(avatarDiv);
@@ -1257,7 +1275,7 @@ function submitAiResolve() {
         GPTAvatar.setState('idle');
 
         if (data.success && data.answer) {
-            addMessageToChat('bot', data.answer);
+            addMessageToChat('bot', data.answer, data.model);
             showActionButtons();
             // Permitir nueva consulta
             setTimeout(() => offerFollowUp(), 600);

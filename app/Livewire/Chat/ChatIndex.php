@@ -94,6 +94,7 @@ class ChatIndex extends Component
                     'emisor_id' => $chat->emisor_id,
                     'receiver' => $chat->receiver,
                     'created_at' => $chat->created_at,
+                    'model' => $chat->model,
                     'emisor_name' => $chat->emisor ? $chat->emisor->name : 'IA',
                     'files' => $chat->files->map(function($file) {
                         return [
@@ -516,8 +517,16 @@ class ChatIndex extends Component
             'messages_count' => count($messages)
         ]);
 
+        // deepseek-v4-flash (proveedor opencode) es un modelo de razonamiento:
+        // los reasoning_tokens se descuentan de max_tokens. Con un presupuesto bajo
+        // (300/500) el modelo agota el límite "pensando" y devuelve content vacío,
+        // lo que provoca "La respuesta del proveedor de IA no contiene contenido
+        // utilizable.". Subimos los defaults y aplicamos un piso para que siempre
+        // quede espacio a la respuesta final.
+        $configuredMaxTokens = $this->currentAgentConfig['max_tokens'] ?? ($hasImages ? 1500 : 2000);
+
         return $providerService->createChatCompletion($messages, [
-            'max_tokens' => $this->currentAgentConfig['max_tokens'] ?? ($hasImages ? 300 : 500),
+            'max_tokens' => max((int) $configuredMaxTokens, 1500),
             'temperature' => $this->currentAgentConfig['temperature'] ?? 0.7,
         ]);
     }
@@ -712,6 +721,18 @@ class ChatIndex extends Component
             if (!empty($customPrompt)) {
                 $systemPrompt .= "\n\nInstrucciones adicionales personalizadas: " . $customPrompt;
             }
+
+            // Identidad y reglas globales de EVIA (aplican a todos los agentes/roles)
+            $identityPrompt = "Tu nombre es EVIA, el asistente de inteligencia artificial de la organización. "
+                . "Cuando te saluden o te pregunten quién eres, preséntate siempre como EVIA. "
+                . "NUNCA menciones ni reveles el proveedor, la empresa, la plataforma ni el modelo de IA que te da soporte "
+                . "(por ejemplo DeepSeek, OpenAI, u otros); si te lo preguntan, responde con amabilidad que simplemente eres EVIA, "
+                . "el asistente de la organización. "
+                . "Mantén siempre un tono cercano, amigable, cálido y cercano. "
+                . "El nombre del usuario con el que estás hablando es \"{$userName}\"; dirígete a él por su nombre de forma "
+                . "natural cuando sea apropiado, especialmente al saludar.";
+
+            $systemPrompt = $identityPrompt . "\n\n" . $systemPrompt;
             
             $messages = [
                 [
@@ -761,6 +782,7 @@ class ChatIndex extends Component
                 'emisor_id' => null, // null para que se muestre como IA
                 'receiver' => Auth::id(),
                 'chatgroup_id' => $this->chatgroup_id,
+                'model' => $response['model'] ?? null,
             ]);
 
             Log::info('Respuesta de IA guardada', ['ai_message_id' => $aiMessage->id]);

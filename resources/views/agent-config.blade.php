@@ -201,6 +201,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             `).join('')}
                         </select>
                     </div>
+                    <div>
+                        <label for="active-model-select" class="block text-sm font-medium text-gray-700 mb-2">Modelo</label>
+                        <select id="active-model-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></select>
+                        <p class="text-xs text-gray-500 mt-1">Aplica a /chat y /tech-support.</p>
+                    </div>
                     <button id="save-provider-btn" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                         Guardar proveedor activo
                     </button>
@@ -231,11 +236,39 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
+        // Poblar el selector de modelos según el proveedor elegido.
+        populateModelSelect(document.getElementById('active-provider-select').value);
+
+        document.getElementById('active-provider-select').addEventListener('change', function () {
+            populateModelSelect(this.value);
+        });
         document.getElementById('save-provider-btn').addEventListener('click', updateProviderConfiguration);
+    }
+
+    function populateModelSelect(providerKey) {
+        const modelSelect = document.getElementById('active-model-select');
+        if (!modelSelect) return;
+
+        const provider = providerConfiguration?.providers?.[providerKey];
+        const models = provider?.models || {};
+        const currentModel = provider?.model;
+        const entries = Object.entries(models);
+
+        if (entries.length === 0) {
+            modelSelect.innerHTML = `<option value="${currentModel || ''}">${currentModel || 'Sin modelos disponibles'}</option>`;
+            modelSelect.disabled = true;
+            return;
+        }
+
+        modelSelect.disabled = false;
+        modelSelect.innerHTML = entries.map(([id, label]) => `
+            <option value="${id}" ${id === currentModel ? 'selected' : ''}>${label}</option>
+        `).join('');
     }
 
     function updateProviderConfiguration() {
         const select = document.getElementById('active-provider-select');
+        const modelSelect = document.getElementById('active-model-select');
         const feedback = document.getElementById('provider-feedback');
 
         feedback.textContent = 'Guardando proveedor activo...';
@@ -247,7 +280,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
-            body: JSON.stringify({ provider: select.value })
+            body: JSON.stringify({
+                provider: select.value,
+                model: modelSelect && !modelSelect.disabled ? modelSelect.value : null
+            })
         })
         .then(async response => {
             const data = await response.json();

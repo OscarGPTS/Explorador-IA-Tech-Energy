@@ -311,6 +311,23 @@
         .message-user .message-time { color: #FBBF24; }
         .message-agent .message-time { color: var(--eia-mute); }
 
+        /* Etiqueta del modelo de IA que generó la respuesta */
+        .model-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #F1F5F9;
+            border: 1px solid var(--eia-border);
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 10px;
+            letter-spacing: 0.02em;
+            color: var(--eia-slate);
+        }
+        .model-tag .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--eia-gold); }
+
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(6px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -719,6 +736,13 @@
         </div>
         @endif
 
+        {{-- Mapa id-de-modelo => etiqueta visible (de config/ai.php) --}}
+        @php
+            $aiModelLabels = collect(config('ai.providers', []))
+                ->flatMap(fn ($p) => $p['models'] ?? [])
+                ->all();
+        @endphp
+
         {{-- Messages --}}
         <div class="messages-area" id="messages-container">
             @forelse($messages as $msg)
@@ -792,6 +816,15 @@
                                         ]) !!}
                                     </div>
                                 @endif
+                            @endif
+
+                            @if($msg['emisor_id'] != auth()->id() && !empty($msg['model']))
+                                <div>
+                                    <span class="model-tag" title="Modelo que generó esta respuesta">
+                                        <span class="dot"></span>
+                                        {{ $aiModelLabels[$msg['model']] ?? $msg['model'] }}
+                                    </span>
+                                </div>
                             @endif
 
                             <p class="message-time">{{ \Carbon\Carbon::parse($msg['created_at'])->format('H:i') }}</p>

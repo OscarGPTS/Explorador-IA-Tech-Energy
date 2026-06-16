@@ -12,6 +12,7 @@ class AiProviderService
     public const PROVIDER_OPENAI = 'openai';
     public const PROVIDER_OPENCODE = 'opencode';
     private const DEFAULT_PROVIDER_SETTING = 'ai.default_provider';
+    private const MODEL_SETTING_PREFIX = 'ai.model.';
 
     public function createChatCompletion(array $messages, array $options = []): array
     {
@@ -83,6 +84,57 @@ class AiProviderService
         SystemSetting::setValue(self::DEFAULT_PROVIDER_SETTING, $provider);
     }
 
+    /**
+     * Modelos disponibles para un proveedor (id => etiqueta).
+     */
+    public function getAvailableModels(string $provider): array
+    {
+        if (! $this->isSupportedProvider($provider)) {
+            throw new RuntimeException('Proveedor de IA no soportado.');
+        }
+
+        return (array) config("ai.providers.{$provider}.models", []);
+    }
+
+    /**
+     * Modelo activo de un proveedor: el guardado en SystemSetting (si es válido)
+     * o el modelo por defecto del config.
+     */
+    public function getActiveModel(string $provider): ?string
+    {
+        $defaultModel = config("ai.providers.{$provider}.model");
+        $availableModels = $this->getAvailableModels($provider);
+
+        $configuredModel = SystemSetting::getValue(self::MODEL_SETTING_PREFIX . $provider);
+
+        if (is_string($configuredModel) && $configuredModel !== '') {
+            // Si hay catálogo definido, validamos contra él; si no, aceptamos el guardado.
+            if (empty($availableModels) || array_key_exists($configuredModel, $availableModels)) {
+                return $configuredModel;
+            }
+        }
+
+        return $defaultModel;
+    }
+
+    /**
+     * Fijar el modelo activo de un proveedor.
+     */
+    public function setActiveModel(string $provider, string $model): void
+    {
+        if (! $this->isSupportedProvider($provider)) {
+            throw new RuntimeException('Proveedor de IA no soportado.');
+        }
+
+        $availableModels = $this->getAvailableModels($provider);
+
+        if (! empty($availableModels) && ! array_key_exists($model, $availableModels)) {
+            throw new RuntimeException('Modelo no disponible para el proveedor seleccionado.');
+        }
+
+        SystemSetting::setValue(self::MODEL_SETTING_PREFIX . $provider, $model);
+    }
+
     public function getProviderSummary(): array
     {
         $activeProvider = $this->getActiveProvider();
@@ -99,6 +151,7 @@ class AiProviderService
                             'label' => $config['label'],
                             'base_url' => $config['base_url'],
                             'model' => $config['model'],
+                            'models' => $config['models'],
                             'configured' => ! empty($config['api_key']),
                             'is_active' => $provider === $activeProvider,
                         ],
@@ -128,7 +181,10 @@ class AiProviderService
             'label' => Arr::get($config, 'label', ucfirst($provider)),
             'api_key' => Arr::get($config, 'api_key'),
             'base_url' => Arr::get($config, 'base_url'),
-            'model' => Arr::get($config, 'model'),
+            // Modelo efectivo: respeta el seleccionado en /agent-config (SystemSetting)
+            // y cae al modelo por defecto del config si no hay selección válida.
+            'model' => $this->getActiveModel($provider),
+            'models' => Arr::get($config, 'models', []),
             'timeout' => Arr::get($config, 'timeout', 60),
             'connect_timeout' => Arr::get($config, 'connect_timeout', 30),
         ];

@@ -16,6 +16,7 @@ class Chat extends Model
         'emisor_id',
         'receiver',
         'chatgroup_id',
+        'model',
     ];
 
     public function emisor()
