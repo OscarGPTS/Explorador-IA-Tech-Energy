@@ -1033,10 +1033,11 @@ const AI_MODEL_LABELS = @json(collect(config('ai.providers', []))->flatMap(fn ($
 
 function modelTagHtml(model) {
     if (!model) return '';
-    const label = AI_MODEL_LABELS[model] || model;
+    // Modelo real (comentado para no exponerlo): const label = AI_MODEL_LABELS[model] || model;
+    const label = 'EVIA';
     return `
         <div style="margin-top:8px;">
-            <span title="Modelo que generó esta respuesta"
+            <span title="EVIA"
                   style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;background:#F1F5F9;border:1px solid var(--eia-border);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--eia-slate);">
                 <span style="width:5px;height:5px;border-radius:50%;background:var(--eia-gold,#D97706);"></span>
                 ${label}

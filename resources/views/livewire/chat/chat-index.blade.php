@@ -820,9 +820,10 @@
 
                             @if($msg['emisor_id'] != auth()->id() && !empty($msg['model']))
                                 <div>
-                                    <span class="model-tag" title="Modelo que generó esta respuesta">
+                                    <span class="model-tag" title="EVIA">
                                         <span class="dot"></span>
-                                        {{ $aiModelLabels[$msg['model']] ?? $msg['model'] }}
+                                        {{-- Modelo real (comentado para no exponerlo): {{ $aiModelLabels[$msg['model']] ?? $msg['model'] }} --}}
+                                        EVIA
                                     </span>
                                 </div>
                             @endif
