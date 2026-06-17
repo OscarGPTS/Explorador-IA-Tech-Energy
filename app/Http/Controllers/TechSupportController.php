@@ -71,7 +71,14 @@ class TechSupportController extends Controller
                 'type' => $type,
                 'session_id' => $sessionId
             ]);
-            
+
+            $this->logTechSupportError(
+                'Error en soporte técnico (' . $type . '): ' . $e->getMessage(),
+                500,
+                ['type' => $type, 'session_id' => $sessionId],
+                $e
+            );
+
             return response()->json([
                 'error' => 'Error interno del servidor'
             ], 500);
@@ -277,6 +284,45 @@ class TechSupportController extends Controller
     }
 
     /**
+     * Registrar un error de soporte técnico en la tabla `logs`.
+     * Es "best-effort": si falla el guardado en BD, no interrumpe el flujo y
+     * se deja constancia en el log de archivos de Laravel.
+     */
+    private function logTechSupportError(
+        string $message,
+        ?int $statusCode = null,
+        array $context = [],
+        ?\Throwable $exception = null
+    ): void {
+        try {
+            \App\Models\Log::create([
+                'type' => 'tech-support',
+                'message' => mb_substr($message, 0, 255),
+                'status_code' => $statusCode !== null ? (string) $statusCode : null,
+                'user_id' => auth()->id(),
+                'method' => request()->getMethod(),
+                'url' => request()->getRequestUri(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+                'request_data' => $context,
+                'error_details' => $exception ? [
+                    'exception_class' => get_class($exception),
+                    'message' => $exception->getMessage(),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
+                    'code' => $exception->getCode(),
+                ] : null,
+                'stack_trace' => $exception?->getTraceAsString(),
+            ]);
+        } catch (\Throwable $persistError) {
+            Log::error('No se pudo persistir el log de soporte técnico en BD', [
+                'original_message' => $message,
+                'persist_error' => $persistError->getMessage(),
+            ]);
+        }
+    }
+
+    /**
      * Resolver un problema técnico libre con IA (EVIA · soporte técnico).
      * Reutiliza la misma API de OpenAI que /chat pero con un prompt acotado
      * a soporte técnico y respuesta paso a paso compacta.
@@ -292,9 +338,12 @@ class TechSupportController extends Controller
             ], 422);
         }
 
-        // Límite duro de tokens de entrada para no encarecer la llamada.
-        if (mb_strlen($problem) > 800) {
-            $problem = mb_substr($problem, 0, 800);
+        // Límite duro de caracteres de entrada para acotar el costo de la llamada.
+        // Se amplió de 800 a 4000 porque algunos problemas (con logs/mensajes de
+        // error pegados) se truncaban y provocaban respuestas incompletas o errores.
+        $maxInputChars = 4000;
+        if (mb_strlen($problem) > $maxInputChars) {
+            $problem = mb_substr($problem, 0, $maxInputChars);
         }
 
         $providerService = app(AiProviderService::class);
@@ -306,6 +355,11 @@ class TechSupportController extends Controller
             Log::error('aiResolve: proveedor de IA sin configurar', [
                 'provider' => $activeProvider,
             ]);
+            $this->logTechSupportError(
+                'Proveedor de IA sin configurar: ' . $activeProvider,
+                500,
+                ['provider' => $activeProvider, 'session_id' => $sessionId]
+            );
             return response()->json([
                 'success' => false,
                 'error' => 'El servicio de IA no está configurado. Contacta al equipo de IT.'
@@ -331,8 +385,10 @@ class TechSupportController extends Controller
                 // deepseek-v4-flash es un modelo de razonamiento: los reasoning_tokens
                 // se descuentan de max_tokens. Con un presupuesto bajo (350) el modelo
                 // agota el límite "pensando" y devuelve content vacío -> 500.
-                // Se sube para garantizar espacio para la respuesta final.
-                'max_tokens' => 1500,
+                // Se sube a 10000 para dar amplio margen a la respuesta final y evitar
+                // que preguntas técnicas válidas se queden sin contenido por agotar el
+                // presupuesto "pensando" (los reasoning_tokens consumían el umbral previo).
+                'max_tokens' => 10000,
                 'temperature' => 0.3,
                 ]
             );
@@ -340,6 +396,16 @@ class TechSupportController extends Controller
             $answer = $result['content'];
 
             if ($answer === '') {
+                $this->logTechSupportError(
+                    'La IA devolvió una respuesta vacía.',
+                    502,
+                    [
+                        'provider' => $result['provider'] ?? $activeProvider,
+                        'model' => $result['model'] ?? null,
+                        'session_id' => $sessionId,
+                        'problem_preview' => mb_substr($problem, 0, 200),
+                    ]
+                );
                 return response()->json([
                     'success' => false,
                     'error' => 'La IA no devolvió una respuesta válida. Intenta reformular tu problema.'
@@ -382,6 +448,32 @@ class TechSupportController extends Controller
                 'class' => get_class($e),
                 'provider' => $activeProvider,
             ]);
+
+            // Caso típico: el modelo no devuelve contenido utilizable. En /tech-support
+            // suele ocurrir con preguntas fuera de contexto (no técnicas): siguiendo el
+            // system prompt, el modelo no produce una salida válida. Respondemos con el
+            // mensaje acotado en lugar de un error de conexión.
+            $isEmptyContent = str_contains($e->getMessage(), 'no contiene contenido utilizable');
+
+            $this->logTechSupportError(
+                'Excepción al llamar al proveedor IA: ' . $e->getMessage(),
+                $isEmptyContent ? 200 : 500,
+                [
+                    'provider' => $activeProvider,
+                    'session_id' => $sessionId,
+                    'problem_preview' => mb_substr($problem, 0, 200),
+                    'reason' => $isEmptyContent ? 'respuesta_vacia_fuera_de_contexto' : 'error_proveedor',
+                ],
+                $e
+            );
+
+            if ($isEmptyContent) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Solo puedo ayudarte con problemas técnicos.'
+                ]);
+            }
+
             return response()->json([
                 'success' => false,
                 'error' => 'Error de conexión con el servicio de IA. Verifica tu conexión a internet.'
